@@ -1,11 +1,20 @@
+// src/app/features/auth/login/login.component.ts
+
 import { Component } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  constructor(private authService: AuthService) {}
 
+  login() {
+    this.authService.loginWithGoogle().then((res) => {
+      console.log('Usuario autenticado:', res.user);
+    });
+  }
 }
