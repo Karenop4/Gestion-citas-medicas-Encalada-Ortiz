@@ -14,11 +14,11 @@ import { Router } from '@angular/router';
 
 
 export class LoginComponent {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   login() {
     this.authService.loginWithGoogle().then((res) => {
-      console.log('Usuario autenticado:', res.user);
+      this.router.navigate(['/main']);
     });
   }
 }

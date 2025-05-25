@@ -1,1 +1,36 @@
+<nav class="navbar" *ngIf="showNavbar">
+    <div class="navbar-container">
+        <div class="navbar-title">Hospital Central</div>
+
+        <div class="nav-buttons">
+            <button (click)="navigateTo('/citas')" class="nav-button">
+                Agendar una cita
+            </button>
+            <button (click)="navigateTo('/horarios')" class="nav-button">
+                Administrar Horarios
+            </button>
+        </div>
+
+        <div class="user-menu-wrapper" #userDropdown>
+            <div class="user-menu-trigger" (click)="toggleDropdown()">
+                <img src="https://placehold.co/40x40/cccccc/ffffff?text=U" alt="User Avatar" class="user-avatar"
+                    onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/ffffff?text=U';" />
+                <span class="user-name">Usuario</span>
+                <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+
+            <div *ngIf="isDropdownOpen" class="dropdown-menu">
+                <button (click)="navigateTo('/perfil'); toggleDropdown()" class="dropdown-item">
+                    Ver Perfil
+                </button>
+                <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
 <router-outlet />
