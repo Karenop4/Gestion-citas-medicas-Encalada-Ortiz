@@ -1,24 +1,13 @@
-:root {
-    --blue-600: #2563eb;
-    --blue-200: #bfdbfe;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-800: #1f2937;
-    --white: #ffffff;
-}
-
 .navbar {
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-
-    background-color: rgb(170, 186, 255);
+    background-color: rgba(170, 170, 170, 0.116);
     padding: 1rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
+    border-bottom: 2px #919191;
 }
-
 .navbar-container {
     max-width: 1280px;
     margin-left: auto;
@@ -28,15 +17,21 @@
     align-items: center;
 }
 
-.navbar-title {
-    color: var(--white);
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 700;
+.title {
+    color: #120042;
+    font-size: 2rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    background: none;
+    border: none;
 }
 
 .nav-buttons {
-    color: #353535;
+    color: #120042;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -56,7 +51,10 @@
 }
 
 .nav-button:hover {
-    color: var(--blue-200);
+    color: #d8e3fc;
+}
+.title:hover {
+    color: #d8e3fc;
 }
 
 @media (min-width: 768px) {
@@ -73,6 +71,7 @@
 
 .user-menu-wrapper {
     position: relative;
+    z-index: 1000;
 }
 
 .user-menu-trigger {
@@ -82,11 +81,11 @@
 }
 
 .user-menu-trigger:hover .user-avatar {
-    border-color: #ffffff;
+    border-color: #d8e3fc;
 }
 
 .user-menu-trigger:hover .user-name {
-    color: #ffffff;
+    color: #d8e3fc;
 }
 
 .user-avatar {
@@ -98,7 +97,7 @@
 }
 
 .user-name {
-    color: var(--white);
+    color: #120042;
     margin-left: 0.5rem;
     font-size: 1.125rem;
     line-height: 1.75rem;
@@ -127,17 +126,17 @@
 }
 
 .dropdown-menu {
+    z-index: 1000;
     position: absolute;
     right: 0;
     margin-top: 0.5rem;
     width: 12rem;
-    background-color: var(--white);
+    background-color: #f6f9ff;
     border-radius: 0.375rem;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
     border: 1px solid var(--gray-200);
-    z-index: 100;
 }
 
 .dropdown-item {
@@ -154,5 +153,23 @@
 }
 
 .dropdown-item:hover {
-    background-color: var(--gray-100);
+    background-color: #c9c9c95e
+}
+.app-footer {
+  background-color: #333;
+  color: #fff; 
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  border-top: 1px solid #444; 
+  width: 100%;
+  box-sizing: border-box; 
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+}
+.footer-content {
+  max-width: 1200px; 
+  margin: 0 auto; 
 }

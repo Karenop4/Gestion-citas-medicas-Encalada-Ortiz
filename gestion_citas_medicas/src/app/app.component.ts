@@ -31,7 +31,7 @@ export class AppComponent {
   ngOnInit(): void {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        const routesToHideNavbar = ['/login', '/register']; 
+        const routesToHideNavbar = ['/login', '/registro']; 
         this.showNavbar = !routesToHideNavbar.some(route => event.urlAfterRedirects.includes(route));
       }
     });

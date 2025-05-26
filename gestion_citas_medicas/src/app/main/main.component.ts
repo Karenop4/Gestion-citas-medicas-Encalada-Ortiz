@@ -10,4 +10,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './main.component.css'
 })
 export class MainComponent {
+  constructor(private router: Router) {}
+  navigateTo(path: string): void {
+    this.router.navigate([path]);
+  }
 }
