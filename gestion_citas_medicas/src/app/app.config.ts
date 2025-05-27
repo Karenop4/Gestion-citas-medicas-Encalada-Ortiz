@@ -12,14 +12,14 @@ import player from 'lottie-web';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-<<<<<<< Updated upstream
+
     provideRouter(routes, withViewTransitions()),
-=======
+
     provideRouter(routes),
     provideLottieOptions({
       player: () => player,
     }),
->>>>>>> Stashed changes
+
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
   ]

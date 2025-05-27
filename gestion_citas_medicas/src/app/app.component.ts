@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  
+  
+
   title = 'gestion_citas_medicas';
   
   constructor(private router: Router) {}
@@ -29,12 +32,16 @@ export class AppComponent {
 
 
   showNavbar: boolean = true;
+  showFooter: boolean = true;
   ngOnInit(): void {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        const routesToHideNavbar = ['/login', '/registro']; 
-        this.showNavbar = !routesToHideNavbar.some(route => event.urlAfterRedirects.includes(route));
-      }
-    });
-  }
+  this.router.events.subscribe(event => {
+    if (event instanceof NavigationEnd) {
+      const routesToHide = ['/login', '/registro'];
+      const hide = routesToHide.some(route => event.urlAfterRedirects.includes(route));
+      this.showNavbar = !hide;
+      this.showFooter = !hide;
+    }
+  });
+}
+
 }
