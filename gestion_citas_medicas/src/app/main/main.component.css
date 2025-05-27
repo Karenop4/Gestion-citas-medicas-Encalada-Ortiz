@@ -9,17 +9,37 @@
   padding: 0;
   overflow: hidden;
 }
+.servicios {
+  width: 100%;
+  height: 1000px;
+  background: url('/img/fondoazul.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  padding: 0;
+  overflow: hidden;
+}
 .servicios{
     width: 100%;
-    height: 300px;
+    height: 400px;
     background-color: #ffffff;
-    justify-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+.servicios .card:hover{
+  -webkit-transform:scale(1.1);
+  transform:scale(1.1);
 }
 
 .card {
   background-color: #f8f8f8; 
   border: 1px solid #e0e0e0;
-  border-radius: 8px; 
+  border-top-left-radius: 20px; 
+  border-bottom-left-radius: 20px;
+  border-top-right-radius: 20px;
   padding: 20px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
@@ -28,12 +48,45 @@
   display: flex; 
   flex-direction: column;
   justify-content: space-between; 
+  transform-style: preserve-3d; 
+  transition: transform 0.8s ease; 
+  -webkit-transition: -webkit-transform 0.8s ease;
+  overflow: hidden;
 }
 
 .card-header {
   margin-bottom: 15px;
 }
-
+.card .cimg1{
+  background: url('/img/chequeo.jpg');
+  width: auto;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  padding: 0;
+  overflow: hidden;
+}
+.card .cimg2{
+  background: url('/img/horario.jpg');
+  width: auto;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  padding: 0;
+  overflow: hidden;
+}
+.card .cimg3{
+  background: url('/img/admin.png');
+  width: auto;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  padding: 0;
+  overflow: hidden;
+}
 
 .card-header h3 {
   color: #333;
@@ -53,7 +106,7 @@
 }
 
 .btn{
-  background-color: #1d1e5c; 
+  background-color: #4174ff; 
   color: white;
   border: none;
   padding: 10px 20px;
@@ -66,4 +119,55 @@
 .btn:hover {
   background-color: #236088; 
 }
+.insta{
+  background-color: #ffffff;
+  padding: 35px;
+  font-size: 20px;
+}
+.instalaciones{
+  background-color: #ffffff;
+  display: flex;
+  height: 500px;
+  justify-content: space-between;
+  overflow:hidden;
+}
+.instalaciones .img{
+  width: 25%; 
+  height: 500px; 
+  position: relative; 
+  z-index: 1;
+  transform-style: preserve-3d; 
+  transition: transform 0.8s ease; 
+  -webkit-transition: -webkit-transform 0.8s ease;
+}
+.img:hover {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+.imgF,.imgD{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
 
+.imgF img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imgD{
+  background-color: #1d1c3f; 
+  color: #fff; 
+  transform: rotateY(180deg); 
+  -webkit-transform: rotateY(180deg);
+  padding: 20px; 
+  text-align: center;
+  box-sizing: border-box; 
+}

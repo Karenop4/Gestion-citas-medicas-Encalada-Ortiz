@@ -1,42 +1,62 @@
-
-<nav class="navbar" *ngIf="showNavbar">
-    <div class="navbar-container">
-            <button (click)="navigateTo('/main')" class="title">
-                Hospital Central
-            </button>
-        <div class="nav-buttons">
-            <button (click)="navigateTo('/citas')" class="nav-button">
-                Agendar una cita
-            </button>
-            <button (click)="navigateTo('/horarios')" class="nav-button">
-                Administrar Horarios
-            </button>
-        </div>
-
-        <div class="user-menu-wrapper" #userDropdown>
-            <div class="user-menu-trigger" (click)="toggleDropdown()">
-                <img class="user-avatar"src="img/usrG.png" width="10%"/>
-                <span class="user-name">Usuario</span>
-                <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor "
-                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </div>
-
-            <div *ngIf="isDropdownOpen" class="dropdown-menu">
-                <button (click)="navigateTo('/perfil'); toggleDropdown()" class="dropdown-item">
-                    Ver Perfil
-                </button>
-                <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">
-                    Cerrar Sesión
+<div class="container">
+    <nav class="navbar" *ngIf="showNavbar" [class.scrolled]="isScrolled">
+        <div class="navbar-container">
+            <div class="titulo">
+                <button (click)="navigateTo('/main')" class="title">
+                    <img class="logoH"src="img/logo.PNG" width="10%"> Hospital Central
                 </button>
             </div>
+            <div class="nav-buttons">
+                <button (click)="navigateTo('/citas')" class="nav-button">
+                    Agendar una cita
+                </button>
+                <button (click)="navigateTo('/horarios')" class="nav-button">
+                    Especialidades
+                </button>
+            </div>
+
+            <div class="user-menu-wrapper" #userDropdown>
+                <div class="user-menu-trigger" (click)="toggleDropdown()">
+                    <img class="user-avatar" src="img/usrG.png" />
+                    <span class="user-name">Usuario</span>
+                    <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor "
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+
+                <div *ngIf="isDropdownOpen" class="dropdown-menu">
+                    <button (click)="navigateTo('/perfil'); toggleDropdown()" class="dropdown-item">
+                        Ver Perfil
+                    </button>
+                    <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-</nav>
-<router-outlet />
-<footer class="app-footer" *ngIf="showFooter">
-  <div class="footer-content">
-    <p>Contacto<br>jashdhashdsagmail.com<br>jasdjasjdgmail.com</p>
-  </div>
-</footer>
+    </nav>
+    <main class="contenido">
+        <router-outlet />
+    </main>
+    <footer class="app-footer" *ngIf="showFooter">
+        <div class="divisor"> Contacta con nosotros:</div>
+        <div class="foot-div">
+            <p class="contacto">
+                <span class="email">
+                    <img src="img/email.png"> <span class="emailtxt">contactoclienteHC&#64;hotmail.com</span>
+                </span>
+                <span class="telefono">
+                    <img src="img/telefono.png"> <span class="teltxt">09876543321</span>
+                </span>
+            </p>
+        </div>
+    </footer>
+    <footer class="footer-git"*ngIf="showFooter">
+        <div class="footer-content">
+            <p>Realizado por: <br>Karen Ortiz - Andrés Encalada</p>
+            <p><a href="https://github.com/Karenop4/Gestion-citas-medicas-Encalada-Ortiz"><img width="5%"
+                        src="img/github.png"></a></p>
+        </div>
+    </footer>
+</div>
