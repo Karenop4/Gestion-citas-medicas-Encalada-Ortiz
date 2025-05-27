@@ -18,7 +18,16 @@
 
   <!-- Botón de login -->
   <div *ngIf="!mostrarTipoUsuario" class="login-boton">
-    <ng-lottie [options]="options" (animationCreated)="animationCreated($event)"></ng-lottie>
-    <button (click)="login()">Iniciar sesión con Google</button>
+    <div class="login-header">
+      <h2>Iniciar sesión</h2>
+      <h3>Para continuar, por favor inicia sesión o regístrate.</h3>
+      <ng-lottie [options]="options" (animationCreated)="animationCreated($event)"></ng-lottie>
+    </div>
+    
+    <div class="botones-usuario">
+      <button (click)="login()">Iniciar sesión con Google</button>
+      <button (click)="login()">Registrate con Google</button>
+    </div>
+    
   </div>
 </div>

@@ -1,3 +1,10 @@
 .espaciador { 
-  padding-top: 4rem; 
+  padding-top: 5rem; 
+}
+
+@media (max-width: 900px) {
+  .espaciador {
+    padding-top: 10rem;
+  }
+  
 }

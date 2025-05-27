@@ -124,12 +124,34 @@ button:hover::after {
   width: 100%;
   max-width: 500px;
   height: auto !important;
+  margin: 0;
 }
 
 ::ng-deep ng-lottie > div {
   width: 100% !important;
-  height: auto !important;
+  
 }
+
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 20px;
+  gap: 12px; 
+}
+
+.login-header h2,
+.login-header h3 {
+  margin: 0;
+  text-align: center;
+}
+
+.login-header ng-lottie {
+  margin: 0;
+}
+
 
 @media (max-width: 720px) {
   .login-container {
