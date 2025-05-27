@@ -1,4 +1,24 @@
 <div class="login-container">
-  <h2>Iniciar sesión</h2>
-  <button (click)="login()">Iniciar sesión con Google</button>
+  <div class="logo">
+    <img src="assets/logo.PNG" alt="Logo" />
+    <p>“Bienvenido a un lugar donde te escuchamos y te cuidamos. Regístrate y forma parte de nuestra familia.”</p>
+  </div>
+
+  <!-- Selección de tipo de usuario -->
+  <div *ngIf="mostrarTipoUsuario" class="tipo-usuario">
+    <div>
+      <h2>Seleccione el tipo de usuario</h2>
+      <ng-lottie [options]="options" (animationCreated)="animationCreated($event)"></ng-lottie>
+    </div>
+    <div class="botones-usuario">
+      <button (click)="seleccionarUsuario('paciente')">Paciente</button>
+      <button (click)="seleccionarUsuario('administrativo')">Administrativo</button>
+    </div>
+  </div>
+
+  <!-- Botón de login -->
+  <div *ngIf="!mostrarTipoUsuario" class="login-boton">
+    <ng-lottie [options]="options" (animationCreated)="animationCreated($event)"></ng-lottie>
+    <button (click)="login()">Iniciar sesión con Google</button>
+  </div>
 </div>

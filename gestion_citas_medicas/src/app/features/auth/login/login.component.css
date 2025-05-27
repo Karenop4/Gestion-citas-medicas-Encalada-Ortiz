@@ -1,0 +1,164 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  background-color: #c5bdf2;
+}
+
+.logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border-style: inset;
+  border-color: #3d3a52;
+  padding: 10px 30px;
+  gap: 1rem;
+}
+
+.logo img {
+  width: 100px;
+  height: 100px;
+  margin: 5px 10px;
+}
+
+.logo p {
+  font-size: 1.25rem;
+  color: #3d3a52;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #3d3a52;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 5px;
+}
+
+.tipo-usuario {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.botones-usuario {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center; 
+  margin-top: 20px;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
+  width: 250px;
+  margin: 1rem;
+  position: relative;
+  padding: 0.75em 1.5em;
+  background: white;
+  font-size: 1rem;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+button::after,
+button::before {
+  content: " ";
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  border: 0px solid #fff;
+  transition: all 0.3s ease;
+}
+
+button::after {
+  top: -1px;
+  left: -1px;
+  border-top: 5px solid #3d3a52;
+  border-left: 5px solid #3d3a52;
+}
+
+button::before {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 5px solid #3d3a52;
+  border-right: 5px solid #3d3a52;
+}
+
+button:hover {
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background: #3d3a52;
+  color: white;
+}
+
+button:hover::before,
+button:hover::after {
+  width: 100%;
+  height: 100%;
+  border-color: white;
+}
+
+/* Lottie animación responsiva */
+::ng-deep ng-lottie {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  height: auto !important;
+}
+
+::ng-deep ng-lottie > div {
+  width: 100% !important;
+  height: auto !important;
+}
+
+@media (max-width: 900px) {
+  .logo,
+  .tipo-usuario {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .logo img {
+    margin: 0 auto 10px auto;
+  }
+
+  .logo p,
+  h2 {
+    font-size: 1rem;
+    padding: 5px;
+  }
+
+  button {
+    width: 100%;
+    max-width: 300px;
+    font-size: 0.9rem;
+    padding: 0.6em 1em;
+    margin: 0.5rem;
+  }
+
+  .botones-usuario {
+    align-items: stretch;
+    align-items: center;
+    flex-direction: column;
+  }
+}

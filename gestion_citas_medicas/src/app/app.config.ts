@@ -6,10 +6,20 @@ import { routes } from './app.routes';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { firebaseConfig } from '../environments/firebase.config';
+import { CommonModule } from '@angular/common'
+import { provideLottieOptions } from 'ngx-lottie';
+import player from 'lottie-web';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+<<<<<<< Updated upstream
     provideRouter(routes, withViewTransitions()),
+=======
+    provideRouter(routes),
+    provideLottieOptions({
+      player: () => player,
+    }),
+>>>>>>> Stashed changes
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
   ]

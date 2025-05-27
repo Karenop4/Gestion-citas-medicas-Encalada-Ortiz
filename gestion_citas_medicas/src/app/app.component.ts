@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule],
