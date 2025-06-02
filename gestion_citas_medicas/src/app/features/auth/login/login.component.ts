@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { AnimationItem } from 'lottie-web';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
 import { CommonModule } from '@angular/common';
+import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
+import { UserCredential } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -13,10 +15,10 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private firestore: Firestore) {}
 
   mostrarTipoUsuario = true;
-  tipoUsuario: 'paciente' | 'administrativo' | null = null;
+  tipoUsuario: 'p' | 'a' | null = null;
 
   options: AnimationOptions = {
     path: 'assets/doctores.json', // animación por defecto
@@ -26,12 +28,12 @@ export class LoginComponent {
     console.log(animationItem);
   }
 
-  seleccionarUsuario(tipo: 'paciente' | 'administrativo') {
+  seleccionarUsuario(tipo: 'p' | 'a') {
     this.tipoUsuario = tipo;
     this.mostrarTipoUsuario = false;
 
     // Cambiar animación según el tipo seleccionado
-    if (tipo === 'paciente') {
+    if (tipo === 'p') {
       this.options = {
         path: 'assets/paciente.json',
       };
@@ -43,8 +45,14 @@ export class LoginComponent {
   }
 
   login() {
-    this.authService.loginWithGoogle().then(() => {
-      this.router.navigate(['/main']);
+    if (!this.tipoUsuario) return;
+
+    this.authService.loginWithGoogleAndLoadUser(this.tipoUsuario).then(data => {
+      if (data) {
+        this.router.navigate(['/perfil'], { state: { user: data } });
+      } else {
+        this.router.navigate(['/main']);
+      }
     });
   }
 }

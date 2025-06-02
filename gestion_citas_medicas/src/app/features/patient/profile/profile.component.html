@@ -1,2 +1,46 @@
 <div class="espaciador"></div>
-<h1>Perfil</h1>
+<form (ngSubmit)="guardar()" #formDatos="ngForm">
+  <label>Nombres:</label>
+  <input [(ngModel)]="usuario.nombre" name="nombre" required />
+
+  <label>Fecha de nacimiento:</label>
+  <input type="date" [(ngModel)]="usuario.fechaNacimiento" name="fechaNacimiento" required />
+
+  <label>Género:</label>
+  <select [(ngModel)]="usuario.genero" name="genero">
+    <option value="masculino">Masculino</option>
+    <option value="femenino">Femenino</option>
+    <option value="otro">Otro</option>
+  </select>
+
+  <label>Teléfono:</label>
+  <input [(ngModel)]="usuario.telefono" name="telefono" required />
+
+  <label>Correo electrónico:</label>
+  <input [(ngModel)]="usuario.correo" name="correo" required disabled />
+
+  <label>Dirección:</label>
+  <input [(ngModel)]="usuario.direccion" name="direccion" required />
+
+  <label>Nacionalidad:</label>
+  <input [(ngModel)]="usuario.nacionalidad" name="nacionalidad" required />
+
+  <label>Estado civil:</label>
+  <input [(ngModel)]="usuario.estadoCivil" name="estadoCivil" required />
+
+  <label>Cédula:</label>
+  <input [(ngModel)]="usuario.cedula" name="cedula" required />
+
+  <label>Contacto de emergencia:</label>
+  <input [(ngModel)]="usuario.contactoEmergencia" name="contactoEmergencia" required />
+
+  <div *ngIf="usuario.rol === 'a'">
+    <label>¿Es médico?</label>
+    <select [(ngModel)]="usuario.esMedico" name="esMedico">
+      <option [ngValue]="true">Sí</option>
+      <option [ngValue]="false">No</option>
+    </select>
+  </div>
+  
+  <button type="submit">Guardar</button>
+</form>

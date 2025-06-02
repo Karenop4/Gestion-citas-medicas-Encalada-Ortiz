@@ -1,11 +1,75 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Auth } from '@angular/fire/auth';
+import { AuthService } from '../../../core/services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Usuario } from '../../../models/user.model';
+import { UserService } from '../../../core/services/user.service';
+
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+  usuario: Usuario = this.getDefaultUsuario();
 
+  constructor(
+    private router: Router,
+    private auth: Auth,
+    private authService: AuthService,
+    private userService: UserService
+  ) {
+    const state = this.router.getCurrentNavigation()?.extras.state as any;
+    if (state?.user) {
+      this.usuario = { ...this.getDefaultUsuario(), ...state.user };
+    }
+  }
+
+  async ngOnInit() {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) return;
+
+    const datos = await this.authService.getUsuarioActual(uid);
+    if (datos) {
+      this.usuario = datos;
+      this.userService.setUsuario(this.usuario);
+
+    }
+  }
+
+  guardar() {
+    if (!this.auth.currentUser) return;
+
+    this.usuario.uid = this.auth.currentUser.uid;
+    this.usuario.correo = this.auth.currentUser.email ? this.auth.currentUser.email : '';
+
+    this.authService.updateUser(this.usuario.uid, this.usuario).then(() => {
+      alert('Datos guardados correctamente');
+      this.userService.setUsuario(this.usuario);
+      this.router.navigate(['/main']);
+    });
+  }
+
+  private getDefaultUsuario(): Usuario {
+    return {
+      nombre: '',
+      fechaNacimiento: '',
+      genero: '',
+      telefono: '',
+      correo: '',
+      direccion: '',
+      nacionalidad: '',
+      estadoCivil: '',
+      cedula: '',
+      contactoEmergencia: '',
+      rol: 'p',
+      esMedico: false,
+      datosCompletos: false
+    };
+  }
 }

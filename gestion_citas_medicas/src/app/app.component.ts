@@ -1,8 +1,10 @@
-import { Component,HostListener } from '@angular/core';
+import { Component,HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router'; 
 import { RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from './core/services/auth.service';
+import { UserService } from './core/services/user.service';
+import { Usuario } from './models/user.model';
 
 @Component({
   selector: 'app-root',
@@ -11,13 +13,12 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  
-  
-
+export class AppComponent implements OnInit {
+  usuario: Usuario | null = null;
   title = 'gestion_citas_medicas';
    isScrolled: boolean = false;
-  constructor(private router: Router) {}
+  constructor(private router: Router, private userService: UserService) {}
+ 
 
   goToLogin(): void {
     this.router.navigate(['/login']);
@@ -45,14 +46,17 @@ export class AppComponent {
   showNavbar: boolean = true;
   showFooter: boolean = true;
   ngOnInit(): void {
-  this.router.events.subscribe(event => {
-    if (event instanceof NavigationEnd) {
-      const routesToHide = ['/login', '/registro'];
-      const hide = routesToHide.some(route => event.urlAfterRedirects.includes(route));
-      this.showNavbar = !hide;
-      this.showFooter = !hide;
-    }
-  });
-}
+    this.userService.usuario$.subscribe(usuario => {
+      this.usuario = usuario;
+    });
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        const routesToHide = ['/login', '/registro'];
+        const hide = routesToHide.some(route => event.urlAfterRedirects.includes(route));
+        this.showNavbar = !hide;
+        this.showFooter = !hide;
+      }
+    });
+  }
 
 }

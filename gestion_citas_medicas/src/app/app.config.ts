@@ -10,6 +10,10 @@ import { CommonModule } from '@angular/common'
 import { provideLottieOptions } from 'ngx-lottie';
 import player from 'lottie-web';
 
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+
+
+
 export const appConfig: ApplicationConfig = {
   providers: [
 
@@ -22,5 +26,8 @@ export const appConfig: ApplicationConfig = {
 
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
+
+    provideFirestore(() => getFirestore())
+
   ]
 };
