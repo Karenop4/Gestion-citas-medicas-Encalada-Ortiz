@@ -210,73 +210,56 @@
 
 /* Media Query para pantallas móviles (< 600px) */
 @media (max-width: 600px) {
-    .navbar {
-        padding: 0.75rem 0.5rem; /* Reducir padding general del navbar */
-        min-height: 3.5rem; /* Un poco menos de altura mínima en móvil */
-    }
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
 
-    .navbar-container {
-        flex-direction: column;
-        align-items: center; /* Centrar elementos en columna */
-        padding: 0 0.5rem; /* Ajustar padding lateral */
-        gap: 0.75rem; /* Un poco más de espacio entre elementos principales */
-    }
+  .titulo,
+  .nav-buttons,
+  .user-menu-wrapper {
+    width: 100%;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+  }
 
-    .titulo {
-        width: 100%;
-        justify-content: center; /* Centrar logo y título */
-        gap: 0.5rem;
-    }
+  .nav-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 
-    .nav-buttons {
-        width: 100%;
-        flex-direction: row; /* Mantener los botones en fila si son pocos */
-        justify-content: center; /* Centrar los botones */
-        flex-wrap: wrap; /* Permitir que los botones se envuelvan si no caben */
-        gap: 0.75rem; /* Reducir el espacio entre botones */
-    }
+  .user-name {
+    display: inline;
+    font-size: 1rem;
+  }
 
-    .user-menu-wrapper {
-        width: auto; /* Dejar que su contenido determine el ancho */
-        margin-left: auto; /* Empujar a la derecha si es parte de una fila superior */
-        margin-right: 0; /* Asegurar que no haya margen extra */
-    }
-    
-    /* Si quieres el user-menu-wrapper separado y en el centro abajo, tendrías que reorganizar el HTML */
-    /* Para el layout actual con flex-direction: column en .navbar-container, esto lo pondría en su propia fila */
-    /* Si quieres que vaya en la misma fila que el logo en móvil, necesitarías una estructura HTML diferente. */
+  .logoH {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 
-    .user-name {
-        display: none; /* Ocultar el nombre de usuario en móviles pequeños para ahorrar espacio */
-    }
+  .title {
+    font-size: 1.5rem;
+  }
 
-    .logoH {
-        width: 2.2rem; /* Reducir tamaño del logo */
-        height: 2.2rem;
-    }
+  .nav-button {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
 
-    .title {
-        font-size: 1.3rem; /* Reducir tamaño del título */
-        line-height: 1.8rem;
-        padding: 0.2rem 0.5rem;
-    }
+  .dropdown-menu {
+    width: 100%;
+    position: static;
+    margin-top: 0.25rem;
+  }
 
-    .nav-button {
-        font-size: 0.85rem; /* Reducir tamaño de fuente de botones */
-        line-height: 1.2rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .dropdown-menu {
-        width: 100%; /* El menú desplegable ocupa todo el ancho */
-        position: static; /* Se posiciona en el flujo normal, no flotante */
-        margin-top: 0.25rem;
-    }
-
-    .dropdown-item {
-        padding: 0.4rem;
-        font-size: 0.9rem;
-    }
+  .dropdown-item {
+    padding: 0.5rem;
+  }
 }
 
 
