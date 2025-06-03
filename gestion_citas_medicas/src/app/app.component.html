@@ -7,10 +7,10 @@
                 </button>
             </div>
             <div class="nav-buttons">
-                <button (click)="navigateTo('/citas')" class="nav-button">
+                <button (click)="navigateTo('/patient/citas')" class="nav-button">
                     Agendar una cita
                 </button>
-                <button (click)="navigateTo('/horarios')" class="nav-button">
+                <button (click)="navigateTo('/patient/servicios')" class="nav-button">
                     Especialidades
                 </button>
             </div>
@@ -28,7 +28,7 @@
                 </div>
 
                 <div *ngIf="isDropdownOpen" class="dropdown-menu">
-                    <button (click)="navigateTo('/perfil'); toggleDropdown()" class="dropdown-item">
+                    <button (click)="navigateTo('/patient/perfil'); toggleDropdown()" class="dropdown-item">
                         Ver Perfil
                     </button>
                     <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">

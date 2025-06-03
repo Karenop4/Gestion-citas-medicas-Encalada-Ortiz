@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Auth, user, User } from '@angular/fire/auth';
-import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore'; 
+import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';   
 import { Subscription } from 'rxjs';
 
 // Interfaz para la estructura de una cita tal como se guarda en Firestore
