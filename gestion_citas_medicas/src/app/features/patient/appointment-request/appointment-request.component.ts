@@ -359,7 +359,7 @@ export class AppointmentRequestComponent implements OnInit {
         specialty: this.selectedSpecialty,
         userId: this.currentUserId,
         confirmada: false,
-        cancelado: false
+        cancelada: false
       });
 
       this.successMessage = '¡Cita registrada con éxito!';

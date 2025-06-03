@@ -1,31 +1,58 @@
+<!-- src/app/features/patient/my-appointments/my-appointments.component.html -->
 <div class="my-appointments-container">
   <h2>Mis Citas Agendadas</h2>
 
   <div *ngIf="isLoading" class="loading-indicator">Cargando tus citas...</div>
   <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 
-  <div *ngIf="myAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
-    <p>No tienes citas agendadas en este momento.</p>
-    <p>¡Agenda una nueva cita para empezar!</p>
+  <!-- Sección para citas agendadas por el usuario (como paciente) -->
+  <div class="appointments-patient-section">
+    <h3>Citas Agendadas</h3>
+    <div *ngIf="patientAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
+      <p>No tienes citas agendadas como paciente en este momento.</p>
+      <p>¡Agenda una nueva cita para empezar!</p>
+    </div>
+
+    <div class="appointments-grid">
+      <div *ngFor="let appointment of patientAppointments" class="appointment-card">
+        <div class="card-header">
+          <h3>Cita con Dr. {{ appointment.doctorName }}</h3>
+          <span [ngClass]="{
+            'appointment-status': true,
+            'status-confirmed': appointment.displayStatus === 'Confirmada',
+            'status-pending': appointment.displayStatus === 'Pendiente',
+            'status-cancelled': appointment.displayStatus === 'Cancelada'
+          }">
+            {{ appointment.displayStatus }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
+          <p><strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}</p>
+          <p><strong>Hora:</strong> {{ appointment.hour }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="appointments-grid">
-    <div *ngFor="let appointment of myAppointments" class="appointment-card">
-      <div class="card-header">
-        <h3>Cita con Dr. {{ appointment.doctorName }}</h3>
-        <span [ngClass]="{
-          'appointment-status': true,
-          'status-confirmed': appointment.displayStatus === 'Confirmada',
-          'status-pending': appointment.displayStatus === 'Pendiente',
-          'status-cancelled': appointment.displayStatus === 'Cancelada'
-        }">
-          {{ appointment.displayStatus }}
-        </span>
-      </div>
-      <div class="card-body">
-        <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
-        <p><strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}</p>
-        <p><strong>Hora:</strong> {{ appointment.hour }}</p>
+  <!-- Sección para citas del doctor con pacientes (visible solo si el usuario es un doctor) -->
+  <div *ngIf="currentUserRole === 'a'" class="appointments-doctor-section">
+    <h3>Citas Confirmadas con mis Pacientes</h3>
+    <div *ngIf="doctorAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
+      <p>No tienes citas confirmadas con pacientes en este momento.</p>
+    </div>
+
+    <div class="appointments-grid">
+      <div *ngFor="let appointment of doctorAppointments" class="appointment-card">
+        <div class="card-header">
+          <h3>Cita con Paciente: {{ appointment.userName || 'ID: ' + appointment.userId }}</h3>
+          </div>
+        <div class="card-body">
+          <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
+          <p><strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}</p>
+          <p><strong>Hora:</strong> {{ appointment.hour }}</p>
+          <p *ngIf="!appointment.userName"><strong>ID Paciente:</strong> {{ appointment.userId }}</p>
+        </div>
       </div>
     </div>
   </div>

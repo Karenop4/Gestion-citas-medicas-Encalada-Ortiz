@@ -1,20 +1,24 @@
+// src/app/features/patient/my-appointments/my-appointments.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Auth, user, User } from '@angular/fire/auth';
-import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';   
+import { Firestore, collection, getDocs, query, where, doc, getDoc } from '@angular/fire/firestore';   
 import { Subscription } from 'rxjs';
 
 // Interfaz para la estructura de una cita tal como se guarda en Firestore
 interface Appointment {
+  id?: string; // ID del documento de la cita
   date: string; // Formato 'YYYY-MM-DD'
   hour: string; // Formato 'HH:00'
-  doctorId: string;
-  doctorName: string;
-  specialty: string;
-  userId: string;
-  confirmada: boolean;
-  cancelada?: boolean; // <--- AÑADIDO: Propiedad para el estado de cancelación
-  displayStatus?: string; // <--- AÑADIDO: Para el estado legible (Confirmada, Pendiente, Cancelada)
+  doctorId: string; // ID del médico
+  doctorName: string; // Nombre del médico
+  specialty: string; // Especialidad de la cita
+  userId: string; // ID del paciente que agendó la cita
+  userName?: string; // Nombre del paciente (para vista de doctor)
+  confirmada: boolean; // Si la cita está confirmada
+  cancelada?: boolean; // Si la cita ha sido cancelada
+  displayStatus?: string; // Para mostrar el estado legible (Confirmada, Pendiente, Cancelada)
+  isForDoctorDisplay?: boolean; // Flag para indicar si la cita se muestra desde la perspectiva del doctor
 }
 
 @Component({
@@ -27,25 +31,41 @@ interface Appointment {
 export class MyAppointmentsComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   errorMessage: string | null = null;
-  myAppointments: Appointment[] = [];
+  
+  // <--- CAMBIO: Ahora hay dos arrays separados para las citas
+  patientAppointments: Appointment[] = []; // Citas donde el usuario actual es el paciente
+  doctorAppointments: Appointment[] = []; // Citas donde el usuario actual es el doctor (con sus pacientes)
+  // FIN CAMBIO
+
   currentUserId: string | null = null;
+  currentUserRole: string | null = null; // Para almacenar el rol del usuario
   private authSubscription: Subscription | undefined;
 
   constructor(private firestore: Firestore, private auth: Auth) {}
 
   ngOnInit(): void {
-    // Suscribirse al estado de autenticación para obtener el ID del usuario actual
+    // Suscribirse al estado de autenticación para obtener el ID y el rol del usuario actual
     this.authSubscription = user(this.auth).subscribe(async (aUser: User | null) => {
       if (aUser) {
         this.currentUserId = aUser.uid;
-        // console.log('Usuario actual para citas:', this.currentUserId); // Eliminado debug log
+        // Obtener el rol del usuario desde su documento en Firestore
+        const userDocRef = doc(this.firestore, `usuarios/${this.currentUserId}`);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          this.currentUserRole = userDocSnap.data()['rol'] || null;
+        } else {
+          this.currentUserRole = null; // Rol desconocido si el documento no existe
+        }
+        console.log('Usuario actual (UID):', this.currentUserId, 'Rol:', this.currentUserRole);
         await this.loadMyAppointments();
       } else {
         this.currentUserId = null;
-        this.myAppointments = []; // Limpiar citas si no hay usuario
+        this.currentUserRole = null;
+        this.patientAppointments = []; // Limpiar citas si no hay usuario
+        this.doctorAppointments = []; // Limpiar citas si no hay usuario
         this.isLoading = false;
         this.errorMessage = 'No hay usuario autenticado. Por favor, inicia sesión para ver tus citas.';
-        // console.log('No hay usuario autenticado para cargar citas.'); // Eliminado debug log
+        console.log('No hay usuario autenticado para cargar citas.');
       }
     });
   }
@@ -59,7 +79,7 @@ export class MyAppointmentsComponent implements OnInit, OnDestroy {
 
   /**
    * Carga las citas del usuario actual desde Firestore.
-   * Recorre todos los médicos para encontrar las citas asociadas a este userId.
+   * Diferencia entre citas de paciente y citas de doctor, y las clasifica en arrays separados.
    */
   async loadMyAppointments(): Promise<void> {
     if (!this.currentUserId) {
@@ -70,51 +90,94 @@ export class MyAppointmentsComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     this.errorMessage = null;
-    this.myAppointments = []; // Limpiar citas anteriores
+    this.patientAppointments = []; // Limpiar citas anteriores
+    this.doctorAppointments = []; // Limpiar citas anteriores
 
     try {
-      // Paso 1: Obtener todos los médicos (usuarios con esMedico: true)
+      const allFetchedAppointments: Appointment[] = [];
+
+      // 1. Cargar citas donde el usuario actual es el PACIENTE
+      // Se itera a través de todos los médicos para encontrar las citas del paciente.
       const doctorsCollectionRef = collection(this.firestore, 'usuarios');
       const doctorsQuery = query(doctorsCollectionRef, where('esMedico', '==', true));
       const doctorsSnapshot = await getDocs(doctorsQuery);
 
-      const allUserAppointments: Appointment[] = [];
-
-      // Paso 2: Para cada médico, buscar citas donde userId coincida
       for (const doctorDoc of doctorsSnapshot.docs) {
         const doctorId = doctorDoc.id;
         const appointmentsSubcollectionRef = collection(this.firestore, `usuarios/${doctorId}/citas`);
-        const userAppointmentsQuery = query(
+        const patientAppointmentsQuery = query(
           appointmentsSubcollectionRef,
           where('userId', '==', this.currentUserId)
         );
-        const appointmentsSnapshot = await getDocs(userAppointmentsQuery);
+        const patientAppointmentsSnapshot = await getDocs(patientAppointmentsQuery);
 
-        appointmentsSnapshot.forEach(appointmentDoc => {
-          const appointmentData = appointmentDoc.data() as Appointment;
-          
-          // <--- LÓGICA AÑADIDA: Determinar el estado de visualización
-          if (appointmentData.cancelada) {
-            appointmentData.displayStatus = 'Cancelada';
-          } else if (appointmentData.confirmada) {
-            appointmentData.displayStatus = 'Confirmada';
+        patientAppointmentsSnapshot.forEach(appointmentDoc => {
+          const appointmentData = appointmentDoc.data();
+          const appointment = {
+            id: appointmentDoc.id,
+            ...appointmentData
+          } as Appointment;
+
+          // Determinar el estado de visualización para el paciente
+          if (appointment.cancelada) {
+            appointment.displayStatus = 'Cancelada';
+          } else if (appointment.confirmada) {
+            appointment.displayStatus = 'Confirmada';
           } else {
-            appointmentData.displayStatus = 'Pendiente';
+            appointment.displayStatus = 'Pendiente';
           }
-          // FIN LÓGICA AÑADIDA
-
-          allUserAppointments.push(appointmentData);
+          allFetchedAppointments.push(appointment); // Añadir a la lista general para ordenar
         });
       }
 
-      // Ordenar las citas por fecha y hora
-      this.myAppointments = allUserAppointments.sort((a, b) => {
+      // 2. Cargar citas donde el usuario actual es el DOCTOR (si su rol es 'a')
+      if (this.currentUserRole === 'a') { // Asumiendo 'a' es el rol de doctor/admin
+        const doctorAppointmentsCollectionRef = collection(this.firestore, `usuarios/${this.currentUserId}/citas`);
+        const doctorAppointmentsQuery = query(
+          doctorAppointmentsCollectionRef,
+          where('confirmada', '==', true), // Solo citas confirmadas para la vista del doctor
+          where('cancelada', '!=', true) // Asegurarse de que no estén canceladas
+        );
+        const doctorAppointmentsSnapshot = await getDocs(doctorAppointmentsQuery);
+
+        for (const appointmentDoc of doctorAppointmentsSnapshot.docs) {
+          const appointmentData = appointmentDoc.data();
+          const appointment = {
+            id: appointmentDoc.id,
+            ...appointmentData,
+            isForDoctorDisplay: true // Marcar esta cita como para la vista del doctor
+          } as Appointment;
+
+          // Obtener el nombre del paciente para la vista del doctor
+          if (appointment.userId) {
+            const patientDocRef = doc(this.firestore, `usuarios/${appointment.userId}`);
+            const patientDocSnap = await getDoc(patientDocRef);
+            if (patientDocSnap.exists()) {
+              appointment.userName = patientDocSnap.data()['nombre'];
+            } else {
+              appointment.userName = 'Paciente Desconocido';
+            }
+          } else {
+            appointment.userName = 'Paciente Desconocido';
+          }
+          appointment.displayStatus = undefined; // No mostrar el estado para la vista del doctor
+          allFetchedAppointments.push(appointment); // Añadir a la lista general para ordenar
+        }
+      }
+
+      // Ordenar todas las citas (de paciente y de doctor) por fecha y hora
+      allFetchedAppointments.sort((a, b) => {
         const dateTimeA = new Date(`${a.date}T${a.hour}`);
         const dateTimeB = new Date(`${b.date}T${b.hour}`);
         return dateTimeA.getTime() - dateTimeB.getTime();
       });
 
-      if (this.myAppointments.length === 0) {
+      // <--- CAMBIO: Clasificar en los arrays específicos después de ordenar
+      this.patientAppointments = allFetchedAppointments.filter(app => !app.isForDoctorDisplay);
+      this.doctorAppointments = allFetchedAppointments.filter(app => app.isForDoctorDisplay);
+      // FIN CAMBIO
+
+      if (this.patientAppointments.length === 0 && this.doctorAppointments.length === 0) {
         this.errorMessage = 'No tienes citas agendadas.';
       }
 
