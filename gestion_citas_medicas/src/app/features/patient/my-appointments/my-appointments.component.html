@@ -1,23 +1,25 @@
 <div class="my-appointments-container">
   <h2>Mis Citas Agendadas</h2>
-  <p>Si has registrado una cita y no aparece en esta sección, es porque ha sido cancelada.</p>
-  <p>Escoja un horario válido y espere a su confirmación</p>
 
-  <div *ngIf="isLoading" class="loading-indicator">Cargando citas...</div>
+  <div *ngIf="isLoading" class="loading-indicator">Cargando tus citas...</div>
   <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 
-  <div *ngIf="!isLoading && myAppointments.length > 0" class="appointments-grid">
+  <div *ngIf="myAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
+    <p>No tienes citas agendadas en este momento.</p>
+    <p>¡Agenda una nueva cita para empezar!</p>
+  </div>
+
+  <div class="appointments-grid">
     <div *ngFor="let appointment of myAppointments" class="appointment-card">
       <div class="card-header">
         <h3>Cita con Dr. {{ appointment.doctorName }}</h3>
-        <span
-          class="appointment-status"
-          [ngClass]="{
-            'status-confirmed': appointment.confirmada,
-            'status-pending': !appointment.confirmada
-          }"
-        >
-          {{ appointment.confirmada ? 'Confirmada' : 'Pendiente' }}
+        <span [ngClass]="{
+          'appointment-status': true,
+          'status-confirmed': appointment.displayStatus === 'Confirmada',
+          'status-pending': appointment.displayStatus === 'Pendiente',
+          'status-cancelled': appointment.displayStatus === 'Cancelada'
+        }">
+          {{ appointment.displayStatus }}
         </span>
       </div>
       <div class="card-body">
@@ -26,10 +28,5 @@
         <p><strong>Hora:</strong> {{ appointment.hour }}</p>
       </div>
     </div>
-  </div>
-
-  <div *ngIf="!isLoading && myAppointments.length === 0 && !errorMessage" class="no-appointments">
-    <p>Aún no tienes citas agendadas.</p>
-    <p>Ve a la sección de Agendar una cita para registrar una.</p>
   </div>
 </div>

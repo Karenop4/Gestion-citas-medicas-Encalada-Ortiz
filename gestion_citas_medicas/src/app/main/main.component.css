@@ -1,55 +1,55 @@
+/* main.component.css */
+
+/* Estilos base (para pantallas grandes) */
 .fondo {
   width: 100%;
-  height: 500px;
+  height: 500px; /* Altura para pantallas grandes */
   background: url('/img/img-main1.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
-  background-attachment: fixed;
+  background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
   padding: 0;
   overflow: hidden;
 }
+
 .servicios {
   width: 100%;
-  height: 1000px;
-  background: url('/img/fondoazul.jpg');
+  height: 500px; /* Altura para pantallas grandes */
+  background: url('/img/fondoazul.jpg'); /* <--- COMBINADO Y CORREGIDO: Fondo azul */
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
   background-attachment: fixed;
-  padding: 0;
-  overflow: hidden;
+  display: flex; /* <--- COMBINADO Y CORREGIDO: Propiedades Flex */
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* Permite que las tarjetas se envuelvan a la siguiente línea */
+  padding: 0; /* Asegura que no haya padding extra */
+  overflow: hidden; /* Asegura que no haya desbordamiento */
 }
-.servicios{
-    width: 100%;
-    height: 400px;
-    background-color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
-}
-.servicios .card:hover{
-  -webkit-transform:scale(1.1);
-  transform:scale(1.1);
+.servicios .card:hover {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 .card {
-  background-color: #f8f8f8; 
+  background-color: #f8f8f8;
   border: 1px solid #e0e0e0;
-  border-top-left-radius: 20px; 
+  border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
   border-top-right-radius: 20px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  width: 280px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 280px; /* Ancho fijo para tarjetas en pantallas grandes */
   margin: 15px;
-  display: flex; 
+  display: flex;
   flex-direction: column;
-  justify-content: space-between; 
-  transform-style: preserve-3d; 
-  transition: transform 0.8s ease; 
+  justify-content: space-between;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
   -webkit-transition: -webkit-transform 0.8s ease;
   overflow: hidden;
 }
@@ -57,46 +57,25 @@
 .card-header {
   margin-bottom: 15px;
 }
-.card .cimg1{
-  background: url('/img/chequeo.jpg');
-  width: auto;
-  height: 100px;
+
+/* Clases de imagen de tarjeta */
+.card .cimg1,
+.card .cimg1-2,
+.card .cimg2,
+.card .cimg3 {
+  width: 100%;
+  height: 0; /* <--- CAMBIO AQUÍ: Altura colapsada */
+  padding-bottom: 56.25%; /* <--- AÑADIDO AQUÍ: Mantiene la relación de aspecto (ej. 16:9) */
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  padding: 0;
+  background-size: contain; /* Para asegurar que la imagen completa sea visible */
+  background-position: center; /* Centra la imagen */
   overflow: hidden;
 }
-.card .cimg1-2{
-  background: url('/img/calendario.jpg');
-  width: auto;
-  height: 100px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  padding: 0;
-  overflow: hidden;
-}
-.card .cimg2{
-  background: url('/img/horario.jpg');
-  width: auto;
-  height: 100px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  padding: 0;
-  overflow: hidden;
-}
-.card .cimg3{
-  background: url('/img/admin.png');
-  width: auto;
-  height: 100px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  padding: 0;
-  overflow: hidden;
-}
+.card .cimg1{ background-image: url('/img/chequeo.jpg'); }
+.card .cimg1-2{ background-image: url('/img/calendario.jpg'); }
+.card .cimg2{ background-image: url('/img/horario.jpg'); }
+.card .cimg3{ background-image: url('/img/admin.png'); }
+
 
 .card-header h3 {
   color: #333;
@@ -108,15 +87,15 @@
   color: #555;
   font-size: 1em;
   line-height: 1.5;
-  flex-grow: 1; 
+  flex-grow: 1;
 }
 
 .card-footer {
   margin-top: 20px;
 }
 
-.btn{
-  background-color: #4174ff; 
+.btn {
+  background-color: #4174ff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -127,34 +106,42 @@
 }
 
 .btn:hover {
-  background-color: #236088; 
+  background-color: #236088;
 }
-.insta{
+
+.insta {
   background-color: #ffffff;
-  padding: 35px;
-  font-size: 20px;
+  padding: 35px; /* Padding para pantallas grandes */
+  font-size: 20px; /* Tamaño de fuente para pantallas grandes */
+  text-align: center; /* Centra el texto */
 }
-.instalaciones{
+
+.instalaciones {
   background-color: #ffffff;
   display: flex;
-  height: 500px;
+  height: 500px; /* Altura para pantallas grandes */
   justify-content: space-between;
-  overflow:hidden;
+  overflow: hidden;
+  flex-wrap: wrap; /* Permite que las imágenes se envuelvan a la siguiente línea */
 }
-.instalaciones .img{
-  width: 25%; 
-  height: 500px; 
-  position: relative; 
+
+.instalaciones .img {
+  width: 25%; /* Ancho para pantallas grandes */
+  height: 500px; /* Altura para pantallas grandes */
+  position: relative;
   z-index: 1;
-  transform-style: preserve-3d; 
-  transition: transform 0.8s ease; 
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
   -webkit-transition: -webkit-transform 0.8s ease;
 }
+
 .img:hover {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
 }
-.imgF,.imgD{
+
+.imgF,
+.imgD {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -166,18 +153,104 @@
   overflow: hidden;
 }
 
-.imgF img{
+.imgF img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.imgD{
-  background-color: #1d1c3f; 
-  color: #fff; 
-  transform: rotateY(180deg); 
+.imgD {
+  background-color: #1d1c3f;
+  color: #fff;
+  transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
-  padding: 20px; 
+  padding: 20px;
   text-align: center;
-  box-sizing: border-box; 
+  box-sizing: border-box;
+}
+
+/* --- Ajustes Responsivos --- */
+
+/* Para pantallas de hasta 768px (tablets y móviles) */
+@media (max-width: 768px) {
+  .fondo {
+    height: 300px; /* Reduce la altura del fondo */
+    background-attachment: scroll; /* Cambia a scroll para mejor rendimiento en móviles */
+  }
+
+  .insta {
+    padding: 20px; /* Reduce el padding */
+    font-size: 18px; /* Reduce el tamaño de fuente */
+  }
+
+  .servicios {
+    height: auto; /* La altura se ajusta al contenido */
+    flex-direction: column; /* Apila las tarjetas verticalmente */
+    padding: 20px 0; /* Añade padding vertical */
+  }
+
+  .card {
+    width: 90%; /* Las tarjetas ocupan casi todo el ancho disponible */
+    max-width: 350px; /* Limita el ancho máximo para tarjetas en móviles */
+    margin: 15px auto; /* Centra las tarjetas */
+  }
+
+  .instalaciones {
+    height: auto; /* La altura se ajusta al contenido */
+    flex-direction: column; /* Apila las imágenes verticalmente */
+    align-items: center; /* Centra las imágenes apiladas */
+    padding: 20px 0; /* Añade padding vertical */
+  }
+
+  .instalaciones .img {
+    width: 90%; /* Las imágenes ocupan casi todo el ancho disponible */
+    max-width: 400px; /* Limita el ancho máximo para imágenes en móviles */
+    height: 250px; /* Ajusta la altura para imágenes en móviles */
+    margin-bottom: 20px; /* Espacio entre imágenes apiladas */
+  }
+
+  .imgD {
+    font-size: 0.9em; /* Ajusta el tamaño de fuente para la descripción */
+    padding: 15px; /* Reduce el padding */
+  }
+}
+
+/* Para pantallas de hasta 480px (móviles pequeños) */
+@media (max-width: 480px) {
+  .fondo {
+    height: 200px; /* Altura aún más pequeña para móviles muy pequeños */
+  }
+
+  .insta {
+    font-size: 16px; /* Ajusta el tamaño de fuente */
+    padding: 15px;
+  }
+
+  .card {
+    width: 95%; /* Las tarjetas ocupan más ancho en pantallas muy pequeñas */
+    margin: 10px auto;
+  }
+
+  .card-header h3 {
+    font-size: 1.3em; /* Reduce el tamaño de fuente del título de la tarjeta */
+  }
+
+  .card-body p {
+    font-size: 0.9em; /* Reduce el tamaño de fuente del cuerpo de la tarjeta */
+  }
+
+  .btn {
+    padding: 8px 15px; /* Reduce el padding del botón */
+    font-size: 0.9em;
+  }
+
+  .instalaciones .img {
+    height: 200px; /* Altura aún más pequeña para imágenes en móviles muy pequeños */
+    margin-bottom: 15px;
+  }
+
+  .imgD {
+    font-size: 0.8em;
+    padding: 10px;
+  }
 }

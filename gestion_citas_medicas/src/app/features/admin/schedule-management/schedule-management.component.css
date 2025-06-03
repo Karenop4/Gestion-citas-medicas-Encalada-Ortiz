@@ -1,0 +1,445 @@
+
+.schedule-management-container {
+  max-width: 800px;
+  margin: 80px auto 40px auto; /* Ajuste para el navbar fijo */
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #333;
+}
+
+h2 {
+  color: #2c3e50;
+  margin-bottom: 25px;
+  font-size: 2.2em;
+  font-weight: 700;
+}
+
+h3 {
+  color: #34495e;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-size: 1.6em;
+  font-weight: 600;
+}
+
+h4 {
+  color: #34495e;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+/* Mensajes de estado (estos estilos ya no se usan directamente, pero los mantengo por si acaso) */
+.message {
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.message.error {
+  background-color: #ffebee;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+}
+
+.message.success {
+  background-color: #e8f5e9;
+  color: #27ae60;
+  border: 1px solid #27ae60;
+}
+
+.loading-indicator {
+  padding: 15px;
+  background-color: #f0f8ff;
+  color: #3498db;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.form-section {
+  background-color: #fdfefe;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.select-input,
+.text-input {
+  width: calc(100% - 20px); /* Ajusta para padding */
+  padding: 12px 10px;
+  border: 2px solid #bdc3c7;
+  border-radius: 8px;
+  font-size: 1em;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box; /* Incluye padding en el ancho */
+  background-color: #fff;
+}
+
+.select-input:focus,
+.text-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.select-input {
+  appearance: none; /* Elimina el estilo por defecto del select */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2C197.398L146.2%2C56.6l-140.8%2C140.8h281.6z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+.schedule-section {
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  background-color: #f8f9fa;
+}
+
+.current-schedule-info {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #eaf6ff;
+  border-left: 5px solid #3498db;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.current-schedule-info p {
+  margin: 5px 0;
+  color: #34495e;
+}
+
+.no-schedule-info {
+  color: #7f8c8d;
+  font-style: italic;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.edit-schedule-form {
+  margin-top: 20px;
+  background-color: #ffffff; /* Fondo diferente para el formulario de edición */
+  border: 1px solid #c0c0c0;
+}
+
+.days-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label:hover {
+  border-color: #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.checkbox-label input[type="checkbox"] {
+  /* Estilo básico para el checkbox, puedes personalizarlo más con CSS puro o una librería */
+  width: 18px;
+  height: 18px;
+  accent-color: #3498db; /* Color del checkbox cuando está marcado */
+}
+
+.hours-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hours-group label {
+  margin-bottom: 8px;
+}
+
+
+button {
+  background-color: #2ecc71;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+}
+
+button:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* --- Estilos del Modal de Mensajes --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Asegura que esté por encima de todo */
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 90%; /* Ancho responsivo */
+  max-width: 450px; /* Ancho máximo para desktop */
+  text-align: center;
+  transform: scale(0.95); /* Pequeña escala al inicio */
+  opacity: 0; /* Oculto al inicio */
+  animation: fadeInScale 0.3s forwards ease-out; /* Animación de aparición */
+}
+
+/* Animación para el modal */
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.modal-content.success .modal-title {
+  color: #27ae60;
+}
+
+.modal-content.error .modal-title {
+  color: #c0392b;
+}
+
+.modal-body {
+  padding: 15px 0;
+  font-size: 1.1em;
+  color: #555;
+  line-height: 1.5;
+}
+
+.modal-footer {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.modal-button {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+/* --- Ajustes Responsivos --- */
+@media (max-width: 768px) {
+  .schedule-management-container {
+    width: 95%; /* Ocupa más ancho en móviles */
+    margin: 80px auto 20px auto; /* Ajusta margen superior para navbar fijo */
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.8em;
+  }
+
+  h3 {
+    font-size: 1.4em;
+  }
+
+  h4 {
+    font-size: 1.1em;
+  }
+
+  .form-section,
+  .schedule-section {
+    padding: 15px;
+  }
+
+  .form-group label {
+    font-size: 0.9em;
+  }
+
+  .select-input,
+  .text-input {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 0.9em;
+    margin-top: 15px;
+  }
+
+  .days-checkbox-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Columnas más pequeñas */
+    gap: 8px;
+  }
+
+  .checkbox-label {
+    padding: 6px 10px;
+    font-size: 0.9em;
+  }
+
+  .modal-content {
+    padding: 20px;
+    width: 95%; /* Más ancho en móviles */
+  }
+
+  .modal-title {
+    font-size: 1.5em;
+  }
+
+  .modal-body {
+    font-size: 1em;
+  }
+
+  .modal-button {
+    padding: 8px 20px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .schedule-management-container {
+    padding: 15px;
+    margin: 70px auto 15px auto; /* Ajuste para navbar más delgado */
+  }
+
+  h2 {
+    font-size: 1.6em;
+  }
+
+  h3 {
+    font-size: 1.2em;
+  }
+
+  h4 {
+    font-size: 1em;
+  }
+
+  .current-schedule-info,
+  .no-schedule-info {
+    font-size: 0.85em;
+    padding: 10px;
+  }
+
+  .form-group label {
+    font-size: 0.8em;
+  }
+
+  .select-input,
+  .text-input {
+    padding: 8px;
+    font-size: 0.85em;
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 0.85em;
+    margin-top: 10px;
+  }
+
+  .days-checkbox-grid {
+    grid-template-columns: 1fr; /* Una columna en móviles muy pequeños */
+  }
+
+  .modal-content {
+    padding: 15px;
+  }
+
+  .modal-title {
+    font-size: 1.3em;
+  }
+
+  .modal-body {
+    font-size: 0.9em;
+  }
+}

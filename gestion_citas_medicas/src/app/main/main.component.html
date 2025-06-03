@@ -39,7 +39,7 @@
             <p>Administre los horarios de los médicos.</p>
         </div>
         <div class="card-footer">
-            <button (click)="navigateTo('/servicios')" class="btn">Acceder</button>
+            <button (click)="navigateTo('/admin/ghorarios')" class="btn">Acceder</button>
         </div>
     </div>
     <div class="card" *ngIf="userRole === 'a'">
@@ -49,10 +49,10 @@
             <h3>Administración</h3>
         </div>
         <div class="card-body">
-            <p>Administre citas y horarios de médicos.</p>
+            <p>Administre citas agendadas para los médicos</p>
         </div>
         <div class="card-footer">
-            <button (click)="navigateTo('/servicios')" class="btn">Acceder</button>
+            <button (click)="navigateTo('/admin/gcitas')" class="btn">Acceder</button>
         </div>
     </div>
 </div>

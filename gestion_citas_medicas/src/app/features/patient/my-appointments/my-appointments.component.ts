@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Auth, user, User } from '@angular/fire/auth';
-import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';   
+import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';   
 import { Subscription } from 'rxjs';
 
 // Interfaz para la estructura de una cita tal como se guarda en Firestore
@@ -13,6 +13,8 @@ interface Appointment {
   specialty: string;
   userId: string;
   confirmada: boolean;
+  cancelada?: boolean; // <--- AÑADIDO: Propiedad para el estado de cancelación
+  displayStatus?: string; // <--- AÑADIDO: Para el estado legible (Confirmada, Pendiente, Cancelada)
 }
 
 @Component({
@@ -36,14 +38,14 @@ export class MyAppointmentsComponent implements OnInit, OnDestroy {
     this.authSubscription = user(this.auth).subscribe(async (aUser: User | null) => {
       if (aUser) {
         this.currentUserId = aUser.uid;
-        console.log('Usuario actual para citas:', this.currentUserId);
+        // console.log('Usuario actual para citas:', this.currentUserId); // Eliminado debug log
         await this.loadMyAppointments();
       } else {
         this.currentUserId = null;
         this.myAppointments = []; // Limpiar citas si no hay usuario
         this.isLoading = false;
         this.errorMessage = 'No hay usuario autenticado. Por favor, inicia sesión para ver tus citas.';
-        console.log('No hay usuario autenticado para cargar citas.');
+        // console.log('No hay usuario autenticado para cargar citas.'); // Eliminado debug log
       }
     });
   }
@@ -90,6 +92,17 @@ export class MyAppointmentsComponent implements OnInit, OnDestroy {
 
         appointmentsSnapshot.forEach(appointmentDoc => {
           const appointmentData = appointmentDoc.data() as Appointment;
+          
+          // <--- LÓGICA AÑADIDA: Determinar el estado de visualización
+          if (appointmentData.cancelada) {
+            appointmentData.displayStatus = 'Cancelada';
+          } else if (appointmentData.confirmada) {
+            appointmentData.displayStatus = 'Confirmada';
+          } else {
+            appointmentData.displayStatus = 'Pendiente';
+          }
+          // FIN LÓGICA AÑADIDA
+
           allUserAppointments.push(appointmentData);
         });
       }

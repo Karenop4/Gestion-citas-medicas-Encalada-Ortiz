@@ -1,8 +1,7 @@
-
 .my-appointments-container {
   font-family: 'Inter', sans-serif;
   max-width: 900px;
-  margin: 40px auto;
+  margin: 40px auto; /* Revertido a la versión anterior */
   padding: 30px;
   background-color: #ffffff;
   border-radius: 12px;
@@ -14,14 +13,15 @@
 
 h2 {
   color: #2c3e50;
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Revertido a la versión anterior */
   font-size: 2.2em;
   font-weight: 700;
 }
 
+/* Mensajes de estado */
 .message {
   padding: 12px 20px;
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Revertido a la versión anterior */
   border-radius: 8px;
   font-weight: 500;
   text-align: left;
@@ -90,14 +90,25 @@ h2 {
 }
 
 .status-pending {
-  background-color: #e0f2f7;
-  color: #2196f3; 
+  background-color: #fffde7; /* Cambiado a amarillo claro para pendiente */
+  color: #f39c12; /* Cambiado a naranja/amarillo para pendiente */
+  border: 1px solid #f39c12;
 }
 
 .status-confirmed {
-  background-color: #e8f5e9;
-  color: #4caf50; 
+  background-color: #e8f5e9; /* Light green */
+  color: #27ae60; /* Dark green */
+  border: 1px solid #27ae60;
 }
+
+/* --- NUEVO ESTADO: CANCELADA --- */
+.status-cancelled {
+  background-color: #ffebee; /* Light red */
+  color: #c0392b; /* Dark red */
+  border: 1px solid #c0392b;
+}
+/* --- FIN NUEVO ESTADO --- */
+
 
 .card-body p {
   margin-bottom: 8px;
@@ -123,13 +134,60 @@ h2 {
   margin-bottom: 10px;
 }
 
+/* --- ESTILOS DE MODAL ELIMINADOS --- */
+/* Se han eliminado todos los estilos relacionados con .modal-overlay, .modal-content, etc. */
+/* Si necesitas un modal en este componente en el futuro, deberás añadir sus estilos aquí. */
+
+/* --- Ajustes Responsivos --- */
 @media (max-width: 768px) {
   .my-appointments-container {
-    margin: 20px;
+    width: 95%; /* Ocupa más ancho en móviles */
+    margin: 20px auto; /* Ajusta margen superior para navbar fijo */
     padding: 20px;
   }
 
+  h2 {
+    font-size: 1.8em;
+  }
+
   .appointments-grid {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr; /* Una columna en móviles */
+  }
+
+  .appointment-card {
+    padding: 15px;
+  }
+
+  .card-body p {
+    font-size: 0.9em;
+  }
+
+  .appointment-status {
+    font-size: 0.8em;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-appointments-container {
+    padding: 15px;
+    margin: 15px auto; /* Ajuste para navbar más delgado */
+  }
+
+  h2 {
+    font-size: 1.6em;
+  }
+
+  .appointment-card {
+    padding: 12px;
+  }
+
+  .card-body p {
+    font-size: 0.85em;
+  }
+
+  .appointment-status {
+    font-size: 0.75em;
+    padding: 4px 8px;
   }
 }

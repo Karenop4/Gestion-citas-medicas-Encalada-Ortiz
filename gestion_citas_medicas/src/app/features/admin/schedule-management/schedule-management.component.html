@@ -1,0 +1,100 @@
+<div class="schedule-management-container">
+  <h2>Gestión de Horarios Médicos</h2>
+
+  <div *ngIf="isLoading" class="loading-indicator">Cargando médicos...</div>
+  <div class="form-section">
+    <h3>Seleccionar Médico</h3>
+    <div class="form-group">
+      <label for="doctorSelect">Médico:</label>
+      <select
+        id="doctorSelect"
+        [(ngModel)]="selectedDoctorId"
+        (change)="onDoctorSelected()"
+        class="select-input"
+      >
+        <option [ngValue]="null" disabled selected>Selecciona un médico</option>
+        <option *ngFor="let doctor of availableDoctors" [value]="doctor.id">
+          Dr. {{ doctor.nombre }} ({{ doctor.especialidad }})
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="selectedDoctorId" class="schedule-section">
+    <h3>Horario de Dr. {{ selectedDoctorName }}</h3>
+
+    <div *ngIf="doctorSchedule" class="current-schedule-info">
+      <p><strong>Horario Actual:</strong></p>
+      <p>Días: {{ formatDaysForDisplay(doctorSchedule.dias) }}</p>
+      <p>Jornada: {{ formatHoursForDisplay(doctorSchedule.horas) }}</p>
+    </div>
+    <div *ngIf="!doctorSchedule && !isLoading" class="no-schedule-info">
+      <p>Este médico no tiene un horario registrado. Puedes crear uno a continuación.</p>
+    </div>
+
+    <div class="form-section edit-schedule-form">
+      <h4>Editar/Crear Horario</h4>
+      
+      <div class="form-group">
+        <label>Días de Trabajo:</label>
+        <div class="days-checkbox-grid">
+          <label *ngFor="let day of daysOfWeekOptions" class="checkbox-label">
+            <input
+              type="checkbox"
+              [value]="day.id"
+              [checked]="selectedDays.includes(day.id)"
+              (change)="onDayCheckboxChange($event)"
+            />
+            {{ day.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group hours-group">
+        <label for="startHour">Hora de Inicio:</label>
+        <select
+          id="startHour"
+          [(ngModel)]="selectedStartHour"
+          class="select-input"
+        >
+          <option [ngValue]="null" disabled>Selecciona hora</option>
+          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+            {{ hour < 10 ? '0' + hour : hour }}:00
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group hours-group">
+        <label for="endHour">Hora de Fin:</label>
+        <select
+          id="endHour"
+          [(ngModel)]="selectedEndHour"
+          class="select-input"
+        >
+          <option [ngValue]="null" disabled>Selecciona hora</option>
+          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+            {{ hour < 10 ? '0' + hour : hour }}:00
+          </option>
+        </select>
+      </div>
+
+      <button (click)="saveSchedule()" [disabled]="isLoading || selectedDays.length === 0 || selectedStartHour === null || selectedEndHour === null">
+        Guardar Horario
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-content" [ngClass]="modalType">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ modalType === 'success' ? 'Éxito' : 'Error' }}</h3>
+    </div>
+    <div class="modal-body">
+      <p>{{ modalMessage }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-button" (click)="closeModal()">Aceptar</button>
+    </div>
+  </div>
+</div>

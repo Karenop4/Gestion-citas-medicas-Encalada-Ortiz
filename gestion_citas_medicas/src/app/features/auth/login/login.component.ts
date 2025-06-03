@@ -49,7 +49,7 @@ export class LoginComponent {
 
     this.authService.loginWithGoogleAndLoadUser(this.tipoUsuario).then(data => {
       if (data) {
-        this.router.navigate(['/perfil'], { state: { user: data } });
+        this.router.navigate(['/patient/perfil'], { state: { user: data } });
       } else {
         this.router.navigate(['/main']);
       }
