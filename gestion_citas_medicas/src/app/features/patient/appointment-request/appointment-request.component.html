@@ -1,1 +1,96 @@
-<p>appointment-request works!</p>
+<div class="fondo">
+    <div class="appointment-container">
+        <h2>Solicitar Cita Médica</h2>
+
+        <div *ngIf="isLoading" class="loading-indicator">Cargando...</div>
+        <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="message success">{{ successMessage }}</div>
+
+        <div class="steps-progress">
+            <div class="step-indicator" [class.active]="currentStep === 1">1. Especialidad</div>
+            <div class="step-indicator" [class.active]="currentStep === 2">2. Médico</div>
+            <div class="step-indicator" [class.active]="currentStep === 3">3. Fecha</div>
+            <div class="step-indicator" [class.active]="currentStep === 4">4. Hora</div>
+            <div class="step-indicator" [class.active]="currentStep === 5">5. Confirmar</div>
+        </div>
+
+        <div *ngIf="currentStep === 1" class="step-content">
+            <h3>Paso 1: Selecciona una Especialidad</h3>
+            <div class="form-group">
+                <label for="specialtySelect">Especialidad:</label>
+                <select id="specialtySelect" [(ngModel)]="selectedSpecialty" (change)="errorMessage = null"
+                    class="select-input">
+                    <option [ngValue]="null" disabled selected>Selecciona una especialidad</option>
+                    <option *ngFor="let specialty of availableSpecialties" [value]="specialty">
+                        {{ specialty }}
+                    </option>
+                </select>
+            </div>
+            <button (click)="nextStep()" [disabled]="!selectedSpecialty || isLoading">Siguiente</button>
+        </div>
+
+        <div *ngIf="currentStep === 2" class="step-content">
+            <h3>Paso 2: Selecciona un Médico ({{ selectedSpecialty }})</h3>
+            <div *ngIf="availableDoctors.length === 0 && !isLoading" class="no-results">
+                No hay médicos disponibles para esta especialidad.
+            </div>
+            <div class="options-grid">
+                <label *ngFor="let doctor of availableDoctors" class="option-card">
+                    <input type="radio" name="doctor" [value]="doctor.id" [(ngModel)]="selectedDoctorId"
+                        [checked]="selectedDoctorId === doctor.id" (change)="errorMessage = null" />
+                    <span> {{ doctor.nombre }}</span>
+                </label>
+            </div>
+            <div class="navigation-buttons">
+                <button (click)="prevStep()">Anterior</button>
+                <button (click)="nextStep()" [disabled]="!selectedDoctorId || isLoading">Siguiente</button>
+            </div>
+        </div>
+
+        <div *ngIf="currentStep === 3" class="step-content">
+            <h3>Paso 3: Selecciona una Fecha</h3>
+            <div class="form-group">
+                <label for="appointmentDate">Fecha:</label>
+                <input type="date" id="appointmentDate" [min]="minDate" [max]="maxDate" [(ngModel)]="selectedDate"
+                    (change)="onDateChange($event)" class="date-input" />
+            </div>
+            <div class="navigation-buttons">
+                <button (click)="prevStep()">Anterior</button>
+                <button (click)="nextStep()" [disabled]="!selectedDate || isLoading">Siguiente</button>
+            </div>
+        </div>
+
+        <div *ngIf="currentStep === 4" class="step-content">
+            <h3>Paso 4: Selecciona una Hora</h3>
+            <div *ngIf="availableTimeSlots.length === 0 && !isLoading" class="no-results">
+                <br>
+                <span *ngIf="selectedDate && errorMessage"> {{ errorMessage }} </span>
+            </div>
+            <div class="options-grid time-slots-grid">
+                <label *ngFor="let time of availableTimeSlots" class="option-card time-slot-card">
+                    <input type="radio" name="time" [value]="time" [(ngModel)]="selectedTime"
+                        (change)="errorMessage = null" />
+                    <span>{{ time }}</span>
+                </label>
+            </div>
+            <div class="navigation-buttons">
+                <button (click)="prevStep()">Anterior</button>
+                <button (click)="nextStep()" [disabled]="!selectedTime || isLoading">Siguiente</button>
+            </div>
+        </div>
+
+        <div *ngIf="currentStep === 5" class="step-content confirmation-step">
+            <h3>Paso 5: Confirma tu Cita</h3>
+            <div class="summary-details">
+                <p><strong>Especialidad:</strong> {{ selectedSpecialty }}</p>
+                <p><strong>Médico:</strong> {{ selectedDoctorObject?.nombre }}</p>
+                <p><strong>Fecha:</strong> {{ selectedDate | date:'fullDate' }}</p>
+                <p><strong>Hora:</strong> {{ selectedTime }}</p>
+            </div>
+            <div class="navigation-buttons">
+                <button (click)="prevStep()">Anterior</button>
+                <button (click)="registerAppointment()" [disabled]="isLoading">Confirmar Cita</button>
+            </div>
+        </div>
+    </div>
+</div>

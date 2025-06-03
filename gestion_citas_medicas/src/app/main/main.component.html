@@ -13,10 +13,23 @@
             <p>Agende una cita con un especialista.</p>
         </div>
         <div class="card-footer">
-            <button (click)="navigateTo('/servicios')" class="btn">Acceder</button>
+            <button (click)="navigateTo('/citas')" class="btn">Acceder</button>
         </div>
     </div>
     <div class="card">
+        <div class="cimg1-2">
+        </div>
+        <div class="card-header">
+            <h3>Consultas</h3>
+        </div>
+        <div class="card-body">
+            <p>Consulte el estado de sus citas agendadas.</p>
+        </div>
+        <div class="card-footer">
+            <button (click)="navigateTo('/consultasC')" class="btn">Acceder</button>
+        </div>
+    </div>
+    <div class="card" *ngIf="userRole === 'a'">
         <div class="cimg2">
         </div>
         <div class="card-header">
@@ -29,7 +42,7 @@
             <button (click)="navigateTo('/servicios')" class="btn">Acceder</button>
         </div>
     </div>
-    <div class="card">
+    <div class="card" *ngIf="userRole === 'a'">
         <div class="cimg3">
         </div>
         <div class="card-header">
@@ -80,4 +93,4 @@
             Habitaciones privadas.
         </div>
     </div>
-</div>      
+</div>

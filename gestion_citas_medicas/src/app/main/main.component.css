@@ -67,6 +67,16 @@
   padding: 0;
   overflow: hidden;
 }
+.card .cimg1-2{
+  background: url('/img/calendario.jpg');
+  width: auto;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  padding: 0;
+  overflow: hidden;
+}
 .card .cimg2{
   background: url('/img/horario.jpg');
   width: auto;

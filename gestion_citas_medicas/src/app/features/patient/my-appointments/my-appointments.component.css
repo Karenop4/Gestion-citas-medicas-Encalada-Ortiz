@@ -1,0 +1,135 @@
+
+.my-appointments-container {
+  font-family: 'Inter', sans-serif;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #333;
+  margin-top: 10%; 
+}
+
+h2 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  font-weight: 700;
+}
+
+.message {
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.message.error {
+  background-color: #ffebee;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+}
+
+.loading-indicator {
+  padding: 15px;
+  background-color: #f0f8ff;
+  color: #3498db;
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.appointments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.appointment-card {
+  background-color: #fdfefe;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appointment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.3em;
+  color: #34495e;
+  font-weight: 600;
+}
+
+.appointment-status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.status-pending {
+  background-color: #e0f2f7;
+  color: #2196f3; 
+}
+
+.status-confirmed {
+  background-color: #e8f5e9;
+  color: #4caf50; 
+}
+
+.card-body p {
+  margin-bottom: 8px;
+  font-size: 1em;
+  color: #555;
+}
+
+.card-body p strong {
+  color: #333;
+}
+
+.no-appointments {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  border: 1px dashed #dcdcdc;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.no-appointments p {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .my-appointments-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .appointments-grid {
+    grid-template-columns: 1fr; 
+  }
+}
