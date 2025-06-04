@@ -4,10 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Firestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 
-// Interfaz para la estructura de una especialidad en Firestore
 interface Specialty {
-  id: string; // El ID del documento de Firestore
-  name: string; // El nombre de la especialidad
+  id: string; 
+  name: string; 
 }
 
 @Component({
@@ -19,17 +18,15 @@ interface Specialty {
 })
 export class EspecialidadComponent implements OnInit {
   isLoading: boolean = false;
-  
-  // Propiedades para el modal de mensajes
   isModalOpen: boolean = false;
   modalMessage: string = '';
   modalType: 'success' | 'error' | '' = '';
 
   specialties: Specialty[] = [];
-  newSpecialtyName: string = ''; // Para el input de crear nueva especialidad
+  newSpecialtyName: string = '';
   
-  editingSpecialty: Specialty | null = null; // La especialidad que se está editando
-  editingSpecialtyName: string = ''; // Para el input de editar especialidad
+  editingSpecialty: Specialty | null = null;
+  editingSpecialtyName: string = '';
 
   constructor(private firestore: Firestore) {}
 
@@ -38,7 +35,7 @@ export class EspecialidadComponent implements OnInit {
   }
 
   /**
-   * Carga todas las especialidades desde la colección 'especialidades' en Firestore.
+   * Carga todas las especialidades desde la colección 'especialidades' en Firestore
    */
   async loadSpecialties(): Promise<void> {
     this.isLoading = true;
@@ -51,10 +48,9 @@ export class EspecialidadComponent implements OnInit {
       } as Specialty));
 
       if (this.specialties.length === 0) {
-        this.openModal('No se encontraron especialidades en el sistema.', 'success'); // Informativo
+        this.openModal('No se encontraron especialidades en el sistema.', 'success');
       }
     } catch (error) {
-      console.error('Error al cargar especialidades:', error);
       this.openModal('No se pudieron cargar las especialidades. Por favor, intenta de nuevo.', 'error');
     } finally {
       this.isLoading = false;
@@ -72,7 +68,6 @@ export class EspecialidadComponent implements OnInit {
 
     this.isLoading = true;
     try {
-      // Verificar si la especialidad ya existe (case-insensitive)
       const existingSpecialty = this.specialties.some(
         s => s.name.toLowerCase() === this.newSpecialtyName.trim().toLowerCase()
       );
@@ -87,10 +82,8 @@ export class EspecialidadComponent implements OnInit {
         name: this.newSpecialtyName.trim()
       });
       this.openModal('Especialidad creada con éxito.', 'success');
-      // this.newSpecialtyName = ''; // Se limpiará en closeModal
-      await this.loadSpecialties(); // Recargar la lista
+      await this.loadSpecialties(); 
     } catch (error) {
-      console.error('Error al crear especialidad:', error);
       this.openModal('Error al crear la especialidad. Por favor, intenta de nuevo.', 'error');
     } finally {
       this.isLoading = false;
@@ -102,9 +95,9 @@ export class EspecialidadComponent implements OnInit {
    * @param specialty La especialidad a editar.
    */
   editSpecialty(specialty: Specialty): void {
-    this.editingSpecialty = { ...specialty }; // Crear una copia para evitar mutar el original directamente
+    this.editingSpecialty = { ...specialty }; 
     this.editingSpecialtyName = specialty.name;
-    this.modalMessage = ''; // Limpiar mensajes de modal anteriores
+    this.modalMessage = '';
     this.modalType = '';
   }
 
@@ -119,7 +112,6 @@ export class EspecialidadComponent implements OnInit {
 
     this.isLoading = true;
     try {
-      // Verificar si el nuevo nombre ya existe (case-insensitive), excluyendo la especialidad actual
       const existingSpecialty = this.specialties.some(
         s => s.id !== this.editingSpecialty?.id && s.name.toLowerCase() === this.editingSpecialtyName.trim().toLowerCase()
       );
@@ -135,8 +127,7 @@ export class EspecialidadComponent implements OnInit {
         name: this.editingSpecialtyName.trim()
       });
       this.openModal('Especialidad actualizada con éxito.', 'success');
-      // this.cancelEdit(); // <--- ELIMINADO: Se llamará en closeModal()
-      await this.loadSpecialties(); // Recargar la lista
+      await this.loadSpecialties();
     } catch (error) {
       console.error('Error al actualizar especialidad:', error);
       this.openModal('Error al actualizar la especialidad. Por favor, intenta de nuevo.', 'error');
@@ -151,8 +142,6 @@ export class EspecialidadComponent implements OnInit {
   cancelEdit(): void {
     this.editingSpecialty = null;
     this.editingSpecialtyName = '';
-    // this.modalMessage = ''; // <--- ELIMINADO: Se limpia en closeModal
-    // this.modalType = ''; // <--- ELIMINADO: Se limpia en closeModal
   }
 
   /**
@@ -160,7 +149,6 @@ export class EspecialidadComponent implements OnInit {
    * @param specialtyId El ID de la especialidad a eliminar.
    */
   async deleteSpecialty(specialtyId: string): Promise<void> {
-    // Implementar una confirmación antes de eliminar (usando un modal de confirmación si es necesario)
     if (!confirm('¿Estás seguro de que quieres eliminar esta especialidad?')) {
       return;
     }
@@ -170,9 +158,8 @@ export class EspecialidadComponent implements OnInit {
       const specialtyDocRef = doc(this.firestore, 'especialidades', specialtyId);
       await deleteDoc(specialtyDocRef);
       this.openModal('Especialidad eliminada con éxito.', 'success');
-      await this.loadSpecialties(); // Recargar la lista
+      await this.loadSpecialties();
     } catch (error) {
-      console.error('Error al eliminar especialidad:', error);
       this.openModal('Error al eliminar la especialidad. Por favor, intenta de nuevo.', 'error');
     } finally {
       this.isLoading = false;
@@ -197,8 +184,7 @@ export class EspecialidadComponent implements OnInit {
     this.isModalOpen = false;
     this.modalMessage = '';
     this.modalType = '';
-    // <--- NUEVO: Reiniciar el formulario de edición y el campo de nueva especialidad al cerrar el modal
-    this.cancelEdit(); // Reinicia editingSpecialty y editingSpecialtyName
-    this.newSpecialtyName = ''; // Limpia el campo de nueva especialidad
+    this.cancelEdit();
+    this.newSpecialtyName = '';
   }
 }

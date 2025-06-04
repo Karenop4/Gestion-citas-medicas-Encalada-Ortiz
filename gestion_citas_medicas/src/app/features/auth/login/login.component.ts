@@ -5,12 +5,11 @@ import { AnimationItem } from 'lottie-web';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
-import { UserCredential } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [LottieComponent, CommonModule],  // <-- Importa aquí el componente de Lottie
+  imports: [LottieComponent, CommonModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })

@@ -4,7 +4,6 @@
     <p>“Bienvenido a un lugar donde te escuchamos y te cuidamos. Regístrate y forma parte de nuestra familia.”</p>
   </div>
 
-  <!-- Selección de tipo de usuario -->
   <div *ngIf="mostrarTipoUsuario" class="tipo-usuario">
     <div>
       <h2>Seleccione el tipo de usuario</h2>
@@ -15,8 +14,6 @@
       <button (click)="seleccionarUsuario('a')">Administrativo</button>
     </div>
   </div>
-
-  <!-- Botón de login -->
   <div *ngIf="!mostrarTipoUsuario" class="login-boton">
     <div class="login-header">
       <h2>Iniciar sesión</h2>

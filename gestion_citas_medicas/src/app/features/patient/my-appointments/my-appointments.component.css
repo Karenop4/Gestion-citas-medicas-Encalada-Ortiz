@@ -1,5 +1,4 @@
 .fondo {
-  /* Asegura que ocupe todo el espacio disponible en la página */
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -42,15 +41,14 @@
 
 h2 {
   color: #2c3e50;
-  margin-bottom: 30px; /* Revertido a la versión anterior */
+  margin-bottom: 30px;
   font-size: 2.2em;
   font-weight: 700;
 }
 
-/* Mensajes de estado */
 .message {
   padding: 12px 20px;
-  margin-bottom: 20px; /* Revertido a la versión anterior */
+  margin-bottom: 20px;
   border-radius: 8px;
   font-weight: 500;
   text-align: left;
@@ -119,24 +117,22 @@ h2 {
 }
 
 .status-pending {
-  background-color: #fffde7; /* Cambiado a amarillo claro para pendiente */
-  color: #f39c12; /* Cambiado a naranja/amarillo para pendiente */
+  background-color: #fffde7;
+  color: #f39c12;
   border: 1px solid #f39c12;
 }
 
 .status-confirmed {
-  background-color: #e8f5e9; /* Light green */
-  color: #27ae60; /* Dark green */
+  background-color: #e8f5e9; 
+  color: #27ae60;
   border: 1px solid #27ae60;
 }
 
-/* --- NUEVO ESTADO: CANCELADA --- */
 .status-cancelled {
-  background-color: #ffebee; /* Light red */
-  color: #c0392b; /* Dark red */
+  background-color: #ffebee;
+  color: #c0392b; 
   border: 1px solid #c0392b;
 }
-/* --- FIN NUEVO ESTADO --- */
 
 
 .card-body p {
@@ -163,11 +159,6 @@ h2 {
   margin-bottom: 10px;
 }
 
-/* --- ESTILOS DE MODAL ELIMINADOS --- */
-/* Se han eliminado todos los estilos relacionados con .modal-overlay, .modal-content, etc. */
-/* Si necesitas un modal en este componente en el futuro, deberás añadir sus estilos aquí. */
-
-/* --- Ajustes Responsivos --- */
 @media (max-width: 768px) {
   .my-appointments-container {
     width: 90%; 

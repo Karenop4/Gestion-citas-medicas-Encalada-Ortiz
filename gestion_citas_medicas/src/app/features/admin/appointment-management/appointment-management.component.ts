@@ -80,13 +80,12 @@ export class AppointmentManagementComponent implements OnInit {
   }
 
   /**
-   * Executes when a doctor is selected from the dropdown.
-   * Loads the pending appointments for that doctor.
+   * Carga las citas cuando se selecciona el doctor.
    */
   async onDoctorSelected(): Promise<void> {
-    this.pendingAppointments = []; // Reset pending appointments
-    this.modalMessage = ''; // Clear modal message
-    this.modalType = ''; // Clear modal type
+    this.pendingAppointments = []; 
+    this.modalMessage = ''; 
+    this.modalType = ''; 
 
     if (this.selectedDoctorId) {
       const selectedDoctor = this.availableDoctors.find(d => d.id === this.selectedDoctorId);
@@ -98,21 +97,20 @@ export class AppointmentManagementComponent implements OnInit {
   }
 
   /**
-   * Loads pending appointments for the selected doctor.
-   * A pending appointment is one where 'confirmada' is false and 'cancelado' is not true.
-   * @param doctorId The ID of the doctor.
+   * Carga solo las citas pendientes.
+   * Estas son usadas en la seccion gestion de citas.
+   * @param doctorId ID del doctor.
    */
   async loadPendingAppointments(doctorId: string): Promise<void> {
     this.isLoading = true;
-    this.pendingAppointments = []; // Clear previous appointments
+    this.pendingAppointments = []; 
     try {
       const appointmentsCollectionRef = collection(this.firestore, `usuarios/${doctorId}/citas`);
       
-      // Query for appointments that are NOT confirmed and NOT cancelled
       const q = query(
         appointmentsCollectionRef,
         where('confirmada', '==', false),
-        where('cancelada', '!=', true) // Excluye citas con cancelado: true
+        where('cancelada', '!=', true) 
       );
       
       const querySnapshot = await getDocs(q);
@@ -125,14 +123,14 @@ export class AppointmentManagementComponent implements OnInit {
           ...appointmentData
         } as Appointment;
 
-        // Fetch user's name
+        
         if (appointment.userId) {
           const userDocRef = doc(this.firestore, `usuarios/${appointment.userId}`);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             appointment.userName = userDocSnap.data()['nombre'];
           } else {
-            appointment.userName = 'Usuario Desconocido'; // Fallback if user not found
+            appointment.userName = 'Usuario Desconocido'; 
           }
         } else {
           appointment.userName = 'Usuario Desconocido';
@@ -142,11 +140,7 @@ export class AppointmentManagementComponent implements OnInit {
 
       this.pendingAppointments = fetchedAppointments;
 
-      if (this.pendingAppointments.length === 0) {
-        this.openModal('No hay citas pendientes para este médico.', 'success'); // Considerar si esto es un error o solo informativo
-      }
     } catch (error) {
-      console.error('Error al cargar citas pendientes:', error);
       this.openModal('Error al cargar las citas pendientes. Por favor, intenta de nuevo.', 'error');
     } finally {
       this.isLoading = false;
@@ -154,8 +148,8 @@ export class AppointmentManagementComponent implements OnInit {
   }
 
   /**
-   * Confirms an appointment by setting 'confirmada' to true.
-   * @param appointment The appointment to confirm.
+   * Confirma una cita, cambia el valor de confirmada a true
+   * @param appointment cita a confirmar
    */
   async confirmAppointment(appointment: Appointment): Promise<void> {
     this.isLoading = true;
@@ -178,23 +172,21 @@ export class AppointmentManagementComponent implements OnInit {
   }
 
   /**
-   * Cancels an appointment by setting 'cancelado' to true.
-   * @param appointment The appointment to cancel.
+   * Cancela uns cita cambiando el valor de cancelada a true
+   * @param appointment Cita a cancelar
    */
   async cancelAppointment(appointment: Appointment): Promise<void> {
     this.isLoading = true;
     try {
       const appointmentDocRef = doc(this.firestore, `usuarios/${appointment.doctorId}/citas/${appointment.id}`);
       await updateDoc(appointmentDocRef, {
-        cancelada: true // Add the 'cancelado' field and set to true
+        cancelada: true 
       });
       this.openModal('Cita cancelada con éxito.', 'success');
-      // Reload appointments to reflect the change
       if (this.selectedDoctorId) {
         await this.loadPendingAppointments(this.selectedDoctorId);
       }
     } catch (error) {
-      console.error('Error al cancelar la cita:', error);
       this.openModal('Error al cancelar la cita. Por favor, intenta de nuevo.', 'error');
     } finally {
       this.isLoading = false;
@@ -202,9 +194,9 @@ export class AppointmentManagementComponent implements OnInit {
   }
 
   /**
-   * Opens the modal with a specific message and type.
-   * @param message The message to display in the modal.
-   * @param type The type of message ('success' or 'error').
+   * Abre la ventana modal con dos tipos de mensajes
+   * @param message el mensaje a mostrar
+   * @param type el tipo (success o error)
    */
   openModal(message: string, type: 'success' | 'error'): void {
     this.modalMessage = message;
@@ -212,9 +204,6 @@ export class AppointmentManagementComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  /**
-   * Closes the modal and clears its message/type.
-   */
   closeModal(): void {
     this.isModalOpen = false;
     this.modalMessage = '';

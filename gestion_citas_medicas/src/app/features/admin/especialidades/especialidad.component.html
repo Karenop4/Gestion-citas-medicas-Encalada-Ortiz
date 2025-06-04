@@ -1,17 +1,14 @@
-<!-- src/app/features/admin/especialidades/especialidad.component.html -->
 <div class="specialty-management-container">
   <h2>Gestión de Especialidades</h2>
 
   <div *ngIf="isLoading" class="loading-indicator">Cargando...</div>
 
-  <!-- Formulario para crear/editar especialidad -->
   <div class="form-section">
     <h3 *ngIf="!editingSpecialty">Crear Nueva Especialidad</h3>
-    <h3 *ngIf="editingSpecialty">Editar Especialidad: {{ editingSpecialty.name }}</h3> <!-- <--- CORREGIDO AQUÍ -->
+    <h3 *ngIf="editingSpecialty">Editar Especialidad: {{ editingSpecialty.name }}</h3>
 
     <div class="form-group">
       <label for="specialtyName">Nombre de la Especialidad:</label>
-      <!-- Campo para CREAR nueva especialidad -->
       <input
         *ngIf="!editingSpecialty"
         type="text"
@@ -20,7 +17,6 @@
         placeholder="Ej: Cardiología"
         class="text-input"
       />
-      <!-- Campo para EDITAR especialidad existente -->
       <input
         *ngIf="editingSpecialty"
         type="text"
@@ -52,8 +48,6 @@
       </button>
     </div>
   </div>
-
-  <!-- Lista de especialidades existentes -->
   <div class="specialties-list-section">
     <h3>Especialidades Existentes</h3>
     <div *ngIf="specialties.length === 0 && !isLoading" class="no-results">
@@ -70,8 +64,6 @@
       </li>
     </ul>
   </div>
-
-  <!-- Modal para mensajes de éxito/error -->
   <div class="modal-overlay" *ngIf="isModalOpen">
     <div class="modal-content" [ngClass]="modalType">
       <div class="modal-header">

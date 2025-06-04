@@ -84,7 +84,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Es crucial desuscribirse para evitar fugas de memoria
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }

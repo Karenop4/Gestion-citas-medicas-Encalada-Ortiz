@@ -1,20 +1,19 @@
-// appointment-request/appointment-request.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Firestore, collection, getDocs, query, where, doc, getDoc, setDoc } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Auth, user, User } from '@angular/fire/auth'; // Importar Auth y User
+import { Auth, user, User } from '@angular/fire/auth'; 
 
 interface Doctor {
-  id: string; // El ID del documento de Firestore
+  id: string; 
   nombre: string;
   especialidad: string;
   esMedico: boolean;
 }
 
 interface Schedule {
-  dias: string; // Ej: "1-5" o "1,2,3,5"
-  horas: string; // Ej: "9-17"
+  dias: string;
+  horas: string;
 }
 
 @Component({
@@ -30,29 +29,23 @@ export class AppointmentRequestComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  // Paso 1: Especialidad
   selectedSpecialty: string | null = null;
   availableSpecialties: string[] = [];
 
-  // Paso 2: Médico
   selectedDoctorId: string | null = null;
   availableDoctors: Doctor[] = [];
 
-  // Paso 3: Fecha
   selectedDate: string | null = null;
   minDate: string = new Date().toISOString().split('T')[0];
   maxDate: string;
 
-  // Paso 4: Hora
   availableTimeSlots: string[] = [];
   selectedTime: string | null = null;
 
-  // Datos del médico seleccionado para disponibilidad
   private doctorSchedule: Schedule | null = null;
   private doctorAppointments: string[] = [];
-  private parsedDoctorDays: number[] = []; // <--- NUEVO: Para almacenar los días parseados del horario
+  private parsedDoctorDays: number[] = []; 
 
-  // ID del usuario autenticado
   currentUserId: string | null = null;
 
   constructor(private firestore: Firestore, private auth: Auth) {
@@ -95,7 +88,6 @@ export class AppointmentRequestComponent implements OnInit {
 
       this.isLoading = false;
     } catch (error) {
-      console.error('Error al cargar especialidades desde Firestore:', error);
       this.errorMessage = 'No se pudieron cargar las especialidades. Por favor, intenta de nuevo.';
       this.isLoading = false;
     }
@@ -109,7 +101,7 @@ export class AppointmentRequestComponent implements OnInit {
     this.successMessage = null;
 
     switch (this.currentStep) {
-      case 1: // De especialidad a médico
+      case 1: 
         if (!this.selectedSpecialty) {
           this.errorMessage = 'Por favor, selecciona una especialidad.';
           return;
@@ -117,19 +109,18 @@ export class AppointmentRequestComponent implements OnInit {
         this.loadDoctorsBySpecialty(this.selectedSpecialty);
         this.currentStep++;
         break;
-      case 2: // De médico a fecha
+      case 2:
         if (!this.selectedDoctorId) {
           this.errorMessage = 'Por favor, selecciona un médico.';
           return;
         }
         console.log('ID del médico seleccionado:', this.selectedDoctorId);
         await this.loadDoctorAvailability(this.selectedDoctorId);
-        // Solo avanza si el horario se cargó correctamente (no hay error)
         if (!this.errorMessage) {
           this.currentStep++;
         }
         break;
-      case 3: // De fecha a hora
+      case 3: 
         if (!this.selectedDateAsDate) {
           this.errorMessage = 'Por favor, selecciona una fecha.';
           return;
@@ -137,14 +128,14 @@ export class AppointmentRequestComponent implements OnInit {
         this.generateAvailableTimeSlots();
         this.currentStep++;
         break;
-      case 4: // De hora a confirmación
+      case 4:
         if (!this.selectedTime) {
           this.errorMessage = 'Por favor, selecciona una hora.';
           return;
         }
         this.currentStep++;
         break;
-      case 5: // Confirmación (aquí se registraría la cita)
+      case 5: 
         break;
       default:
         break;
@@ -184,7 +175,6 @@ export class AppointmentRequestComponent implements OnInit {
       } as Doctor));
       this.isLoading = false;
     } catch (error) {
-      console.error('Error al cargar médicos por especialidad:', error);
       this.errorMessage = 'No se pudieron cargar los médicos. Inténtalo de nuevo.';
       this.isLoading = false;
     }
@@ -192,15 +182,14 @@ export class AppointmentRequestComponent implements OnInit {
 
   /**
    * Carga el horario y las citas existentes del médico seleccionado.
-   * Ahora también parsea los días de trabajo.
    * @param doctorId El ID del médico.
    */
   async loadDoctorAvailability(doctorId: string): Promise<void> {
     this.isLoading = true;
     this.errorMessage = null;
-    this.doctorSchedule = null; // Resetear antes de cargar
-    this.doctorAppointments = []; // Resetear antes de cargar
-    this.parsedDoctorDays = []; // <--- NUEVO: Resetear los días parseados
+    this.doctorSchedule = null; 
+    this.doctorAppointments = []; 
+    this.parsedDoctorDays = [];
 
     try {
       const scheduleDocRef = doc(this.firestore, `usuarios/${doctorId}/horario/horario_doc`);
@@ -210,9 +199,9 @@ export class AppointmentRequestComponent implements OnInit {
         const scheduleData = scheduleDocSnap.data();
         if (scheduleData && typeof scheduleData['dias'] === 'string' && typeof scheduleData['horas'] === 'string') {
           this.doctorSchedule = scheduleData as Schedule;
-          this.parsedDoctorDays = this.parseDaysFromFirestore(this.doctorSchedule.dias); // <--- NUEVO: Parsear los días
+          this.parsedDoctorDays = this.parseDaysFromFirestore(this.doctorSchedule.dias);
         } else {
-          this.errorMessage = 'El horario del médico está incompleto o malformado (faltan "dias" o "horas").';
+          this.errorMessage = 'El horario del médico está incompleto o es incorrecto (faltan "dias" o "horas").';
           this.doctorSchedule = null;
         }
       } else {
@@ -228,7 +217,6 @@ export class AppointmentRequestComponent implements OnInit {
 
       this.isLoading = false;
     } catch (error) {
-      console.error('Error al cargar disponibilidad del médico:', error);
       this.errorMessage = 'No se pudo cargar la disponibilidad del médico. Inténtalo de nuevo.';
       this.isLoading = false;
     }
@@ -236,27 +224,25 @@ export class AppointmentRequestComponent implements OnInit {
 
   /**
    * Genera los bloques de tiempo disponibles para la fecha seleccionada
-   * basándose en el horario del médico y las citas ya agendadas.
-   * Ahora usa `parsedDoctorDays` para verificar la disponibilidad del día.
+   * basándose en el horario del médico y las citas confirmadas
    */
   generateAvailableTimeSlots(): void {
     this.availableTimeSlots = [];
-    if (!this.selectedDateAsDate || !this.doctorSchedule || this.parsedDoctorDays.length === 0) { // <--- MODIFICADO: Verificar parsedDoctorDays
+    if (!this.selectedDateAsDate || !this.doctorSchedule || this.parsedDoctorDays.length === 0) {
       this.errorMessage = 'Fecha o horario del médico no disponible.';
       return;
     }
 
     const dayOfWeek = this.selectedDateAsDate.getDay();
-    const firestoreDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek; // Domingo es 0 en JS, 7 en Firestore (según tu convención)
+    const firestoreDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek; 
 
-    // <--- MODIFICADO: Usar parsedDoctorDays para verificar si el día es laborable
     if (!this.parsedDoctorDays.includes(firestoreDayOfWeek)) {
       this.errorMessage = 'El médico no trabaja en el día seleccionado.';
       return;
     }
 
     if (!this.doctorSchedule.horas) {
-        this.errorMessage = 'Horario del médico malformado. Faltan datos de horas.';
+        this.errorMessage = 'Horario del médico incorrecto. Faltan datos de horas.';
         return;
     }
 
@@ -349,7 +335,6 @@ export class AppointmentRequestComponent implements OnInit {
 
       const appointmentId = this.formatDateToFirestoreString(appointmentDate);
 
-      // Referencia al documento de la cita del doctor
       const doctorAppointmentDocRef = doc(this.firestore, `usuarios/${this.selectedDoctorId}/citas/${appointmentId}`);
       await setDoc(doctorAppointmentDocRef, {
         date: this.selectedDate,
@@ -366,7 +351,6 @@ export class AppointmentRequestComponent implements OnInit {
       await this.loadDoctorAvailability(this.selectedDoctorId);
       this.resetForm();
     } catch (error) {
-      console.error('Error al registrar la cita:', error);
       this.errorMessage = 'Hubo un error al registrar la cita. Inténtalo de nuevo.';
     } finally {
       this.isLoading = false;
@@ -375,21 +359,17 @@ export class AppointmentRequestComponent implements OnInit {
 
   /**
    * Convierte una cadena de días de Firestore ("1,2,3" o "1-5") a un array de números.
-   * Esta función es crucial para interpretar el nuevo formato de días.
    * @param diasString La cadena de días de Firestore.
    * @returns Un array de IDs de días.
    */
   private parseDaysFromFirestore(diasString: string): number[] {
     if (!diasString) return [];
     if (diasString.includes('-')) {
-      // Manejar el formato antiguo "1-5"
       const [start, end] = diasString.split('-').map(Number);
       return Array.from({ length: end - start + 1 }, (_, i) => start + i);
     } else if (diasString.includes(',')) {
-      // Manejar el nuevo formato "1,2,3,5"
       return diasString.split(',').map(Number);
     }
-    // Manejar el caso de un solo día "1"
     return [Number(diasString)].filter(n => !isNaN(n));
   }
 
@@ -406,7 +386,7 @@ export class AppointmentRequestComponent implements OnInit {
     this.availableTimeSlots = [];
     this.doctorSchedule = null;
     this.doctorAppointments = [];
-    this.parsedDoctorDays = []; // <--- NUEVO: Resetear también los días parseados
+    this.parsedDoctorDays = []; 
     this.loadSpecialties();
   }
 }

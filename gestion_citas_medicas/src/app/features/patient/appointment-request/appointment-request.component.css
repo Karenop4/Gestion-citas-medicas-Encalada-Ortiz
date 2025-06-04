@@ -59,7 +59,6 @@ h3 {
   font-weight: 600;
 }
 
-/* Mensajes de estado */
 .message {
   padding: 12px 20px;
   margin-bottom: 20px;
@@ -90,7 +89,6 @@ h3 {
   font-weight: 500;
 }
 
-/* Barra de progreso de pasos */
 .steps-progress {
   display: flex;
   justify-content: space-between;
@@ -134,7 +132,6 @@ h3 {
   box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
 }
 
-/* Contenido de cada paso */
 .step-content {
   background-color: #fdfefe;
   padding: 25px;
@@ -143,7 +140,6 @@ h3 {
   margin-top: 20px;
 }
 
-/* Opciones de selección (médico, hora) - el grid se mantiene para estos */
 .options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -269,10 +265,6 @@ button:disabled {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2C197.398L146.2%2C56.6l-140.8%2C140.8h281.6z%22%2F%3E%3C%2Fsvg%3E');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 12px;
   cursor: pointer;
 }
 
@@ -325,8 +317,8 @@ button:disabled {
 
 @media (max-width: 768px) {
   .appointment-container {
-    width: 90%; /* Ajustado para pantallas más pequeñas */
-    margin: 80px auto 20px auto; /* <--- CAMBIO AQUÍ: Añadido margin-top para navbar */
+    width: 90%; 
+    margin: 80px auto 20px auto;
     padding: 20px;
   }
 

@@ -1,32 +1,30 @@
-/* main.component.css */
 
-/* Estilos base (para pantallas grandes) */
 .fondo {
   width: 100%;
-  height: 500px; /* Altura para pantallas grandes */
+  height: 500px;
   background: url('/img/img-main1.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
-  background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
+  background-attachment: fixed; 
   padding: 0;
   overflow: hidden;
 }
 
 .servicios {
   width: 100%;
-  height: auto; /* Altura para pantallas grandes */
-  background: url('/img/fondoazul.jpg'); /* <--- COMBINADO Y CORREGIDO: Fondo azul */
+  height: auto; 
+  background: url('/img/fondoazul.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
   background-attachment: fixed;
-  display: flex; /* <--- COMBINADO Y CORREGIDO: Propiedades Flex */
+  display: flex; 
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap; /* Permite que las tarjetas se envuelvan a la siguiente línea */
-  padding: 0; /* Asegura que no haya padding extra */
-  overflow: hidden; /* Asegura que no haya desbordamiento */
+  flex-wrap: wrap;
+  padding: 0; 
+  overflow: hidden; 
 }
 
 .servicios .card:hover {
@@ -43,7 +41,7 @@
   padding: 20px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 280px; /* Ancho fijo para tarjetas en pantallas grandes */
+  width: 280px; 
   margin: 15px;
   display: flex;
   flex-direction: column;
@@ -58,7 +56,6 @@
   margin-bottom: 15px;
 }
 
-/* Clases de imagen de tarjeta */
 .card .cimg1,
 .card .cimg1-2,
 .card .cimg2,
@@ -113,23 +110,23 @@
 
 .insta {
   background-color: #ffffff;
-  padding: 35px; /* Padding para pantallas grandes */
-  font-size: 20px; /* Tamaño de fuente para pantallas grandes */
-  text-align: center; /* Centra el texto */
+  padding: 35px; 
+  font-size: 20px; 
+  text-align: center;
 }
 
 .instalaciones {
   background-color: #ffffff;
   display: flex;
-  height: 500px; /* Altura para pantallas grandes */
+  height: 500px;
   justify-content: space-between;
   overflow: hidden;
-  flex-wrap: wrap; /* Permite que las imágenes se envuelvan a la siguiente línea */
+  flex-wrap: wrap;
 }
 
 .instalaciones .img {
-  width: 25%; /* Ancho para pantallas grandes */
-  height: 500px; /* Altura para pantallas grandes */
+  width: 25%;
+  height: 500px;
   position: relative;
   z-index: 1;
   transform-style: preserve-3d;
@@ -171,83 +168,80 @@
   box-sizing: border-box;
 }
 
-/* --- Ajustes Responsivos --- */
 
-/* Para pantallas de hasta 768px (tablets y móviles) */
 @media (max-width: 768px) {
   .fondo {
-    height: 300px; /* Reduce la altura del fondo */
-    background-attachment: scroll; /* Cambia a scroll para mejor rendimiento en móviles */
+    height: 300px;
+    background-attachment: scroll;
   }
 
   .insta {
-    padding: 20px; /* Reduce el padding */
-    font-size: 18px; /* Reduce el tamaño de fuente */
+    padding: 20px; 
+    font-size: 18px; 
   }
 
   .servicios {
-    height: auto; /* La altura se ajusta al contenido */
-    flex-direction: column; /* Apila las tarjetas verticalmente */
-    padding: 20px 0; /* Añade padding vertical */
+    height: auto; 
+    flex-direction: column; 
+    padding: 20px 0; 
   }
 
   .card {
-    width: 90%; /* Las tarjetas ocupan casi todo el ancho disponible */
-    max-width: 350px; /* Limita el ancho máximo para tarjetas en móviles */
-    margin: 15px auto; /* Centra las tarjetas */
+    width: 90%; 
+    max-width: 350px; 
+    margin: 15px auto;
   }
 
   .instalaciones {
-    height: auto; /* La altura se ajusta al contenido */
-    flex-direction: column; /* Apila las imágenes verticalmente */
-    align-items: center; /* Centra las imágenes apiladas */
-    padding: 20px 0; /* Añade padding vertical */
+    height: auto;
+    flex-direction: column; 
+    align-items: center; 
+    padding: 20px 0;
   }
 
   .instalaciones .img {
-    width: 90%; /* Las imágenes ocupan casi todo el ancho disponible */
-    max-width: 400px; /* Limita el ancho máximo para imágenes en móviles */
-    height: 250px; /* Ajusta la altura para imágenes en móviles */
-    margin-bottom: 20px; /* Espacio entre imágenes apiladas */
+    width: 90%; 
+    max-width: 400px;
+    height: 250px; 
+    margin-bottom: 20px; 
   }
 
   .imgD {
-    font-size: 0.9em; /* Ajusta el tamaño de fuente para la descripción */
-    padding: 15px; /* Reduce el padding */
+    font-size: 0.9em; 
+    padding: 15px; 
   }
 }
 
-/* Para pantallas de hasta 480px (móviles pequeños) */
 @media (max-width: 480px) {
   .fondo {
-    height: 200px; /* Altura aún más pequeña para móviles muy pequeños */
+    height: 200px;
   }
 
   .insta {
-    font-size: 16px; /* Ajusta el tamaño de fuente */
+    font-size: 16px; 
     padding: 15px;
   }
 
   .card {
-    width: 95%; /* Las tarjetas ocupan más ancho en pantallas muy pequeñas */
+    width: 95%;
     margin: 10px auto;
   }
 
   .card-header h3 {
-    font-size: 1.3em; /* Reduce el tamaño de fuente del título de la tarjeta */
+    font-size: 1.3em;
   }
 
   .card-body p {
-    font-size: 0.9em; /* Reduce el tamaño de fuente del cuerpo de la tarjeta */
+    font-size: 0.9em; 
   }
 
   .btn {
-    padding: 8px 15px; /* Reduce el padding del botón */
+    padding: 8px 15px; 
     font-size: 0.9em;
   }
 
   .instalaciones .img {
-    height: 200px; /* Altura aún más pequeña para imágenes en móviles muy pequeños */
+    height: 200px;
     margin-bottom: 15px;
   }
 

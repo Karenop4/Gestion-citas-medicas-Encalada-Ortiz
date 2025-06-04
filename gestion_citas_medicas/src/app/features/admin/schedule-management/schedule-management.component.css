@@ -1,7 +1,7 @@
 
 .schedule-management-container {
   max-width: 800px;
-  margin: 80px auto 40px auto; /* Ajuste para el navbar fijo */
+  margin: 80px auto 40px auto; 
   padding: 30px;
   background-color: #ffffff;
   border-radius: 12px;
@@ -33,7 +33,6 @@ h4 {
   font-weight: 600;
 }
 
-/* Mensajes de estado (estos estilos ya no se usan directamente, pero los mantengo por si acaso) */
 .message {
   padding: 12px 20px;
   margin-bottom: 20px;
@@ -86,14 +85,14 @@ h4 {
 
 .select-input,
 .text-input {
-  width: calc(100% - 20px); /* Ajusta para padding */
+  width: calc(100% - 20px); 
   padding: 12px 10px;
   border: 2px solid #bdc3c7;
   border-radius: 8px;
   font-size: 1em;
   color: #333;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-sizing: border-box; /* Incluye padding en el ancho */
+  box-sizing: border-box; 
   background-color: #fff;
 }
 
@@ -105,13 +104,9 @@ h4 {
 }
 
 .select-input {
-  appearance: none; /* Elimina el estilo por defecto del select */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2C197.398L146.2%2C56.6l-140.8%2C140.8h281.6z%22%2F%3E%3C%2Fsvg%3E');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 12px;
   cursor: pointer;
 }
 
@@ -121,7 +116,7 @@ h4 {
   border-radius: 10px;
   border: 1px solid #dcdcdc;
   background-color: #f8f9fa;
-}
+} 
 
 .current-schedule-info {
   margin-bottom: 25px;
@@ -149,7 +144,7 @@ h4 {
 
 .edit-schedule-form {
   margin-top: 20px;
-  background-color: #ffffff; /* Fondo diferente para el formulario de edición */
+  background-color: #ffffff; 
   border: 1px solid #c0c0c0;
 }
 
@@ -179,10 +174,9 @@ h4 {
 }
 
 .checkbox-label input[type="checkbox"] {
-  /* Estilo básico para el checkbox, puedes personalizarlo más con CSS puro o una librería */
   width: 18px;
   height: 18px;
-  accent-color: #3498db; /* Color del checkbox cuando está marcado */
+  accent-color: #3498db;
 }
 
 .hours-group {
@@ -223,18 +217,17 @@ button:disabled {
   transform: none;
 }
 
-/* --- Estilos del Modal de Mensajes --- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
+  background-color: rgba(0, 0, 0, 0.6); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000; /* Asegura que esté por encima de todo */
+  z-index: 2000; 
 }
 
 .modal-content {
@@ -242,15 +235,14 @@ button:disabled {
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  width: 90%; /* Ancho responsivo */
-  max-width: 450px; /* Ancho máximo para desktop */
+  width: 90%; 
+  max-width: 450px; 
   text-align: center;
-  transform: scale(0.95); /* Pequeña escala al inicio */
-  opacity: 0; /* Oculto al inicio */
-  animation: fadeInScale 0.3s forwards ease-out; /* Animación de aparición */
+  transform: scale(0.95); 
+  opacity: 0; 
+  animation: fadeInScale 0.3s forwards ease-out; 
 }
 
-/* Animación para el modal */
 @keyframes fadeInScale {
   from {
     transform: scale(0.95);
@@ -317,11 +309,10 @@ button:disabled {
   transform: translateY(-1px);
 }
 
-/* --- Ajustes Responsivos --- */
 @media (max-width: 768px) {
   .schedule-management-container {
-    width: 95%; /* Ocupa más ancho en móviles */
-    margin: 80px auto 20px auto; /* Ajusta margen superior para navbar fijo */
+    width: 95%; 
+    margin: 80px auto 20px auto; 
     padding: 20px;
   }
 
@@ -359,7 +350,7 @@ button:disabled {
   }
 
   .days-checkbox-grid {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Columnas más pequeñas */
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
     gap: 8px;
   }
 
@@ -370,7 +361,7 @@ button:disabled {
 
   .modal-content {
     padding: 20px;
-    width: 95%; /* Más ancho en móviles */
+    width: 95%; 
   }
 
   .modal-title {
@@ -390,7 +381,7 @@ button:disabled {
 @media (max-width: 480px) {
   .schedule-management-container {
     padding: 15px;
-    margin: 70px auto 15px auto; /* Ajuste para navbar más delgado */
+    margin: 70px auto 15px auto;
   }
 
   h2 {
@@ -428,7 +419,7 @@ button:disabled {
   }
 
   .days-checkbox-grid {
-    grid-template-columns: 1fr; /* Una columna en móviles muy pequeños */
+    grid-template-columns: 1fr; 
   }
 
   .modal-content {

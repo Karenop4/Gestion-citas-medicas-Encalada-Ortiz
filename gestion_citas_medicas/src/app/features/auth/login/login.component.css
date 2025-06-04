@@ -118,7 +118,6 @@ button:hover::after {
   border-color: white;
 }
 
-/* Lottie animación responsiva */
 ::ng-deep ng-lottie {
   display: block;
   width: 100%;
