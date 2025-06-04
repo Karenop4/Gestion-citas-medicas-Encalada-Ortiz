@@ -33,22 +33,29 @@ export class ProfileComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const uid = this.auth.currentUser?.uid;
-    if (!uid) return;
+    this.authService.user$.subscribe(async user => {
+      if (!user) return;
 
-    const datos = await this.authService.getUsuarioActual(uid);
-    if (datos) {
-      this.usuario = datos;
-      this.userService.setUsuario(this.usuario);
-    }
+      const uid = user.uid;
+      const datos = await this.authService.getUsuarioActual(uid);
 
-    this.especialidadesService.getEspecialidades().subscribe(esps => {
-      this.especialidades = esps;
-    }, error => {
-      console.error('Error al obtener contactos:', error);
+      if (datos) {
+        this.usuario = datos;
+        this.userService.setUsuario(this.usuario);
+        localStorage.setItem('usuario', JSON.stringify(this.usuario));
+      }
     });
 
+    this.especialidadesService.getEspecialidades().subscribe(
+      esps => {
+        this.especialidades = esps;
+      },
+      error => {
+        console.error('Error al obtener especialidades:', error);
+      }
+    );
   }
+
 
   
 
@@ -59,11 +66,13 @@ export class ProfileComponent implements OnInit {
     this.usuario.correo = this.auth.currentUser.email ? this.auth.currentUser.email : '';
 
     this.authService.updateUser(this.usuario.uid, this.usuario).then(() => {
+      localStorage.setItem('usuario', JSON.stringify(this.usuario)); 
+      this.userService.setUsuario(this.usuario); 
       alert('Datos guardados correctamente');
-      this.userService.setUsuario(this.usuario);
-      this.router.navigate(['/main']);
+      this.router.navigate(['/main']); 
     });
   }
+
 
   private getDefaultUsuario(): Usuario {
     return {

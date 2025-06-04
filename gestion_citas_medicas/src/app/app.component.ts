@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
+import { Auth } from '@angular/fire/auth';
 import { UserService } from './core/services/user.service';
 import { Usuario } from './models/user.model';
 
@@ -14,10 +15,10 @@ import { Usuario } from './models/user.model';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  usuario: Usuario | null = null;
+  usuario: Usuario = this.getDefaultUsuario();
   title = 'gestion_citas_medicas';
    isScrolled: boolean = false;
-  constructor(private router: Router, private userService: UserService) {}
+  constructor(private router: Router, private userService: UserService, private auth: Auth, private authService: AuthService,) {}
  
 
   goToLogin(): void {
@@ -46,9 +47,16 @@ export class AppComponent implements OnInit {
   showNavbar: boolean = true;
   showFooter: boolean = true;
   ngOnInit(): void {
+    const saved = localStorage.getItem('usuario');
+    if (saved) {
+      const usuarioGuardado: Usuario = JSON.parse(saved);
+      this.userService.setUsuario(usuarioGuardado); 
+    }
+
     this.userService.usuario$.subscribe(usuario => {
-      this.usuario = usuario;
+      this.usuario = usuario ?? this.getDefaultUsuario();
     });
+
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         const routesToHide = ['/login', '/registro'];
@@ -59,4 +67,22 @@ export class AppComponent implements OnInit {
     });
   }
 
+  private getDefaultUsuario(): Usuario {
+    return {
+      nombre: '',
+      fechaNacimiento: '',
+      genero: '',
+      telefono: '',
+      correo: '',
+      direccion: '',
+      nacionalidad: '',
+      estadoCivil: '',
+      cedula: '',
+      contactoEmergencia: '',
+      rol: 'p',
+      esMedico: false,
+      especialidad: '',
+      datosCompletos: false
+    };
+  }
 }
