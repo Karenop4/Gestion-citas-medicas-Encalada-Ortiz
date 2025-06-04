@@ -53,7 +53,7 @@ h1{
 /* ✅ Estilos para pantallas pequeñas */
 @media (max-width: 720px) {
   .espaciador { 
-    padding-top: 14rem; 
+    padding-top: 10rem; 
   }
   h1 {
     font-size: 2em;

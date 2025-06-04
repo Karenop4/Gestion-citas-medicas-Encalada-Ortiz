@@ -30,7 +30,6 @@ h1{
   font-size: 2.5em;
   color: #333;
   text-align: center;
-  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -127,10 +126,6 @@ button:hover::after {
 }
 
 @media (max-width: 720px) {
-  .espaciador {
-    padding-top: 13rem;
-  }
-
   form{
     max-width: 90%;
     padding: 0.5rem;

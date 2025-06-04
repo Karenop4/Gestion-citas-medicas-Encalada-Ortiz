@@ -259,6 +259,7 @@
         cursor: pointer;
         padding: 0;
         z-index: 999; /* Asegura que esté por encima del overlay */
+        margin-right: 2rem; /* Espacio a la derecha del logo */
     }
 
     .hamburger-icon {

@@ -15,7 +15,7 @@
 
 .servicios {
   width: 100%;
-  height: 500px; /* Altura para pantallas grandes */
+  height: auto; /* Altura para pantallas grandes */
   background: url('/img/fondoazul.jpg'); /* <--- COMBINADO Y CORREGIDO: Fondo azul */
   background-repeat: no-repeat;
   background-size: cover;
