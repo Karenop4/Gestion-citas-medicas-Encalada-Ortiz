@@ -6,38 +6,96 @@
                     <img class="logoH"src="img/logo.PNG" width="10%"> Hospital Central
                 </button>
             </div>
-            <div class="nav-buttons">
-                <button (click)="navigateTo('/patient/citas')" class="nav-button">
-                    Agendar una cita
-                </button>
-                <button (click)="navigateTo('/patient/servicios')" class="nav-button">
-                    Especialidades
-                </button>
-            </div>
-
-            <div class="user-menu-wrapper" #userDropdown>
-                <div class="user-menu-trigger" (click)="toggleDropdown()">
-                    <img class="user-avatar" src="img/usrG.png" />
-                    <span class="user-name">
-                        {{ usuario.nombre || 'Usuario' }}
-                    </span>
-                    <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor "
-                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+            
+            <!-- Navegación y perfil para escritorio (visible en PC, oculto en móvil) -->
+            <div class="desktop-nav-elements">
+                <div class="nav-buttons">
+                    <button (click)="navigateTo('/patient/citas')" class="nav-button">
+                        Agendar una cita
+                    </button>
+                    <button (click)="navigateTo('/patient/servicios')" class="nav-button">
+                        Especialidades
+                    </button>
+                    <!-- Puedes añadir aquí más botones específicos de rol si los tienes en el futuro -->
+                    <!-- Por ejemplo:
+                    <button *ngIf="usuario.rol === 'a'" (click)="navigateTo('/admin/dashboard')" class="nav-button">
+                        Panel Admin
+                    </button>
+                    -->
                 </div>
 
-                <div *ngIf="isDropdownOpen" class="dropdown-menu">
-                    <button (click)="navigateTo('/patient/perfil'); toggleDropdown()" class="dropdown-item">
-                        Editar Perfil.
-                    </button>
-                    <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">
-                        Cerrar Sesión
-                    </button>
+                <div class="user-menu-wrapper" #userDropdown>
+                    <div class="user-menu-trigger" (click)="toggleDropdown()">
+                        <img class="user-avatar" src="img/usrG.png" />
+                        <span class="user-name">
+                            {{ usuario.nombre || 'Usuario' }}
+                        </span>
+                        <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor "
+                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <div *ngIf="isDropdownOpen" class="dropdown-menu">
+                        <button (click)="navigateTo('/patient/perfil'); toggleDropdown()" class="dropdown-item">
+                            Editar Perfil.
+                        </button>
+                        <button (click)="goToLogin(); toggleDropdown()" class="dropdown-item">
+                            Cerrar Sesión
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- Botón de hamburguesa para móviles (visible en móvil, oculto en PC) -->
+            <button class="menu-toggle" (click)="toggleSideMenu()">
+                <span class="hamburger-icon"></span>
+                <span class="hamburger-icon"></span>
+                <span class="hamburger-icon"></span>
+            </button>
         </div>
     </nav>
+
+    <!-- Menú lateral que se abrirá en móviles (oculto en PC) -->
+    <div class="side-menu-wrapper" [class.open]="isSideMenuOpen">
+        <div class="nav-buttons"> <!-- Botones de navegación para el menú lateral -->
+            <button (click)="navigateTo('/patient/citas'); closeSideMenu()" class="nav-button">
+                Agendar una cita
+            </button>
+            <button (click)="navigateTo('/patient/servicios'); closeSideMenu()" class="nav-button">
+                Especialidades
+            </button>
+            <!-- Botones específicos de rol para el menú lateral -->
+            <!-- Por ejemplo:
+            <button *ngIf="usuario.rol === 'a'" (click)="navigateTo('/admin/dashboard'); closeSideMenu()" class="nav-button">
+                Panel Admin
+            </button>
+            -->
+        </div>
+
+        <div class="user-menu-wrapper" #userDropdown> <!-- Menú de usuario para el menú lateral -->
+            <div class="user-menu-trigger" (click)="toggleDropdown()">
+                <img class="user-avatar" src="img/usrG.png" />
+                <span class="user-name">
+                    {{ usuario.nombre || 'Usuario' }}
+                </span>
+                <svg class="dropdown-arrow" [class.rotated]="isDropdownOpen" fill="none" stroke="currentColor "
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+
+            <div *ngIf="isDropdownOpen" class="dropdown-menu">
+                <button (click)="navigateTo('/patient/perfil'); toggleDropdown(); closeSideMenu()" class="dropdown-item">
+                    Editar Perfil.
+                </button>
+                <button (click)="goToLogin(); toggleDropdown(); closeSideMenu()" class="dropdown-item">
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main class="contenido">
         <router-outlet />
     </main>
@@ -61,4 +119,6 @@
                                 src="img/github.png"></a></p>
         </div>
     </footer>
+    <!-- Overlay para cerrar el menú lateral al hacer clic fuera -->
+    <div class="overlay" [class.open]="isSideMenuOpen" (click)="closeSideMenu()"></div>
 </div>

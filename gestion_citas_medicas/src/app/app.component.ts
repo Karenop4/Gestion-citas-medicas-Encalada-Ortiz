@@ -17,21 +17,45 @@ import { Usuario } from './models/user.model';
 export class AppComponent implements OnInit {
   usuario: Usuario = this.getDefaultUsuario();
   title = 'gestion_citas_medicas';
-    isScrolled: boolean = false;
+  isScrolled: boolean = false;
+  isDropdownOpen = false; // Estado del dropdown del usuario
+  isSideMenuOpen: boolean = false; // <--- NUEVO: Estado del menú lateral
+
   constructor(private router: Router, private userService: UserService, private auth: Auth, private authService: AuthService,) {}
   
 
   goToLogin(): void {
     this.router.navigate(['/login']);
+    this.closeSideMenu(); // <--- Cierra el menú lateral al navegar
+    this.isDropdownOpen = false; // Cierra el dropdown también
   }
-  isDropdownOpen = false;
+
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
+  // <--- NUEVOS MÉTODOS PARA EL MENÚ LATERAL
+  toggleSideMenu(): void {
+    this.isSideMenuOpen = !this.isSideMenuOpen;
+    if (this.isSideMenuOpen) {
+      document.body.style.overflow = 'hidden'; // Evita el scroll del cuerpo
+    } else {
+      document.body.style.overflow = ''; // Restaura el scroll
+    }
+  }
+
+  closeSideMenu(): void {
+    this.isSideMenuOpen = false;
+    document.body.style.overflow = ''; // Restaura el scroll
+  }
+  // FIN NUEVOS MÉTODOS
+
   navigateTo(path: string): void {
     this.router.navigate([path]);
+    this.closeSideMenu(); // <--- Cierra el menú lateral al navegar
+    this.isDropdownOpen = false; // Cierra el dropdown también
   }
+
   @HostListener('window:scroll', ['$event'])
   onWindowScroll() {
     this.checkScroll();
@@ -63,6 +87,8 @@ export class AppComponent implements OnInit {
         const hide = routesToHide.some(route => event.urlAfterRedirects.includes(route));
         this.showNavbar = !hide;
         this.showFooter = !hide;
+        // <--- NUEVO: Asegurarse de cerrar el menú lateral si la ruta cambia
+        this.closeSideMenu(); 
       }
     });
   }
