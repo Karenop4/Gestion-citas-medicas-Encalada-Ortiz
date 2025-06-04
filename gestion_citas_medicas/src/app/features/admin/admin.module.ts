@@ -2,15 +2,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { AdminRoutingModule } from './admin-routing.module'; // Asegúrate de que esta línea esté presente
+import { AdminRoutingModule } from './admin-routing.module'; 
 
 
 @NgModule({
   declarations: [
-    // Si tus componentes (AppointmentManagementComponent, ScheduleManagementComponent) NO son standalone,
-    // DEBES declararlos aquí:
-    // AppointmentManagementComponent,
-    // ScheduleManagementComponent
   ],
   imports: [
     CommonModule,

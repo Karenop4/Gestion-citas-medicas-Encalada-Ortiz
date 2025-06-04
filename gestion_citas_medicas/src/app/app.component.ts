@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        const routesToHide = ['/login', '/registro'];
+        const routesToHide = ['/login', '/registro', '/patient/perfil'];
         const hide = routesToHide.some(route => event.urlAfterRedirects.includes(route));
         this.showNavbar = !hide;
         this.showFooter = !hide;

@@ -20,13 +20,12 @@
   <div *ngIf="!mostrarTipoUsuario" class="login-boton">
     <div class="login-header">
       <h2>Iniciar sesión</h2>
-      <h3>Para continuar, por favor inicia sesión o regístrate.</h3>
+      <h3>Para continuar, por favor inicia sesión</h3>
       <ng-lottie [options]="options" (animationCreated)="animationCreated($event)"></ng-lottie>
     </div>
     
     <div class="botones-usuario">
-      <button (click)="login()">Iniciar sesión con Google</button>
-      <button (click)="login()">Registrate con Google</button>
+      <button (click)="login()">Continuar con Google</button>
     </div>
     
   </div>

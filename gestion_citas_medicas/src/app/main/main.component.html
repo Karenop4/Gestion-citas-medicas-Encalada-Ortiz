@@ -55,6 +55,19 @@
             <button (click)="navigateTo('/admin/gcitas')" class="btn">Acceder</button>
         </div>
     </div>
+    <div class="card" *ngIf="userRole === 'a'">
+        <div class="cimg4">
+        </div>
+        <div class="card-header">
+            <h3>Especialidades</h3>
+        </div>
+        <div class="card-body">
+            <p>Registre una nueva especialidad</p>
+        </div>
+        <div class="card-footer">
+            <button (click)="navigateTo('/admin/gespecialidad')" class="btn">Acceder</button>
+        </div>
+    </div>
 </div>
 <div class="insta"> <span style="color: rgb(37, 199, 199);">Instalaciones</span><br>Conozca nuestras instalaciones:</div>
 <div class="instalaciones">

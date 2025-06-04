@@ -15,7 +15,7 @@ import { UserCredential } from '@angular/fire/auth';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  constructor(private authService: AuthService, private router: Router, private firestore: Firestore) {}
+  constructor(private authService: AuthService, private router: Router, private firestore: Firestore) { }
 
   mostrarTipoUsuario = true;
   tipoUsuario: 'p' | 'a' | null = null;
@@ -51,7 +51,23 @@ export class LoginComponent {
       if (data) {
         this.router.navigate(['/patient/perfil'], { state: { user: data } });
       } else {
-        this.router.navigate(['/main']);
+        this.authService.user$.subscribe(async user => {
+          if (!user) return;
+
+          const uid = user.uid;
+          const datos = await this.authService.getUsuarioActual(uid);
+          if(datos){
+            if (datos?.rol === this.tipoUsuario) {
+            this.router.navigate(['/main']);
+          }
+          else {
+              this.options={
+                  path: 'assets/doctores.json',
+              };
+              this.mostrarTipoUsuario=true;
+          }
+          }
+        });
       }
     });
   }

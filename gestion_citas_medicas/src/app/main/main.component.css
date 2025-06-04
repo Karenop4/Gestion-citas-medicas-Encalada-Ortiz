@@ -62,19 +62,21 @@
 .card .cimg1,
 .card .cimg1-2,
 .card .cimg2,
-.card .cimg3 {
+.card .cimg3,
+.card .cimg4 {
   width: 100%;
-  height: 0; /* <--- CAMBIO AQUÍ: Altura colapsada */
-  padding-bottom: 56.25%; /* <--- AÑADIDO AQUÍ: Mantiene la relación de aspecto (ej. 16:9) */
+  height: 0;
+  padding-bottom: 50%; 
   background-repeat: no-repeat;
-  background-size: contain; /* Para asegurar que la imagen completa sea visible */
-  background-position: center; /* Centra la imagen */
+  background-size: contain;
+  background-position: center; 
   overflow: hidden;
 }
 .card .cimg1{ background-image: url('/img/chequeo.jpg'); }
 .card .cimg1-2{ background-image: url('/img/calendario.jpg'); }
 .card .cimg2{ background-image: url('/img/horario.jpg'); }
 .card .cimg3{ background-image: url('/img/admin.png'); }
+.card .cimg4{ background-image: url('/img/especialidad.jpeg'); }
 
 
 .card-header h3 {

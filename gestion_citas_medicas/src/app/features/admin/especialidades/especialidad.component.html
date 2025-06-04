@@ -1,0 +1,89 @@
+<!-- src/app/features/admin/especialidades/especialidad.component.html -->
+<div class="specialty-management-container">
+  <h2>Gestión de Especialidades</h2>
+
+  <div *ngIf="isLoading" class="loading-indicator">Cargando...</div>
+
+  <!-- Formulario para crear/editar especialidad -->
+  <div class="form-section">
+    <h3 *ngIf="!editingSpecialty">Crear Nueva Especialidad</h3>
+    <h3 *ngIf="editingSpecialty">Editar Especialidad: {{ editingSpecialty.name }}</h3> <!-- <--- CORREGIDO AQUÍ -->
+
+    <div class="form-group">
+      <label for="specialtyName">Nombre de la Especialidad:</label>
+      <!-- Campo para CREAR nueva especialidad -->
+      <input
+        *ngIf="!editingSpecialty"
+        type="text"
+        id="newSpecialtyNameInput"
+        [(ngModel)]="newSpecialtyName"
+        placeholder="Ej: Cardiología"
+        class="text-input"
+      />
+      <!-- Campo para EDITAR especialidad existente -->
+      <input
+        *ngIf="editingSpecialty"
+        type="text"
+        id="editingSpecialtyNameInput"
+        [(ngModel)]="editingSpecialtyName"
+        placeholder="Ej: Cardiología"
+        class="text-input"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button
+        *ngIf="!editingSpecialty"
+        (click)="addSpecialty()"
+        [disabled]="isLoading || !newSpecialtyName.trim()"
+      >
+        Agregar Especialidad
+      </button>
+
+      <button
+        *ngIf="editingSpecialty"
+        (click)="updateSpecialty()"
+        [disabled]="isLoading || !editingSpecialtyName.trim()"
+      >
+        Actualizar Especialidad
+      </button>
+      <button *ngIf="editingSpecialty" (click)="cancelEdit()" class="cancel-button">
+        Cancelar Edición
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de especialidades existentes -->
+  <div class="specialties-list-section">
+    <h3>Especialidades Existentes</h3>
+    <div *ngIf="specialties.length === 0 && !isLoading" class="no-results">
+      <p>No hay especialidades registradas aún.</p>
+    </div>
+
+    <ul class="specialties-list">
+      <li *ngFor="let specialty of specialties" class="specialty-item">
+        <span>{{ specialty.name }}</span>
+        <div class="item-actions">
+          <button (click)="editSpecialty(specialty)" class="edit-button">Editar</button>
+          <button (click)="deleteSpecialty(specialty.id)" class="delete-button">Eliminar</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Modal para mensajes de éxito/error -->
+  <div class="modal-overlay" *ngIf="isModalOpen">
+    <div class="modal-content" [ngClass]="modalType">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ modalType === 'success' ? 'Éxito' : 'Error' }}</h3>
+        <button class="close-button" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>{{ modalMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-button" (click)="closeModal()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>

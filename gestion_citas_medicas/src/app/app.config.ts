@@ -6,10 +6,8 @@ import { routes } from './app.routes';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { firebaseConfig } from '../environments/firebase.config';
-import { CommonModule } from '@angular/common'
 import { provideLottieOptions } from 'ngx-lottie';
 import player from 'lottie-web';
-import { FormsModule } from '@angular/forms';
 import { withInMemoryScrolling } from '@angular/router';
 
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
