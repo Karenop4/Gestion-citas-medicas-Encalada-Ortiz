@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Usuario } from '../../../models/user.model';
 import { UserService } from '../../../core/services/user.service';
-
+import { EspecialidadesService, Especialidad } from '../../../core/services/especialidades.service';
 
 @Component({
   selector: 'app-profile',
@@ -17,12 +17,14 @@ import { UserService } from '../../../core/services/user.service';
 })
 export class ProfileComponent implements OnInit {
   usuario: Usuario = this.getDefaultUsuario();
+  especialidades: Especialidad[] = [];
 
   constructor(
     private router: Router,
     private auth: Auth,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private especialidadesService: EspecialidadesService
   ) {
     const state = this.router.getCurrentNavigation()?.extras.state as any;
     if (state?.user) {
@@ -38,9 +40,17 @@ export class ProfileComponent implements OnInit {
     if (datos) {
       this.usuario = datos;
       this.userService.setUsuario(this.usuario);
-
     }
+
+    this.especialidadesService.getEspecialidades().subscribe(esps => {
+      this.especialidades = esps;
+    }, error => {
+      console.error('Error al obtener contactos:', error);
+    });
+
   }
+
+  
 
   guardar() {
     if (!this.auth.currentUser) return;
@@ -69,6 +79,7 @@ export class ProfileComponent implements OnInit {
       contactoEmergencia: '',
       rol: 'p',
       esMedico: false,
+      especialidad: '',
       datosCompletos: false
     };
   }

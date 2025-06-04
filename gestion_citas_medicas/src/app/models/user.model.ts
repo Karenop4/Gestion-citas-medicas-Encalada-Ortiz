@@ -1,3 +1,10 @@
+export interface Especialidad {
+  id?: string;
+  nombre: string;
+}
+
+
+
 export interface Usuario {
   uid?: string;
   nombre: string;
@@ -12,5 +19,6 @@ export interface Usuario {
   contactoEmergencia: string;
   rol: 'p' | 'a'; // paciente o administrativo
   esMedico?: boolean;
+  especialidad: Especialidad | string; // Puede ser un objeto Especialidad o un string
   datosCompletos?: boolean;
 }

@@ -42,6 +42,16 @@
       <option [ngValue]="false">No</option>
     </select>
   </div>
-  
+
+  <div *ngIf="usuario.esMedico">
+    <label>Especialidad:</label>
+    <select [(ngModel)]="usuario.especialidad" name="especialidad" required>
+      <option *ngFor="let esp of especialidades" [ngValue]="esp.id">
+        {{ esp.nombre }}
+      </option>
+      <option [ngValue]="null">Ninguna</option>
+    </select>
+  </div>
+
   <button type="submit">Guardar</button>
 </form>
