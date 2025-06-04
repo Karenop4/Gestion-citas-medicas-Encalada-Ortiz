@@ -8,7 +8,7 @@
     top: 0;
     left: 0;
     transition: background-color 0.5s ease-in-out;
-    min-height: 4rem; /* Asegura una altura mínima para el navbar */
+    min-height: 4rem; /* Altura mínima para el navbar en desktop */
 }
 .navbar.scrolled {
     background-color: #5abdff; 
@@ -20,7 +20,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Eliminar padding aquí si se gestiona en la media query inferior para evitar duplicidad */
+    padding: 0 1rem; /* Añadido padding horizontal para desktop */
 }
 
 .nav-buttons {
@@ -36,7 +36,7 @@
 .title {
     font-family: 'Lexend Deca', sans-serif;
     color: #3d3a52;
-    font-size: 2rem; /* Tamaño base */
+    font-size: 2rem;
     line-height: 2.5rem;
     font-weight: 600;
     padding: 0.25rem 0.75rem;
@@ -51,7 +51,7 @@
 .nav-button {
     font-family: 'Lexend Deca', sans-serif;
     color: #3d3a52;
-    font-size: 1rem; /* Tamaño base */
+    font-size: 1rem;
     line-height: 1.5rem;
     font-weight: 600;
     padding: 0.25rem 0.75rem;
@@ -117,6 +117,12 @@
         line-height: 1.75rem;
         padding: 0.5rem 1rem;
     }
+    .navbar-container {
+        padding: 0 2rem; /* Más padding para pantallas más grandes */
+    }
+    .user-name {
+        display: block; /* Visible en pantallas más grandes */
+    }
 }
 
 .user-menu-wrapper {
@@ -157,20 +163,18 @@
     line-height: 1.75rem;
     font-weight: 500;
     transition: color 0.3s ease-in-out;
-    display: none; /* Por defecto oculto en móviles */
+    display: block; /* Visible en pantallas más grandes */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @media (min-width: 768px) {
-    .user-name {
-        display: block; /* Visible en pantallas más grandes */
-    }
+    /* No hay cambios aquí, ya es `display: block` */
 }
 
 .dropdown-arrow {
     width: 1.25rem;
     height: 1.25rem;
-    color: var(--white); /* Asegúrate de que --white esté definido o usa un color directo */
+    color: #3d3a52; /* Usar un color directo si --white no está definido */
     margin-left: 0.25rem;
     transform: rotate(0deg);
     transition: transform 0.3s ease-in-out;
@@ -191,7 +195,7 @@
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-    border: 1px solid var(--gray-200); /* Asegúrate de que --gray-200 esté definido o usa un color directo */
+    border: 1px solid #e0e0e0; /* Usar un color directo si --gray-200 no está definido */
 }
 
 .dropdown-item {
@@ -199,7 +203,7 @@
     width: 100%;
     text-align: left;
     padding: 0.5rem 1rem;
-    color: var(--gray-800); /* Asegúrate de que --gray-800 esté definido o usa un color directo */
+    color: #333; /* Usar un color directo si --gray-800 no está definido */
     border-radius: 0.375rem;
     transition: background-color 0.2s ease-in-out;
     cursor: pointer;
@@ -208,60 +212,136 @@
 }
 
 
-/* Media Query para pantallas móviles (< 600px) */
-@media (max-width: 600px) {
-  .navbar-container {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0 1rem;
-    gap: 0.5rem;
-  }
+/* Media Query para pantallas móviles (< 768px) */
+@media (max-width: 767px) {
+    .navbar {
+        padding: 0.75rem 1rem; /* Padding más compacto en móvil */
+        min-height: 3.5rem; /* Altura mínima más pequeña */
+    }
 
-  .titulo,
-  .nav-buttons,
-  .user-menu-wrapper {
-    width: 100%;
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
-  }
+    .navbar-container {
+        flex-direction: row; /* Mantener en fila para logo y hamburguesa */
+        justify-content: space-between; /* Espacio entre logo y hamburguesa */
+        align-items: center;
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 0; /* Eliminar padding extra aquí */
+    }
 
-  .nav-buttons {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
+    .nav-buttons,
+    .user-menu-wrapper {
+        display: none; /* Ocultar la navegación normal en móvil */
+    }
 
-  .user-name {
-    display: inline;
-    font-size: 1rem;
-  }
+    .menu-toggle {
+        display: flex; /* Mostrar el botón de hamburguesa */
+        flex-direction: column;
+        justify-content: space-around;
+        width: 30px;
+        height: 25px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1001; /* Asegura que esté por encima del overlay */
+    }
 
-  .logoH {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
+    .hamburger-icon {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background-color: #333; /* Color de las líneas de la hamburguesa */
+        border-radius: 2px;
+        transition: all 0.3s ease-in-out;
+    }
 
-  .title {
-    font-size: 1.5rem;
-  }
+    /* Estilos para el menú lateral */
+    .side-menu-wrapper {
+        position: fixed;
+        top: 0;
+        right: -300px; /* Inicialmente fuera de pantalla */
+        width: 250px; /* Ancho del menú lateral */
+        max-width: 80vw; /* Limita el ancho del menú lateral */
+        height: 100vh;
+        background-color: #f6f9ff; /* Fondo del menú lateral */
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+        transition: right 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        padding: 60px 20px 20px 20px; /* Padding para evitar que el contenido se superponga con el navbar */
+        box-sizing: border-box;
+        z-index: 999; /* Detrás del botón de hamburguesa pero encima del contenido */
+    }
 
-  .nav-button {
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
-  }
+    .side-menu-wrapper.open {
+        right: 0; /* Desliza el menú a la vista */
+    }
 
-  .dropdown-menu {
-    width: 100%;
-    position: static;
-    margin-top: 0.25rem;
-  }
+    .side-menu-wrapper .nav-buttons {
+        display: flex; /* Mostrar los botones dentro del menú lateral */
+        flex-direction: column;
+        align-items: flex-start; /* Alinea los elementos a la izquierda */
+        gap: 15px; /* Espacio entre los botones */
+        width: 100%;
+        margin-bottom: 20px;
+    }
 
-  .dropdown-item {
-    padding: 0.5rem;
-  }
+    .side-menu-wrapper .nav-button {
+        width: 100%;
+        text-align: left;
+        font-size: 1.1rem;
+        padding: 10px 0;
+        color: #333;
+    }
+
+    .side-menu-wrapper .user-menu-wrapper {
+        display: block; /* Mostrar el menú de usuario dentro del lateral */
+        width: 100%;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+
+    .side-menu-wrapper .user-menu-trigger {
+        justify-content: flex-start; /* Alinea el trigger a la izquierda */
+        width: 100%;
+    }
+
+    .side-menu-wrapper .user-name {
+        display: block; /* Asegura que el nombre de usuario se muestre en el menú lateral */
+    }
+
+    .side-menu-wrapper .dropdown-menu {
+        position: static; /* El dropdown se posiciona en el flujo normal */
+        width: 100%;
+        box-shadow: none;
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    .side-menu-wrapper .dropdown-item {
+        padding: 8px 0;
+        font-size: 1rem;
+    }
+
+    /* Overlay */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0); /* Inicialmente transparente */
+        transition: background-color 0.3s ease-in-out;
+        z-index: 998; /* Detrás del menú lateral */
+        pointer-events: none; /* No interactuable cuando está oculto */
+    }
+
+    .overlay.open {
+        background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
+        pointer-events: auto; /* Interactuable cuando está abierto */
+    }
 }
-
 
 /* --- Estilos no relacionados directamente con el navbar (mantengo sin cambios) --- */
 .contenido{

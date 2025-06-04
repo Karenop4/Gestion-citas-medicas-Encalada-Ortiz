@@ -2,6 +2,9 @@
   /* Asegura que ocupe todo el espacio disponible en la página */
   min-height: 100vh;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
   box-sizing: border-box;
 
@@ -27,16 +30,14 @@
 }
 
 .my-appointments-container {
-  font-family: 'Inter', sans-serif;
   max-width: 900px;
-  margin: 40px auto; /* Revertido a la versión anterior */
+  margin: 40px auto; 
   padding: 30px;
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
   color: #333;
-  margin-top: 10%; 
 }
 
 h2 {
@@ -169,17 +170,16 @@ h2 {
 /* --- Ajustes Responsivos --- */
 @media (max-width: 768px) {
   .my-appointments-container {
-    width: 95%; /* Ocupa más ancho en móviles */
-    margin: 20px auto; /* Ajusta margen superior para navbar fijo */
-    padding: 20px;
-  }
+    width: 90%; 
+    margin: 80px auto 20px auto; 
+    padding: 20px;}
 
   h2 {
     font-size: 1.8em;
   }
 
   .appointments-grid {
-    grid-template-columns: 1fr; /* Una columna en móviles */
+    grid-template-columns: 1fr; 
   }
 
   .appointment-card {
@@ -198,9 +198,9 @@ h2 {
 
 @media (max-width: 480px) {
   .my-appointments-container {
-    padding: 15px;
-    margin: 15px auto; /* Ajuste para navbar más delgado */
-  }
+    width: 90%; 
+    margin: 80px auto 20px auto; 
+    padding: 20px;}
 
   h2 {
     font-size: 1.6em;

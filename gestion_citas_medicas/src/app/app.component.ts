@@ -17,9 +17,9 @@ import { Usuario } from './models/user.model';
 export class AppComponent implements OnInit {
   usuario: Usuario = this.getDefaultUsuario();
   title = 'gestion_citas_medicas';
-   isScrolled: boolean = false;
+    isScrolled: boolean = false;
   constructor(private router: Router, private userService: UserService, private auth: Auth, private authService: AuthService,) {}
- 
+  
 
   goToLogin(): void {
     this.router.navigate(['/login']);
