@@ -5,7 +5,7 @@ import { AppointmentRequestComponent } from './appointment-request/appointment-r
 import { MyAppointmentsComponent } from './my-appointments/my-appointments.component';
 import { ProfileComponent } from './profile/profile.component';
 import {ServComponent} from './servicios/serv.component';
-const routes: Routes = [
+const routes: Routes = [ // Define las rutas para el módulo de paciente
   { path: 'citas', component: AppointmentRequestComponent },
   { path: 'consultasC', component: MyAppointmentsComponent }, 
   { path: 'perfil', component: ProfileComponent },

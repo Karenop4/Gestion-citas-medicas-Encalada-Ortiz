@@ -8,30 +8,35 @@ import { Usuario } from '../../../models/user.model';
 import { UserService } from '../../../core/services/user.service';
 import { EspecialidadesService, Especialidad } from '../../../core/services/especialidades.service';
 
-@Component({
+@Component({// Componente para el perfil del paciente
   selector: 'app-profile',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  standalone: true, // Indica que este componente es independiente y puede ser utilizado sin necesidad de un módulo específico
+  imports: [CommonModule, FormsModule], 
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent implements OnInit {
-  usuario: Usuario = this.getDefaultUsuario();
-  especialidades: Especialidad[] = [];
 
-  constructor(
+// Este componente permite al paciente ver y editar su perfil
+export class ProfileComponent implements OnInit {
+  usuario: Usuario = this.getDefaultUsuario();// Inicializa el usuario con valores por defecto
+  especialidades: Especialidad[] = []; // Lista de especialidades disponibles
+
+  constructor(// Inyecta los servicios necesarios para el componente
     private router: Router,
     private auth: Auth,
     private authService: AuthService,
     private userService: UserService,
     private especialidadesService: EspecialidadesService
   ) {
-    const state = this.router.getCurrentNavigation()?.extras.state as any;
+    const state = this.router.getCurrentNavigation()?.extras.state as any; // Obtiene el estado de la navegación actual
+    // Si hay un usuario en el estado, lo fusiona con los valores por defecto
     if (state?.user) {
       this.usuario = { ...this.getDefaultUsuario(), ...state.user };
     }
   }
 
+  // Método que se ejecuta al inicializar el componente
+  // Se suscribe al observable del usuario actual y obtiene las especialidades disponibles
   async ngOnInit() {
     this.authService.user$.subscribe(async user => {
       if (!user) return;
@@ -56,25 +61,25 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-
-  
-
+  // Método para guardar los datos del usuario
   guardar() {
-    if (!this.auth.currentUser) return;
+    if (!this.auth.currentUser) return; // Verifica si el usuario está autenticado
 
+    // Asigna el uid y correo del usuario autenticado al objeto usuario
     this.usuario.uid = this.auth.currentUser.uid;
     this.usuario.correo = this.auth.currentUser.email ? this.auth.currentUser.email : '';
 
+    // Verifica si el usuario ya tiene datos completos
     this.authService.updateUser(this.usuario.uid, this.usuario).then(() => {
-      localStorage.setItem('usuario', JSON.stringify(this.usuario)); 
+      localStorage.setItem('usuario', JSON.stringify(this.usuario)); // Guarda el usuario en el localStorage
       this.userService.setUsuario(this.usuario); 
       alert('Datos guardados correctamente');
       this.router.navigate(['/main']); 
     });
   }
 
-
-  private getDefaultUsuario(): Usuario {
+  
+  private getDefaultUsuario(): Usuario {// Método privado para obtener un usuario con valores por defecto
     return {
       nombre: '',
       fechaNacimiento: '',

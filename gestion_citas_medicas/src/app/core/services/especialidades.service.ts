@@ -3,7 +3,8 @@ import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export interface Especialidad {
+
+export interface Especialidad { // Define la interfaz para Especialidad
   id?: string;
   nombre: string;
 }
@@ -11,6 +12,9 @@ export interface Especialidad {
 @Injectable({
   providedIn: 'root',
 })
+
+// Servicio para manejar las especialidades
+// Este servicio se encarga de obtener las especialidades desde Firestore
 export class EspecialidadesService {
   constructor(private firestore: Firestore) {}
 
@@ -20,7 +24,7 @@ export class EspecialidadesService {
       map((docs: any[]) =>
         docs.map(doc => ({
           id: doc.id,
-          nombre: doc.name // <--- usar el campo actual
+          nombre: doc.name 
         }))
       )
     );
