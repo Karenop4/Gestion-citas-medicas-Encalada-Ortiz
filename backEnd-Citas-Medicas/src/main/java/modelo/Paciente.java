@@ -8,14 +8,16 @@ import java.util.ArrayList;
  *
  * @author USER
  */
-public class Paciente {
+public class Paciente extends Usuario{
+    String idPaciente;
     String tipoSangre;
     ArrayList<Cita> citas;
 
-    public Paciente(String tipoSangre) {
-        this.tipoSangre = tipoSangre;
+    public Paciente(String personaID) {
+        super(personaID);
     }
 
+ 
     public String getTipoSangre() {
         return tipoSangre;
     }
@@ -24,6 +26,14 @@ public class Paciente {
         return citas;
     }
 
+    public String getIdPaciente() {
+        return idPaciente;
+    }
+
+    public void setIdPaciente(String idPaciente) {
+        this.idPaciente = idPaciente;
+    }
+    
     public void setTipoSangre(String tipoSangre) {
         this.tipoSangre = tipoSangre;
     }

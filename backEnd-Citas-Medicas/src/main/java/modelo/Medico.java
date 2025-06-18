@@ -8,13 +8,14 @@ import java.util.ArrayList;
  *
  * @author USER
  */
-public class Medico {
+public class Medico extends Usuario{
+    String medicoID;
     Especialidad especialidad;
     ArrayList<Cita> citas;
     Horario horario;
 
-    public Medico(Especialidad especialidad) {
-        this.especialidad = especialidad;
+    public Medico(String personaID) {
+        super(personaID);
     }
 
     public Especialidad getEspecialidad() {
@@ -29,6 +30,15 @@ public class Medico {
         return horario;
     }
 
+    public String getMedicoID() {
+        return medicoID;
+    }
+
+    public void setMedicoID(String medicoID) {
+        this.medicoID = medicoID;
+    }
+    
+    
     public void setEspecialidad(Especialidad especialidad) {
         this.especialidad = especialidad;
     }

@@ -12,6 +12,7 @@ import java.util.Date;
  * @author USER
  */
 public class Cita {
+   String citaID;
    Date fecha; 
    LocalTime hora;
    char estado; //'p' pendiente ,'x' cancelada o 'c' confirmada
