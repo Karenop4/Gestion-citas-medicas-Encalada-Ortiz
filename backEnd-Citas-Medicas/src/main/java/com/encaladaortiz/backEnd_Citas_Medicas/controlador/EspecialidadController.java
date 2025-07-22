@@ -19,10 +19,7 @@ public class EspecialidadController {
     public EspecialidadController(EspecialidadService service) {
         this.service = service;
     }
-    @GetMapping("/test")
-    public String test() {
-        return "API is working!";
-    }
+
     @GetMapping
     public ResponseEntity<List<Especialidad>> listar() {
         List<Especialidad> especialidades = service.listar();
