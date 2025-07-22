@@ -1,60 +1,59 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
-import java.util.ArrayList;
-/**
- *
- * @author USER
- */
-public class Medico extends Usuario{
-    String medicoID;
-    Especialidad especialidad;
-    ArrayList<Cita> citas;
-    Horario horario;
 
-    public Medico(String personaID) {
-        super(personaID);
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "medicos")
+public class Medico extends Usuario {
+
+    @ManyToOne
+    @JoinColumn(name = "especialidad_id", nullable = false)
+    private Especialidad especialidad;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "horario_id", unique = true)
+    private Horario horario;
+
+    @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
+    private List<Cita> citas;
+
+    public Medico() {
     }
 
     public Especialidad getEspecialidad() {
         return especialidad;
     }
 
-    public ArrayList<Cita> getCitas() {
-        return citas;
+    public void setEspecialidad(Especialidad especialidad) {
+        this.especialidad = especialidad;
     }
 
     public Horario getHorario() {
         return horario;
     }
 
-    public String getMedicoID() {
-        return medicoID;
-    }
-
-    public void setMedicoID(String medicoID) {
-        this.medicoID = medicoID;
-    }
-    
-    
-    public void setEspecialidad(Especialidad especialidad) {
-        this.especialidad = especialidad;
-    }
-
-    public void setCitas(ArrayList<Cita> citas) {
-        this.citas = citas;
-    }
-
     public void setHorario(Horario horario) {
         this.horario = horario;
     }
 
+    public List<Cita> getCitas() {
+        return citas;
+    }
+
+    public void setCitas(List<Cita> citas) {
+        this.citas = citas;
+    }
+
     @Override
     public String toString() {
-        return "Medico{" + "especialidad=" + especialidad + ", citas=" + citas + ", horario=" + horario + '}';
+        return "Medico{" +
+                "especialidad=" + especialidad +
+                ", horario=" + horario +
+                ", citas=" + citas +
+                ", personalID=" + getPersonalID() +
+                ", cedula='" + getCedula() + '\'' +
+                ", nombre='" + getNombre() + '\'' +
+                '}';
     }
-    
-    
 }

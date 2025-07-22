@@ -1,14 +1,13 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "especialidades")
 public class Especialidad {
 
     @Id
-    @JsonIgnoreProperties(value = { "created_at", "updated_at" }, allowGetters = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -16,12 +15,10 @@ public class Especialidad {
 
     private boolean activa;
 
-    public Especialidad() {
-        this.activa = true;
-    }
+    @OneToMany(mappedBy = "especialidad")
+    private List<Medico> medicos;
 
-    public Especialidad(String nombre) {
-        this.nombre = nombre;
+    public Especialidad() {
         this.activa = true;
     }
 
@@ -29,28 +26,39 @@ public class Especialidad {
         return id;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public boolean isActiva() {
-        return activa;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
+    public boolean isActiva() {
+        return activa;
+    }
+
     public void setActiva(boolean activa) {
         this.activa = activa;
     }
 
+    public List<Medico> getMedicos() {
+        return medicos;
+    }
+
+    public void setMedicos(List<Medico> medicos) {
+        this.medicos = medicos;
+    }
+
     @Override
     public String toString() {
-        return "Especialidad{" + "id=" + id + ", nombre=" + nombre + ", activa=" + activa + '}';
+        return "Especialidad{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                '}';
     }
 }

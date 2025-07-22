@@ -1,50 +1,43 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
-import java.util.ArrayList;
-/**
- *
- * @author USER
- */
-public class Paciente extends Usuario{
-    String idPaciente;
-    String tipoSangre;
-    ArrayList<Cita> citas;
 
-    public Paciente(String personaID) {
-        super(personaID);
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "pacientes")
+public class Paciente extends Usuario {
+
+    private String tipoSangre;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+    private List<Cita> citas;
+
+    public Paciente() {
     }
 
- 
     public String getTipoSangre() {
         return tipoSangre;
     }
 
-    public ArrayList<Cita> getCitas() {
-        return citas;
-    }
-
-    public String getIdPaciente() {
-        return idPaciente;
-    }
-
-    public void setIdPaciente(String idPaciente) {
-        this.idPaciente = idPaciente;
-    }
-    
     public void setTipoSangre(String tipoSangre) {
         this.tipoSangre = tipoSangre;
     }
 
-    public void setCitas(ArrayList<Cita> citas) {
+    public List<Cita> getCitas() {
+        return citas;
+    }
+
+    public void setCitas(List<Cita> citas) {
         this.citas = citas;
     }
 
     @Override
     public String toString() {
-        return "Paciente{" + "tipoSangre=" + tipoSangre + ", citas=" + citas + '}';
+        return "Paciente{" +
+                "citas=" + citas +
+                ", personalID=" + getPersonalID() +
+                ", cedula='" + getCedula() + '\'' +
+                ", nombre='" + getNombre() + '\'' +
+                '}';
     }
-    
 }

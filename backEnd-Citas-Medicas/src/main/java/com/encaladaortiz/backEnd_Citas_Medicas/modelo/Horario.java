@@ -1,62 +1,70 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
-/**
- *
- * @author USER
- */
-public class Horario {
-    String dias;
-    String horaInicio;
-    String horaFin;
-    boolean descanso;
-    String horaDescanso;
+import jakarta.persistence.*;
 
-    public Horario(String dias, String horaInicio, String horaFin, boolean descanso, String horaDescanso) {
-        this.dias = dias;
-        this.horaInicio = horaInicio;
-        this.horaFin = horaFin;
-        this.descanso = descanso;
-        this.horaDescanso = horaDescanso;
+@Entity
+@Table(name = "horarios")
+public class Horario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String dias;
+
+    private String horaInicio;
+
+    private String horaFin;
+
+    private boolean descanso;
+
+    private String horaDescanso;
+
+    public Horario() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getDias() {
         return dias;
     }
 
-    public String getHoraInicio() {
-        return horaInicio;
-    }
-
-    public String getHoraFin() {
-        return horaFin;
-    }
-
-    public boolean isDescanso() {
-        return descanso;
-    }
-
-    public String getHoraDescanso() {
-        return horaDescanso;
-    }
-
     public void setDias(String dias) {
         this.dias = dias;
+    }
+
+    public String getHoraInicio() {
+        return horaInicio;
     }
 
     public void setHoraInicio(String horaInicio) {
         this.horaInicio = horaInicio;
     }
 
+    public String getHoraFin() {
+        return horaFin;
+    }
+
     public void setHoraFin(String horaFin) {
         this.horaFin = horaFin;
     }
 
+    public boolean isDescanso() {
+        return descanso;
+    }
+
     public void setDescanso(boolean descanso) {
         this.descanso = descanso;
+    }
+
+    public String getHoraDescanso() {
+        return horaDescanso;
     }
 
     public void setHoraDescanso(String horaDescanso) {
@@ -65,8 +73,9 @@ public class Horario {
 
     @Override
     public String toString() {
-        return "Horario{" + "dias=" + dias + ", horaInicio=" + horaInicio + ", horaFin=" + horaFin + ", descanso=" + descanso + ", horaDescanso=" + horaDescanso + '}';
+        return "Horario{" +
+                "id=" + id +
+                ", dias='" + dias + '\'' +
+                '}';
     }
-    
-    
 }
