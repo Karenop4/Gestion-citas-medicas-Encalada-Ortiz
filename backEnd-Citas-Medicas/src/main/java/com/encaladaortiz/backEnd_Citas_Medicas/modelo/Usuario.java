@@ -9,7 +9,7 @@ import java.util.Date;
 public abstract class Usuario {
 
     @Id
-    private String personalID;
+    private Long personalID;
 
     private String cedula;
 
@@ -39,11 +39,11 @@ public abstract class Usuario {
     public Usuario() {
     }
 
-    public String getPersonalID() {
+    public Long getPersonalID() {
         return personalID;
     }
 
-    public void setPersonalID(String personalID) {
+    public void setPersonalID(Long personalID) {
         this.personalID = personalID;
     }
 
