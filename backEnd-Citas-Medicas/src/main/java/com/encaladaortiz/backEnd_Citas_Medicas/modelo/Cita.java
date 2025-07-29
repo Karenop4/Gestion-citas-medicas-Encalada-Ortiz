@@ -17,11 +17,11 @@ public class Cita {
     private String nombre;
 
     @ManyToOne
-    @JoinColumn(name = "medico_id", nullable = false)
+    @JoinColumn(name = "medico_id", referencedColumnName = "personalID",nullable = false)
     private Medico medico;
 
     @ManyToOne
-    @JoinColumn(name = "paciente_id", nullable = false)
+    @JoinColumn(name = "paciente_id", referencedColumnName = "personalID",nullable = false)
     private Paciente paciente;
 
     @OneToOne(cascade = CascadeType.ALL)

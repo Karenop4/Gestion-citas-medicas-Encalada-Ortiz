@@ -9,6 +9,7 @@ import java.util.Date;
 public abstract class Usuario {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long personalID;
 
     private String cedula;
@@ -35,7 +36,8 @@ public abstract class Usuario {
     private Date fechaNac;
 
     private char rol;
-
+    @Column(name = "uid", unique = true)
+    private String uidFirebase;
     public Usuario() {
     }
 

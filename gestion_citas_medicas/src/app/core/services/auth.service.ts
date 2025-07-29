@@ -4,13 +4,14 @@ import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Usuario } from '../../models/user.model';
 import { UserService } from './user.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   
   user$: Observable<any>; // Observable para el usuario autenticado
 
-  constructor(private userService: UserService ,private auth: Auth, private firestore: Firestore) { // Inyectamos Auth y Firestore
+  constructor(private userService: UserService ,private auth: Auth, private firestore: Firestore, private http: HttpClient) { // Inyectamos Auth y Firestore
     // Inicializamos el observable del usuario autenticado
     this.user$ = user(this.auth);
   }
@@ -42,7 +43,20 @@ export class AuthService {
         contactoEmergencia: ''
       };
       await setDoc(userRef, nuevo);
-      this.userService.setUsuario(nuevo); 
+
+      if(tipo === 'p') {
+        this.http.post('http://localhost:8080/api/pacientes', nuevo).subscribe({
+          next: res => console.log('Usuario guardado en el backend:', res),
+          error: err => console.error('Error al guardar en el backend:', err)
+        });
+      }else if(tipo === 'a') {
+        this.http.post('http://localhost:8080/api/medicos', nuevo).subscribe({
+          next: res => console.log('Administrador guardado en el backend:', res),       
+          error: err => console.error('Error al guardar en el backend:', err)
+        });
+      }
+
+      this.userService.setUsuario(nuevo);
 
       return nuevo;
     } else { // Si el usuario ya existe, lo cargamos

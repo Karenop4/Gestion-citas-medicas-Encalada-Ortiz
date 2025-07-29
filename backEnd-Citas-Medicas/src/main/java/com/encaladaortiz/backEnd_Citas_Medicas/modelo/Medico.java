@@ -8,7 +8,7 @@ import java.util.List;
 public class Medico extends Usuario {
 
     @ManyToOne
-    @JoinColumn(name = "especialidad_id", nullable = false)
+    @JoinColumn(name = "especialidad_id", nullable = true)
     private Especialidad especialidad;
 
     @OneToOne(cascade = CascadeType.ALL)
