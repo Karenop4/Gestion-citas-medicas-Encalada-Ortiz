@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EspecialidadDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Especialidad;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.EspecialidadService;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,10 @@ public class EspecialidadController {
         this.service = service;
     }
 
+    // En tu controlador
     @GetMapping
-    public ResponseEntity<List<Especialidad>> listar() {
-        List<Especialidad> especialidades = service.listar();
-        return ResponseEntity.ok(especialidades);
+    public List<EspecialidadDTO> listarEspecialidades() {
+        return service.listar();
     }
 
     @PostMapping

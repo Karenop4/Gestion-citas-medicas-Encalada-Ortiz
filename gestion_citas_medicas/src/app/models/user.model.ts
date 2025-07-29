@@ -1,11 +1,4 @@
-export interface Especialidad {// Define la interfaz Especialidad
-  // Esta interfaz representa una especialidad médica
-  id?: string;
-  nombre: string;
-}
-
-
-
+import { Especialidad } from './especialidad.model';
 export interface Usuario {// Define la interfaz Usuario
   // Esta interfaz representa un usuario del sistema, ya sea paciente o administrativo
   uid?: string;

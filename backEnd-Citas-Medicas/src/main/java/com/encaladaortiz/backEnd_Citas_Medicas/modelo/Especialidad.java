@@ -18,6 +18,7 @@ public class Especialidad {
     @OneToMany(mappedBy = "especialidad")
     private List<Medico> medicos;
 
+
     public Especialidad() {
         this.activa = true;
     }

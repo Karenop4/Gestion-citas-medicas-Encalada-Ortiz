@@ -21,8 +21,8 @@
                 <select id="specialtySelect" [(ngModel)]="selectedSpecialty" (change)="errorMessage = null"
                     class="select-input">
                     <option [ngValue]="null" disabled selected>Selecciona una especialidad</option>
-                    <option *ngFor="let specialty of availableSpecialties" [value]="specialty">
-                        {{ specialty }}
+                    <option *ngFor="let specialty of availableSpecialties" [ngValue]="specialty">
+                        {{ specialty.nombre }}
                     </option>
                 </select>
             </div>
@@ -30,7 +30,7 @@
         </div>
 
         <div *ngIf="currentStep === 2" class="step-content">
-            <h3>Paso 2: Selecciona un Médico ({{ selectedSpecialty }})</h3>
+            <h3>Paso 2: Selecciona un Médico ({{ selectedSpecialty?.nombre }})</h3>
             <div *ngIf="availableDoctors.length === 0 && !isLoading" class="no-results">
                 No hay médicos disponibles para esta especialidad.
             </div>
@@ -82,7 +82,7 @@
         <div *ngIf="currentStep === 5" class="step-content confirmation-step">
             <h3>Paso 5: Confirma tu Cita</h3>
             <div class="summary-details">
-                <p><strong>Especialidad:</strong> {{ selectedSpecialty }}</p>
+                <p><strong>Especialidad:</strong> {{ selectedSpecialty?.nombre }}</p>
                 <p><strong>Médico:</strong> {{ selectedDoctorObject?.nombre }}</p>
                 <p><strong>Fecha:</strong> {{ selectedDate | date:'fullDate' }}</p>
                 <p><strong>Hora:</strong> {{ selectedTime }}</p>

@@ -1,11 +1,13 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.servicio;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EspecialidadDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Especialidad;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.EspecialidadRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EspecialidadService {
@@ -16,10 +18,12 @@ public class EspecialidadService {
         this.repository = repository;
     }
 
-    public List<Especialidad> listar() {
-        return repository.findAll();
+    public List<EspecialidadDTO> listar() {
+        List<Especialidad> especialidades = repository.findAll();
+        return especialidades.stream()
+                .map(e -> new EspecialidadDTO(e.getId(), e.getNombre(), e.isActiva()))
+                .collect(Collectors.toList());
     }
-
     public Especialidad guardar(Especialidad especialidad) {
         return repository.save(especialidad);
     }

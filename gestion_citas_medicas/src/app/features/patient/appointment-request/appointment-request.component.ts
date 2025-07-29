@@ -3,17 +3,13 @@ import { Firestore, collection, getDocs, query, where, doc, getDoc, setDoc } fro
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Auth, user, User } from '@angular/fire/auth'; 
-
+import { ApiService } from '../../../core/services/api.service';
+import { Horario } from '../../../models/horario.model';
 interface Doctor {
   id: string; 
   nombre: string;
   especialidad: string;
   esMedico: boolean;
-}
-
-interface Schedule {
-  dias: string;
-  horas: string;
 }
 
 @Component({
@@ -29,8 +25,8 @@ export class AppointmentRequestComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  selectedSpecialty: string | null = null;
-  availableSpecialties: string[] = [];
+  selectedSpecialty: any = null;
+  availableSpecialties: any[] = [];
 
   selectedDoctorId: string | null = null;
   availableDoctors: Doctor[] = [];
@@ -42,13 +38,13 @@ export class AppointmentRequestComponent implements OnInit {
   availableTimeSlots: string[] = [];
   selectedTime: string | null = null;
 
-  private doctorSchedule: Schedule | null = null;
+  private doctorSchedule: Horario | null = null;
   private doctorAppointments: string[] = [];
   private parsedDoctorDays: number[] = []; 
 
   currentUserId: string | null = null;
 
-  constructor(private firestore: Firestore, private auth: Auth) {
+  constructor(private firestore: Firestore, private auth: Auth, private apiService: ApiService) {
     const futureDate = new Date();
     futureDate.setMonth(futureDate.getMonth() + 2);
     this.maxDate = futureDate.toISOString().split('T')[0];
@@ -56,41 +52,26 @@ export class AppointmentRequestComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSpecialties();
-    user(this.auth).subscribe((aUser: User | null) => {
-      if (aUser) {
-        this.currentUserId = aUser.uid;
-        console.log('Usuario en sesión (UID):', this.currentUserId);
-      } else {
-        this.currentUserId = null;
-        console.log('No hay usuario en sesión.');
-      }
-    });
   }
 
   /**
-   * Carga las especialidades desde la colección 'especialidades' en Firestore.
+   * Carga las especialidades desde el servidor REST usando ApiService.
    */
-  async loadSpecialties(): Promise<void> {
+  loadSpecialties(): void {
     this.isLoading = true;
     this.errorMessage = null;
-    try {
-      const q = collection(this.firestore, 'especialidades');
-      const querySnapshot = await getDocs(q);
-      const specialties = new Set<string>();
-
-      querySnapshot.forEach((doc) => {
-        const specialtyData = doc.data();
-        if (specialtyData && specialtyData['name']) {
-          specialties.add(specialtyData['name']);
-        }
-      });
-      this.availableSpecialties = Array.from(specialties);
-
-      this.isLoading = false;
-    } catch (error) {
-      this.errorMessage = 'No se pudieron cargar las especialidades. Por favor, intenta de nuevo.';
-      this.isLoading = false;
-    }
+    this.apiService.loadSpecialties().subscribe({
+      next: (specialties: any[]) => {
+        this.availableSpecialties = specialties;
+        this.isLoading = false;
+        console.log('Especialidades cargadas:', this.availableSpecialties);
+      },
+      error: (error) => {
+        this.errorMessage = 'No se pudieron cargar las especialidades. Inténtalo de nuevo.';
+        this.isLoading = false;
+        console.error('Error al cargar especialidades:', error);
+      }
+    });
   }
 
   /**
@@ -157,69 +138,42 @@ export class AppointmentRequestComponent implements OnInit {
    * Carga los médicos de una especialidad específica.
    * @param specialty La especialidad seleccionada.
    */
-  async loadDoctorsBySpecialty(specialty: string): Promise<void> {
+  loadDoctorsBySpecialty(specialty: string): void {
     this.isLoading = true;
     this.errorMessage = null;
-    try {
-      const q = query(
-        collection(this.firestore, 'usuarios'),
-        where('esMedico', '==', true),
-        where('especialidad', '==', specialty)
-      );
-      const querySnapshot = await getDocs(q);
-      this.availableDoctors = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        nombre: doc.data()['nombre'],
-        especialidad: doc.data()['especialidad'],
-        esMedico: doc.data()['esMedico']
-      } as Doctor));
-      this.isLoading = false;
-    } catch (error) {
-      this.errorMessage = 'No se pudieron cargar los médicos. Inténtalo de nuevo.';
-      this.isLoading = false;
-    }
+    this.apiService.loadDoctorsBySpecialty(this.selectedSpecialty.nombre).subscribe({
+      next: (doctors: any[]) => {
+        this.availableDoctors = doctors;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'No se pudieron cargar los médicos. Inténtalo de nuevo.';
+        this.isLoading = false;
+        console.error('Error al cargar médicos:', error);
+      }
+    });
   }
 
   /**
    * Carga el horario y las citas existentes del médico seleccionado.
    * @param doctorId El ID del médico.
    */
-  async loadDoctorAvailability(doctorId: string): Promise<void> {
+  loadDoctorAvailability(doctorId: string): void {
     this.isLoading = true;
     this.errorMessage = null;
-    this.doctorSchedule = null; 
-    this.doctorAppointments = []; 
     this.parsedDoctorDays = [];
 
-    try {
-      const scheduleDocRef = doc(this.firestore, `usuarios/${doctorId}/horario/horario_doc`);
-      const scheduleDocSnap = await getDoc(scheduleDocRef);
-
-      if (scheduleDocSnap.exists()) {
-        const scheduleData = scheduleDocSnap.data();
-        if (scheduleData && typeof scheduleData['dias'] === 'string' && typeof scheduleData['horas'] === 'string') {
-          this.doctorSchedule = scheduleData as Schedule;
-          this.parsedDoctorDays = this.parseDaysFromFirestore(this.doctorSchedule.dias);
-        } else {
-          this.errorMessage = 'El horario del médico está incompleto o es incorrecto (faltan "dias" o "horas").';
-          this.doctorSchedule = null;
-        }
-      } else {
-        this.errorMessage = 'No se encontró el horario para este médico.';
-        this.doctorSchedule = null;
+    this.apiService.getDoctorAvailableDays(Number(doctorId)).subscribe({
+      next: (diasString: string) => {
+        this.parsedDoctorDays = this.parseDaysFromFirestore(diasString);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'No se pudo cargar los días disponibles del médico. Inténtalo de nuevo.';
+        this.isLoading = false;
+        console.error('Error al cargar días disponibles:', error);
       }
-
-      const appointmentsCollectionRef = collection(this.firestore, `usuarios/${doctorId}/citas`);
-      const qAppointments = query(appointmentsCollectionRef, where('confirmada', '==', true));
-      const appointmentsQuerySnapshot = await getDocs(qAppointments);
-      
-      this.doctorAppointments = appointmentsQuerySnapshot.docs.map(doc => doc.id);
-
-      this.isLoading = false;
-    } catch (error) {
-      this.errorMessage = 'No se pudo cargar la disponibilidad del médico. Inténtalo de nuevo.';
-      this.isLoading = false;
-    }
+    });
   }
 
   /**
@@ -228,48 +182,26 @@ export class AppointmentRequestComponent implements OnInit {
    */
   generateAvailableTimeSlots(): void {
     this.availableTimeSlots = [];
-    if (!this.selectedDateAsDate || !this.doctorSchedule || this.parsedDoctorDays.length === 0) {
-      this.errorMessage = 'Fecha o horario del médico no disponible.';
+    if (!this.selectedDate || !this.selectedDoctorId) {
+      this.errorMessage = 'Fecha o médico no seleccionado.';
       return;
     }
-
-    const dayOfWeek = this.selectedDateAsDate.getDay();
-    const firestoreDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek; 
-
-    if (!this.parsedDoctorDays.includes(firestoreDayOfWeek)) {
-      this.errorMessage = 'El médico no trabaja en el día seleccionado.';
-      return;
-    }
-
-    if (!this.doctorSchedule.horas) {
-        this.errorMessage = 'Horario del médico incorrecto. Faltan datos de horas.';
-        return;
-    }
-
-    const [startHour, endHour] = this.doctorSchedule.horas.split('-').map(Number);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const selectedDateNormalized = new Date(this.selectedDateAsDate);
-    selectedDateNormalized.setHours(0, 0, 0, 0);
-
-    for (let hour = startHour; hour < endHour; hour++) {
-      const slotDate = new Date(this.selectedDateAsDate);
-      slotDate.setHours(hour, 0, 0, 0);
-
-      if (selectedDateNormalized.getTime() === today.getTime() && slotDate.getTime() < new Date().getTime()) {
-        continue;
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.apiService.loadDoctorAvailability(Number(this.selectedDoctorId), this.selectedDate).subscribe({
+      next: (slots: string[]) => {
+        this.availableTimeSlots = slots;
+        if (this.availableTimeSlots.length === 0) {
+          this.errorMessage = 'No hay horas disponibles para la fecha seleccionada.';
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'No se pudieron cargar las horas disponibles. Inténtalo de nuevo.';
+        this.isLoading = false;
+        console.error('Error al cargar horas disponibles:', error);
       }
-
-      const slotString = this.formatDateToFirestoreString(slotDate);
-      if (!this.doctorAppointments.includes(slotString)) {
-        this.availableTimeSlots.push(`${hour < 10 ? '0' + hour : hour}:00`);
-      }
-    }
-
-    if (this.availableTimeSlots.length === 0) {
-      this.errorMessage = 'No hay horas disponibles para la fecha seleccionada.';
-    }
+    });
   }
 
   /**

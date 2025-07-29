@@ -11,13 +11,9 @@ public class Cita {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Date fecha;
-
     private LocalTime hora;
-
     private char estado;
-
     private String nombre;
 
     @ManyToOne
