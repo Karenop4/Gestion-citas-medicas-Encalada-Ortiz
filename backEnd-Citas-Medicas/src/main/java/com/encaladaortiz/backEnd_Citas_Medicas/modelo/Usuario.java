@@ -36,8 +36,8 @@ public abstract class Usuario {
     private Date fechaNac;
 
     private char rol;
-    @Column(name = "uid", unique = true)
-    private String uidFirebase;
+    @Column(unique = true)
+    private String uid;
     public Usuario() {
     }
 
@@ -144,10 +144,19 @@ public abstract class Usuario {
     public void setRol(char rol) {
         this.rol = rol;
     }
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
 
     @Override
     public String toString() {
         return "Usuario{" +
+                "uid='" + uid + '\'' +
                 "personalID='" + personalID + '\'' +
                 ", cedula='" + cedula + '\'' +
                 ", nombre='" + nombre + '\'' +

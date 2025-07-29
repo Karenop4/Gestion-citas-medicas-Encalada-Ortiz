@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
 public class Paciente extends Usuario {
 
     private String tipoSangre;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
     private List<Cita> citas;
 

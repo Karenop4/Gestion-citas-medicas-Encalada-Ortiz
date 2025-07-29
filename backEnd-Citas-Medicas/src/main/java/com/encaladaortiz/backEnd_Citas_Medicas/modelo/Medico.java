@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -13,9 +14,11 @@ public class Medico extends Usuario {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "horario_id", unique = true)
+    @JsonIgnore
     private Horario horario;
 
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Cita> citas;
 
     public Medico() {
