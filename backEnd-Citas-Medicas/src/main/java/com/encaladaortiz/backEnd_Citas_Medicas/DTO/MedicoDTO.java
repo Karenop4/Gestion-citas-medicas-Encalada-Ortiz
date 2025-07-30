@@ -4,7 +4,8 @@ public class MedicoDTO {
     private String nombre;
     private String cedula;
     private String especialidadNombre;
-
+    private HorarioDTO horario;
+    public MedicoDTO() {}
     public MedicoDTO(Long id, String nombre, String cedula, String especialidadNombre) {
         this.id = id;
         this.nombre = nombre;
@@ -23,4 +24,6 @@ public class MedicoDTO {
 
     public String getEspecialidadNombre() { return especialidadNombre; }
     public void setEspecialidadNombre(String especialidadNombre) { this.especialidadNombre = especialidadNombre; }
+    public HorarioDTO getHorario() { return horario; } // ¡NUEVO GETTER!
+    public void setHorario(HorarioDTO horario) { this.horario = horario; } // ¡NUEVO SETTER!
 }

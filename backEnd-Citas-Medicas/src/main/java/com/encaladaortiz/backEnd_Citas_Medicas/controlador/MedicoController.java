@@ -1,8 +1,10 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.MedicoDTO;
+import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Horario;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
+import com.encaladaortiz.backEnd_Citas_Medicas.servicio.CitaService;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.MedicoService;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.MedicoService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,10 +21,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 @RequestMapping("/api/medicos")
 @CrossOrigin(origins = "*")
 public class MedicoController {
+    @Autowired
+    private CitaService citaService;
     private final MedicoService  service;
     public MedicoController(MedicoService service) {
         this.service = service;
@@ -103,11 +117,18 @@ public class MedicoController {
         String diasDisponibles = service.obtenerDiasDisponiblesMedico(id);
 
         if (diasDisponibles.isEmpty()) {
-            // Podrías devolver un 204 No Content si prefieres,
-            // pero 200 OK con lista vacía es un patrón común para "no hay resultados"
             return ResponseEntity.ok(diasDisponibles);
         }
         return ResponseEntity.ok(diasDisponibles);
+    }
+    @GetMapping("/{id}/horarioGeneral")
+    public ResponseEntity<Horario> obtenerHorarioGeneralMedico(@PathVariable("id") Long id) {
+        Horario horario = service.obtenerHorarioDeMedico(id);
+
+        if (horario == null) {
+            return ResponseEntity.notFound().build(); // Devuelve 404 si no se encuentra
+        }
+        return ResponseEntity.ok(horario); // Devuelve el objeto Horario completo
     }
 
     @DeleteMapping("/{id}")
@@ -117,5 +138,45 @@ public class MedicoController {
         }
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/{id}/citas-confirmadas/pdf")
+    public ResponseEntity<byte[]> descargarReporteCitasConfirmadasPorMedicoPdf(@PathVariable Long id) {
+        try {
+            byte[] pdfBytes = citaService.generarReporteCitasConfirmadasPorMedicoPdf(id);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "reporte_citas_confirmadas_medico_" + id + ".pdf");
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Endpoint para descargar PDF de citas confirmadas por especialidad
+    // Nota: aunque está en MedicoController, es para Especialidad, se puede mover
+    // a un EspecialidadController o ReporteController si la estructura crece.
+    @GetMapping("/especialidad/{id}/citas-confirmadas/pdf")
+    public ResponseEntity<byte[]> descargarReporteCitasConfirmadasPorEspecialidadPdf(@PathVariable("id") Long especialidadId) {
+        try {
+            byte[] pdfBytes = citaService.generarReporteCitasConfirmadasPorEspecialidadPdf(especialidadId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "reporte_citas_confirmadas_especialidad_" + especialidadId + ".pdf");
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

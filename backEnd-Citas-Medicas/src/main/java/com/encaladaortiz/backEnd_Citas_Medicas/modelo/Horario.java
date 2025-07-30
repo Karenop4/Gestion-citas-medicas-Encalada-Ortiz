@@ -2,23 +2,22 @@ package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "horarios")
 public class Horario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // O GenerationType.AUTO si es como lo manejas
+    @Column(name = "id") // <--- ¡Asegúrate que el nombre de la columna es 'id' en la DB!
     private Long id;
 
-    private String dias;
-
-    private String horaInicio;
-
-    private String horaFin;
-
     private boolean descanso;
-
-    private String horaDescanso;
+    private String dias;
+    private LocalTime horaDescanso; // Usar LocalTime
+    private LocalTime horaFin;      // Usar LocalTime
+    private LocalTime horaInicio;
 
     public Horario() {
     }
@@ -31,30 +30,6 @@ public class Horario {
         this.id = id;
     }
 
-    public String getDias() {
-        return dias;
-    }
-
-    public void setDias(String dias) {
-        this.dias = dias;
-    }
-
-    public String getHoraInicio() {
-        return horaInicio;
-    }
-
-    public void setHoraInicio(String horaInicio) {
-        this.horaInicio = horaInicio;
-    }
-
-    public String getHoraFin() {
-        return horaFin;
-    }
-
-    public void setHoraFin(String horaFin) {
-        this.horaFin = horaFin;
-    }
-
     public boolean isDescanso() {
         return descanso;
     }
@@ -63,19 +38,35 @@ public class Horario {
         this.descanso = descanso;
     }
 
-    public String getHoraDescanso() {
+    public String getDias() {
+        return dias;
+    }
+
+    public void setDias(String dias) {
+        this.dias = dias;
+    }
+
+    public LocalTime getHoraDescanso() {
         return horaDescanso;
     }
 
-    public void setHoraDescanso(String horaDescanso) {
+    public void setHoraDescanso(LocalTime horaDescanso) {
         this.horaDescanso = horaDescanso;
     }
 
-    @Override
-    public String toString() {
-        return "Horario{" +
-                "id=" + id +
-                ", dias='" + dias + '\'' +
-                '}';
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
     }
 }

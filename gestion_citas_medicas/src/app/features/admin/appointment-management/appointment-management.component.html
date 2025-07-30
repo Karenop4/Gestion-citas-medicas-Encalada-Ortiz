@@ -1,65 +1,146 @@
 <div class="appointment-management-container">
   <h2>Gestión de Citas Médicas</h2>
 
+  <div class="filter-mode-buttons">
+    <button [class.active]="filterMode === 'medico'" (click)="setFilterMode('medico')">
+      Filtrar por Médico
+    </button>
+    <button [class.active]="filterMode === 'especialidad'" (click)="setFilterMode('especialidad')">
+      Filtrar por Especialidad
+    </button>
+  </div>
+
   <div *ngIf="isLoading" class="loading-indicator">Cargando datos...</div>
 
-  <div class="form-section">
+  <div *ngIf="filterMode === 'medico'" class="filter-section">
     <h3>Seleccionar Médico</h3>
-    <div class="form-group">
-      <label for="doctorSelect">Médico:</label>
-      <select
-        id="doctorSelect"
-        [(ngModel)]="selectedDoctorId"
-        (change)="onDoctorSelected()"
-        class="select-input"
-      >
+    <div class="select-container">
+      <select [(ngModel)]="selectedDoctorId" (change)="onDoctorSelected()">
         <option [ngValue]="null" disabled>Selecciona un médico</option>
         <option *ngFor="let doctor of availableDoctors" [ngValue]="doctor.id">
-          Dr. {{ doctor.nombre }}
+          {{ doctor.nombre }}
         </option>
       </select>
     </div>
-  </div>
 
-  <div *ngIf="selectedDoctorId" class="appointments-section">
-    <h3>Citas Pendientes para Dr. {{ selectedDoctorName }}</h3>
-
-    <div *ngIf="pendingAppointments.length === 0 && !isLoading" class="no-appointments-info">
-      <p>No hay citas pendientes para este médico.</p>
+    <div *ngIf="selectedDoctorId" class="occupancy-bar-container">
+      <div class="occupancy-bar" [ngClass]="occupancyBarColor">
+        <p>{{ occupancyMessage }}</p>
+      </div>
     </div>
 
-    <div class="appointment-list">
-      <div *ngFor="let appointment of pendingAppointments" class="appointment-card">
-        <div class="appointment-details">
-          <p><strong>Paciente:</strong> {{ appointment.paciente }}</p>
-          <p>
-            <strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}
-          </p>
-          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
-        </div>
-        <div class="appointment-actions">
-          <button class="confirm-button" (click)="confirmAppointment(appointment)">
-            Confirmar
-          </button>
-          <button class="cancel-button" (click)="cancelAppointment(appointment)">
-            Cancelar
-          </button>
-        </div>
+    <div *ngIf="selectedDoctorId" class="data-section">
+      <h4>Citas Pendientes de Dr. {{ selectedDoctorName }}</h4>
+      <div *ngIf="pendingAppointments.length === 0 && !isLoading" class="no-data-message">
+        No hay citas pendientes para este médico.
       </div>
+
+      <div *ngIf="pendingAppointments.length > 0" class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID Cita</th>
+              <th>Paciente</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Especialidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cita of pendingAppointments">
+              <td>{{ cita.id }}</td>
+              <td>{{ cita.paciente }}</td>
+              <td>{{ cita.fecha | date:'fullDate' }}</td>
+              <td>{{ cita.hora }}</td>
+              <td>{{ cita.especialidad }}</td>
+              <td>{{ cita.estado === 'p' ? 'Pendiente' : 'Confirmada' }}</td>
+              <td>
+                <button *ngIf="cita.estado === 'p'" class="confirm-button" (click)="openConfirmCancelModal('confirm', cita)">Confirmar</button>
+                <button *ngIf="cita.estado === 'p'" class="cancel-button" (click)="openConfirmCancelModal('cancel', cita)">Cancelar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button *ngIf="selectedDoctorId" class="download-button" (click)="downloadPdfReport()">
+        Descargar Reporte PDF de Citas (Médico)
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="filterMode === 'especialidad'" class="filter-section">
+    <h3>Seleccionar Especialidad</h3>
+    <div class="select-container">
+      <select [(ngModel)]="selectedSpecialtyId" (change)="onSpecialtySelected()">
+        <option [ngValue]="null" disabled>Selecciona una especialidad</option>
+        <option *ngFor="let specialty of availableSpecialties" [ngValue]="specialty.id">
+          {{ specialty.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="selectedSpecialtyId" class="data-section">
+      <h4>Citas Confirmadas de {{ selectedSpecialtyName }}</h4>
+      <div *ngIf="confirmedAppointmentsBySpecialty.length === 0 && !isLoading" class="no-data-message">
+        No hay citas confirmadas para esta especialidad.
+      </div>
+
+      <div *ngIf="confirmedAppointmentsBySpecialty.length > 0" class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID Cita</th>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cita of confirmedAppointmentsBySpecialty">
+              <td>{{ cita.id }}</td>
+              <td>{{ cita.paciente }}</td>
+              <td>{{ cita.medico }}</td>
+              <td>{{ cita.fecha | date:'fullDate' }}</td>
+              <td>{{ cita.hora }}</td>
+              <td>{{ cita.estado === 'p' ? 'Pendiente' : 'Confirmada' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button *ngIf="selectedSpecialtyId" class="download-button" (click)="downloadPdfReportBySpecialty()">
+        Descargar Reporte PDF de Citas (Especialidad)
+      </button>
     </div>
   </div>
 </div>
-<div class="modal-overlay" *ngIf="isModalOpen">
-  <div class="modal-content" [ngClass]="modalType">
-    <div class="modal-header">
-      <h3 class="modal-title">{{ modalType === 'success' ? 'Éxito' : 'Error' }}</h3>
-      <button class="close-button" (click)="closeModal()">&times;</button>
+
+<div *ngIf="isModalOpen" class="modal-overlay">
+  <div class="modal-content">
+    <h3>{{ modalType === 'success' ? '¡Éxito!' : '¡Error!' }}</h3>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-buttons">
+      <button (click)="closeModal()" class="btn btn-secondary">Cerrar</button>
     </div>
-    <div class="modal-body">
-      <p>{{ modalMessage }}</p>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-button" (click)="closeModal()">Aceptar</button>
+  </div>
+</div>
+
+<div *ngIf="isConfirmCancelModalOpen" class="modal-overlay">
+  <div class="modal-content">
+    <h3>{{ confirmCancelModalAction === 'confirm' ? 'Confirmar Cita' : 'Cancelar Cita' }}</h3>
+    <p>¿Estás seguro de que quieres {{ confirmCancelModalAction === 'confirm' ? 'confirmar' : 'cancelar' }} la cita para:</p>
+    <p><strong>Paciente:</strong> {{ citaToConfirmCancel?.paciente }}</p>
+    <p><strong>Fecha:</strong> {{ citaToConfirmCancel?.fecha | date:'fullDate' }}</p>
+    <p><strong>Hora:</strong> {{ citaToConfirmCancel?.hora }}</p>
+    <div class="modal-buttons">
+      <button (click)="closeConfirmCancelModal()" class="btn btn-secondary">No</button>
+      <button *ngIf="confirmCancelModalAction === 'confirm'" (click)="confirmAppointment()" class="btn btn-primary">Sí, Confirmar</button>
+      <button *ngIf="confirmCancelModalAction === 'cancel'" (click)="cancelAppointment()" class="btn btn-danger">Sí, Cancelar</button>
     </div>
   </div>
 </div>

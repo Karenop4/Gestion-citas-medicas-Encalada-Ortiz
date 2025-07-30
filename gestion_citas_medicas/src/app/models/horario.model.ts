@@ -1,4 +1,8 @@
 export interface Horario {
-  dias: string;
-  horas: string;
+  id?: number; 
+  descanso: boolean;
+  dias: string; // "1,2,3,4,5"
+  horaDescanso: string; 
+  horaFin: string;     
+  horaInicio: string;   
 }

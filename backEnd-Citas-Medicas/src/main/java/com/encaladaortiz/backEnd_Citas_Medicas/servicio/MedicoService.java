@@ -1,5 +1,7 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.servicio;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.HorarioDTO;
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.MedicoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Horario;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.MedicoRepository;
@@ -27,7 +29,31 @@ public class MedicoService {
     public Medico guardar(Medico medico) {
         return repository.save(medico);
     }
+    public List<MedicoDTO> getAllMedicos() {
+        return repository.findAll().stream()
+                .map(this::convertToMedicoDTO) // Mapear cada Medico a MedicoDTO
+                .collect(Collectors.toList());
+    }
 
+    private MedicoDTO convertToMedicoDTO(Medico medico) {
+        MedicoDTO dto = new MedicoDTO();
+        dto.setId(medico.getPersonalID()); // Usa getPersonalID() de Usuario
+        dto.setNombre(medico.getNombre());
+        dto.setEspecialidadNombre(medico.getEspecialidad() != null ? medico.getEspecialidad().getNombre() : null);
+
+        // Mapear Horario a HorarioDTO
+        if (medico.getHorario() != null) {
+            HorarioDTO horarioDTO = new HorarioDTO();
+            horarioDTO.setId(medico.getHorario().getId());
+            horarioDTO.setDescanso(medico.getHorario().isDescanso());
+            horarioDTO.setDias(medico.getHorario().getDias());
+            horarioDTO.setHoraDescanso(medico.getHorario().getHoraDescanso());
+            horarioDTO.setHoraFin(medico.getHorario().getHoraFin());
+            horarioDTO.setHoraInicio(medico.getHorario().getHoraInicio());
+            dto.setHorario(horarioDTO);
+        }
+        return dto;
+    }
     public Optional<Medico> buscarPorId(Long id) {
         return repository.findById(id);
     }
@@ -71,12 +97,12 @@ public class MedicoService {
         List<String> franjas = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         try {
-            LocalTime horaInicioTrabajo = LocalTime.parse(horario.getHoraInicio(), formatter);
-            LocalTime horaFinTrabajo = LocalTime.parse(horario.getHoraFin(), formatter);
+            LocalTime horaInicioTrabajo = horario.getHoraInicio();
+            LocalTime horaFinTrabajo = horario.getHoraFin();
             LocalTime horaInicioDescanso = null;
             LocalTime horaFinDescanso = null;
-            if (horario.isDescanso() && horario.getHoraDescanso() != null && !horario.getHoraDescanso().isEmpty()) {
-                horaInicioDescanso = LocalTime.parse(horario.getHoraDescanso(), formatter);
+            if (horario.isDescanso() && horario.getHoraDescanso() != null ) {
+                horaInicioDescanso = horario.getHoraDescanso();
                 horaFinDescanso = horaInicioDescanso.plusHours(1); // Descanso de 1 hora
             }
             LocalTime currentSlot = horaInicioTrabajo;
@@ -117,5 +143,11 @@ public class MedicoService {
 
         // Simplemente devolvemos la cadena de días tal cual
         return horario.getDias();
+    }
+    public Horario obtenerHorarioDeMedico(Long medicoPersonalId) {
+        // Buscamos el médico por su personalid
+        return repository.findByPersonalID(medicoPersonalId) // Asegúrate de tener este método en tu MedicoRepository
+                .map(medico -> medico.getHorario()) // Obtenemos el objeto Horario asociado al médico
+                .orElse(null); // Si el médico o su horario no se encuentra, devolvemos null
     }
 }

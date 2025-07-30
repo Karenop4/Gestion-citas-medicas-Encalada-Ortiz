@@ -36,7 +36,7 @@ export class AuthService {
         genero: '',
         telefono: '',
         direccion: '',
-        especialidad : { nombre: '', id: 1 }, // Inicializamos especialidad como un objeto vacío
+        especialidad : { nombre: '', id: 1, active: true }, // Inicializamos especialidad como un objeto vacío
         cedula: '',
         nacionalidad: '',
         estadoCivil: '',

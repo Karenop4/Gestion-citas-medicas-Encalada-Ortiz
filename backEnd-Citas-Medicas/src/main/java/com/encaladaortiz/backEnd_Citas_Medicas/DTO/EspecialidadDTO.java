@@ -4,7 +4,7 @@ public class EspecialidadDTO {
     private Long id;
     private String nombre;
     private Boolean activa;
-
+    public EspecialidadDTO() {}
     // Constructor
     public EspecialidadDTO(Long id, String nombre, Boolean activa) {
         this.id = id;

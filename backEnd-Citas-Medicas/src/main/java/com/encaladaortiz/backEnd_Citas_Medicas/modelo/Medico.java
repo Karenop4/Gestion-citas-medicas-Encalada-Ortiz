@@ -7,14 +7,12 @@ import java.util.List;
 @Entity
 @Table(name = "medicos")
 public class Medico extends Usuario {
-
     @ManyToOne
     @JoinColumn(name = "especialidad_id", nullable = true)
     private Especialidad especialidad;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "horario_id", unique = true)
-    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER) // <--- ¡Confirma que sigue así!
+    @JoinColumn(name = "horario_id", unique = true, referencedColumnName = "id") // <--- Y esto es CRUCIAL. "id" es la PK de la tabla 'horarios'.
     private Horario horario;
 
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)

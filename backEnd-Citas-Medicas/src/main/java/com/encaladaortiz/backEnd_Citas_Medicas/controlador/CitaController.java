@@ -4,9 +4,10 @@ import com.encaladaortiz.backEnd_Citas_Medicas.DTO.CitaDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EstadoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Cita;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.CitaService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,9 +44,32 @@ public class CitaController {
         List<CitaDTO> citas = citaService.listarporMedico(MedicoID);
         return ResponseEntity.ok(citas);
     }
+    @GetMapping("/porMedico/confirmadas/{MedicoID}")
+    public ResponseEntity<List<CitaDTO> > obtenerCitasConfirmadasMedico(@PathVariable Long MedicoID) {
+        List<CitaDTO> citas = citaService.citasConfirmadasPorMedico(MedicoID);
+        return ResponseEntity.ok(citas);
+    }
+    @GetMapping("/porMedico/confirmadas-rango/{MedicoID}")
+    public ResponseEntity<List<CitaDTO>> getCitasConfirmadasMedicoEnRango(
+            @PathVariable("MedicoID") Long medicoId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        List<CitaDTO> citas = citaService.getCitasConfirmadasMedicoEnRango(medicoId, fechaInicio, fechaFin);
+        return ResponseEntity.ok(citas);
+    }
     @GetMapping("/porPaciente/{PacienteID}")
     public ResponseEntity<List<CitaDTO> > obtenerCitasPorPaciente(@PathVariable Long PacienteID) {
         List<CitaDTO> citas = citaService.listarporPaciente(PacienteID);
+        return ResponseEntity.ok(citas);
+    }
+    @GetMapping("/porEspecialidad/{EspecialidadID}")
+    public ResponseEntity<List<CitaDTO> > obtenerCitasPorEspecialidad(@PathVariable Long EspecialidadID) {
+        List<CitaDTO> citas = citaService.listarporEspecialidad(EspecialidadID);
+        return ResponseEntity.ok(citas);
+    }
+    @GetMapping("/porEspecialidad/confirmadas/{EspecialidadID}")
+    public ResponseEntity<List<CitaDTO> > obtenerCitasConfirmadasEspecialidad(@PathVariable Long EspecialidadID) {
+        List<CitaDTO> citas = citaService.citasConfirmadasPorEspecialidad(EspecialidadID);
         return ResponseEntity.ok(citas);
     }
 
