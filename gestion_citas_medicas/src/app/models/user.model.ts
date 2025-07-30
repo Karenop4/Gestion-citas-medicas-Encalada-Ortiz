@@ -16,5 +16,5 @@ export interface Usuario {// Define la interfaz Usuario
   rol: 'p' | 'a'; // paciente o administrativo
   esMedico?: boolean;
   especialidad: Especialidad; // Puede ser un objeto Especialidad o un string
-  datosCompletos?: boolean;
+  datos?: boolean;
 }

@@ -26,4 +26,5 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     // Si también tienes este método, ajústalo de la misma manera:
     List<Cita> findByMedico_PersonalIDAndEstado(Long medicoPersonalID, char estado); // <-- CAMBIO CLAVE: 'Medico_PersonalID'
 
+    List<Cita> findByFechaBetween(LocalDate inicio, LocalDate fin);
 }

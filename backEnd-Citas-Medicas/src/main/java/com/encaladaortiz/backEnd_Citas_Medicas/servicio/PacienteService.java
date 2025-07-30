@@ -45,7 +45,9 @@ public class PacienteService {
             p.setNacionalidad(nuevo.getNacionalidad());
             p.setUid(nuevo.getUid());
             p.setTipoSangre(nuevo.getTipoSangre());
-            p.setRol(nuevo.getRol()); // <- si estás usando un char como 'p' o 'a'
+            p.setRol(nuevo.getRol());
+            p.setGenero(nuevo.getGenero());
+            p.setDatos(nuevo.isDatos());
             return repository.save(p);
         }).orElse(null);
     }

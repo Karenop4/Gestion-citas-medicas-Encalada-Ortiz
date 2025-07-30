@@ -31,7 +31,7 @@ export class AuthService {
       nombre: displayName ?? '',
       correo: email ?? '',
       rol: tipo,
-      datosCompletos: false,
+      datos: false,
       fechaNac: '',
       genero: '',
       telefono: '',

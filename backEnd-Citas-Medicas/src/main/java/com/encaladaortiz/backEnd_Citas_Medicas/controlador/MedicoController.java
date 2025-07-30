@@ -48,12 +48,7 @@ public class MedicoController {
         return ResponseEntity.ok(nuevoMedico);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Medico> obtener(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+
 
 
     @PutMapping("/put/{id}")
@@ -170,6 +165,26 @@ public class MedicoController {
                     );
                     return ResponseEntity.ok(dto);
                 })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Medico>> listarTodosLosMedicos() {
+        List<Medico> medicos = service.listar();
+        return ResponseEntity.ok(medicos);
+    }
+
+    @GetMapping("/porEspecialidad")
+    public ResponseEntity<List<Medico>> obtenerPorEspecialidad(@RequestParam String nombreEspecialidad) {
+        List<Medico> medicos = service.buscarPorEspecialidad(nombreEspecialidad);
+        return ResponseEntity.ok(medicos);
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Medico> obtener(@PathVariable Long id) {
+        return service.buscarPorId(id)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }

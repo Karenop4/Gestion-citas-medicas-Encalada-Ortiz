@@ -68,6 +68,7 @@ public class MedicoService {
             m.setEspecialidad(nuevo.getEspecialidad());
             m.setHorario(nuevo.getHorario());
             m.setEsMedico(nuevo.isEsMedico());
+            m.setDatos(nuevo.isDatos());
             return repository.save(m);
         }).orElse(null);
     }
@@ -156,4 +157,9 @@ public class MedicoService {
         return repository.findByUid(uid);
     }
 
+    public List<Medico> buscarPorEspecialidad(String nombreEspecialidad) {
+        return repository.findByEspecialidad_Nombre(
+                nombreEspecialidad
+        );
+    }
 }

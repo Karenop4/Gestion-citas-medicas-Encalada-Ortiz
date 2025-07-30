@@ -73,7 +73,7 @@ export class ProfileComponent implements OnInit {
     this.usuario.uid = this.auth.currentUser.uid;
     this.usuario.correo = this.auth.currentUser.email ? this.auth.currentUser.email : '';
     console.log("Usuario a guardar:", this.usuario);
-
+    this.usuario.datos = true; // Aseguramos que los datos estén completos antes de guardar
     this.authService.updateUser(this.usuario).subscribe(() => {
       localStorage.setItem('usuario', JSON.stringify(this.usuario));
       this.userService.setUsuario(this.usuario);
@@ -101,7 +101,7 @@ export class ProfileComponent implements OnInit {
       rol: 'p',
       esMedico: false,
       especialidad: { id: 1, nombre: '' , activa: true }, // Inicializamos especialidad como un objeto vacío
-      datosCompletos: false
+      datos: false
     };
   }
 }

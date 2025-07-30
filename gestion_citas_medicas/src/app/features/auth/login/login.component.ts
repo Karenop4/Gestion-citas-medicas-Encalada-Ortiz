@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { AnimationItem } from 'lottie-web';
 import { LottieComponent, AnimationOptions } from 'ngx-lottie';
 import { CommonModule } from '@angular/common';
-import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
 // Componente para el inicio de sesión
 // Este componente permite al usuario seleccionar su tipo (paciente o administrativo) y realizar el inicio de sesión con Google
@@ -18,7 +17,7 @@ import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
 // Este componente maneja el inicio de sesión y la selección del tipo de usuario
 export class LoginComponent {
-  constructor(private authService: AuthService, private router: Router, private firestore: Firestore) { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   mostrarTipoUsuario = true;
   tipoUsuario: 'p' | 'a' | null = null;
@@ -59,22 +58,33 @@ export class LoginComponent {
       } else {// Si no se obtiene un usuario, verifica el tipo de usuario
         this.authService.user$.subscribe(async user => {
           if (!user) return;
-          // Obtiene el UID del usuario actual y verifica sus datos en Firestore
           const uid = user.uid;
           const datos$ = this.authService.getUsuarioActual(uid);
+          console.log('Observable datos$:', datos$);
           datos$.subscribe(datos => {
+            console.log('Recibí datos:', datos);  // <-- Añade este para confirmar entrada
             if (datos) { // Si se obtienen los datos del usuario, verifica su rol
+              console.log('Dentro del if(datos), datos:', datos);
               if (datos?.rol === this.tipoUsuario) {
-                this.router.navigate(['/main']);
+                console.log('Rol coincide:', datos.rol);
+                console.log('datos.datos:', datos.datos, 'typeof:', typeof datos.datos);
+
+                if (datos.datos === true) {
+                  this.router.navigate(['/main']);
+                } else {
+                  this.router.navigate(['/patient/perfil'], { state: { user: datos } });
+                }
               } else {
                 this.options = {
-
                   path: 'assets/doctores.json',
                 };
                 this.mostrarTipoUsuario = true;
               }
+            } else {
+              console.log('No hay datos');
             }
           });
+
         });
       }
     });
