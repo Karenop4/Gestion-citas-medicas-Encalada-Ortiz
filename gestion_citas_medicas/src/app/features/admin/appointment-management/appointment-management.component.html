@@ -13,9 +13,9 @@
         (change)="onDoctorSelected()"
         class="select-input"
       >
-        <option [ngValue]="null" disabled selected>Selecciona un médico</option>
-        <option *ngFor="let doctor of availableDoctors" [value]="doctor.id">
-          Dr. {{ doctor.nombre }} ({{ doctor.especialidad }})
+        <option [ngValue]="null" disabled>Selecciona un médico</option>
+        <option *ngFor="let doctor of availableDoctors" [ngValue]="doctor.id">
+          Dr. {{ doctor.nombre }}
         </option>
       </select>
     </div>
@@ -31,12 +31,11 @@
     <div class="appointment-list">
       <div *ngFor="let appointment of pendingAppointments" class="appointment-card">
         <div class="appointment-details">
-          <p><strong>Paciente:</strong> {{ appointment.userName }}</p>
-          <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
+          <p><strong>Paciente:</strong> {{ appointment.paciente }}</p>
           <p>
-            <strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}
+            <strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}
           </p>
-          <p><strong>Hora:</strong> {{ appointment.hour }}</p>
+          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
         </div>
         <div class="appointment-actions">
           <button class="confirm-button" (click)="confirmAppointment(appointment)">
@@ -50,7 +49,6 @@
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" *ngIf="isModalOpen">
   <div class="modal-content" [ngClass]="modalType">
     <div class="modal-header">

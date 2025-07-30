@@ -2,29 +2,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, query, where, getDocs, doc, getDoc, updateDoc } from '@angular/fire/firestore';
-
-// Interfaz para el médico (reutilizada de otros componentes)
-interface Doctor {
-  id: string;
-  nombre: string;
-  especialidad: string;
-  esMedico: boolean;
-}
-
-// Interfaz para la estructura de una cita en Firestore
-interface Appointment {
-  id: string; // El ID del documento de Firestore (ej. YYYY-MM-DD-HH)
-  date: string; // Formato YYYY-MM-DD
-  hour: string; // Formato HH:00
-  userId: string; // ID del usuario que agendó la cita
-  userName?: string; // Nuevo campo para el nombre del usuario
-  doctorId: string; // ID del médico
-  doctorName: string;
-  specialty: string;
-  confirmada: boolean;
-  cancelada?: boolean; // Opcional, para indicar si la cita fue cancelada
-}
+import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
+import { ApiService } from '../../../core/services/api.service';
+import { Cita } from '../../../models/cita.model';
+import { Medico } from '../../../models/medico.model';
 
 @Component({
   selector: 'app-appointment-management',
@@ -39,15 +21,20 @@ export class AppointmentManagementComponent implements OnInit {
   modalMessage: string = '';
   modalType: 'success' | 'error' | '' = '';
 
-  availableDoctors: Doctor[] = [];
-  selectedDoctorId: string | null = null;
-  selectedDoctorName: string | null = null;
-  pendingAppointments: Appointment[] = [];
+  availableDoctors: Medico[] = [];
+  selectedDoctorId: number | null = null;
+  selectedDoctorName: string | undefined | null = null;
+  pendingAppointments: Cita[] = [];
 
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private http: HttpClient, private apiService: ApiService) {}
 
   ngOnInit(): void {
     this.loadDoctors();
+    console.log('ngOnInit: selectedDoctorId', this.selectedDoctorId);
+    // Si ya hay un doctor seleccionado, ejecuta onDoctorSelected
+    if (this.selectedDoctorId) {
+      this.onDoctorSelected();
+    }
   }
 
   /**
@@ -56,26 +43,29 @@ export class AppointmentManagementComponent implements OnInit {
   async loadDoctors(): Promise<void> {
     this.isLoading = true;
     try {
-      const q = query(
-        collection(this.firestore, 'usuarios'),
-        where('esMedico', '==', true)
-      );
-      const querySnapshot = await getDocs(q);
-      this.availableDoctors = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        nombre: doc.data()['nombre'],
-        especialidad: doc.data()['especialidad'],
-        esMedico: doc.data()['esMedico']
-      } as Doctor));
-
-      if (this.availableDoctors.length === 0) {
-        this.openModal('No se encontraron médicos en el sistema.', 'error');
-      }
+      this.http.get<any[]>('http://localhost:8080/api/medicos').subscribe({
+        next: (medicos) => {
+          this.availableDoctors = medicos.map(medico => ({
+            id: Number(medico.uid || medico.id || medico.personalID),
+            nombre: medico.nombre,
+            especialidad: medico.especialidad?.nombre || medico.especialidad || '',
+            esMedico: true
+          }));
+          if (this.availableDoctors.length === 0) {
+            this.openModal('No se encontraron médicos en el sistema.', 'error');
+          }
+        },
+        error: (error) => {
+          console.error('Error al cargar médicos:', error);
+          this.openModal('No se pudieron cargar los médicos. Por favor, intenta de nuevo.', 'error');
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
     } catch (error) {
-      console.error('Error al cargar médicos:', error);
-      this.openModal('No se pudieron cargar los médicos. Por favor, intenta de nuevo.', 'error');
-    } finally {
       this.isLoading = false;
+      this.openModal('No se pudieron cargar los médicos. Por favor, intenta de nuevo.', 'error');
     }
   }
 
@@ -89,6 +79,9 @@ export class AppointmentManagementComponent implements OnInit {
 
     if (this.selectedDoctorId) {
       const selectedDoctor = this.availableDoctors.find(d => d.id === this.selectedDoctorId);
+      if (!selectedDoctor) {
+        console.warn('No se encontró el doctor con id:', this.selectedDoctorId);
+      }
       this.selectedDoctorName = selectedDoctor ? selectedDoctor.nombre : null;
       await this.loadPendingAppointments(this.selectedDoctorId);
     } else {
@@ -101,48 +94,35 @@ export class AppointmentManagementComponent implements OnInit {
    * Estas son usadas en la seccion gestion de citas.
    * @param doctorId ID del doctor.
    */
-  async loadPendingAppointments(doctorId: string): Promise<void> {
+  async loadPendingAppointments(doctorId: number): Promise<void> {
     this.isLoading = true;
-    this.pendingAppointments = []; 
+    this.pendingAppointments = [];
     try {
-      const appointmentsCollectionRef = collection(this.firestore, `usuarios/${doctorId}/citas`);
-      
-      const q = query(
-        appointmentsCollectionRef,
-        where('confirmada', '==', false),
-        where('cancelada', '!=', true) 
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const fetchedAppointments: Appointment[] = [];
-
-      for (const docSnapshot of querySnapshot.docs) {
-        const appointmentData = docSnapshot.data();
-        const appointment = {
-          id: docSnapshot.id,
-          ...appointmentData
-        } as Appointment;
-
-        
-        if (appointment.userId) {
-          const userDocRef = doc(this.firestore, `usuarios/${appointment.userId}`);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            appointment.userName = userDocSnap.data()['nombre'];
-          } else {
-            appointment.userName = 'Usuario Desconocido'; 
+      // Consumir citas pendientes del backend
+      this.apiService.getAppointmentsPorMedico(doctorId).subscribe({
+        next: (citas) => {
+          this.pendingAppointments = citas.map(cita => ({
+            id: cita.id,
+            fecha: cita.fecha,
+            hora: cita.hora,
+            nombre: cita.nombre,
+            paciente: cita.paciente || 'Usuario Desconocido',
+            medico: cita.medico || '',
+            estado: cita.estado 
+          }));
+          if (this.pendingAppointments.length === 0) {
+            this.openModal('No hay citas pendientes para este médico.', 'error');
           }
-        } else {
-          appointment.userName = 'Usuario Desconocido';
+        },
+        error: (error) => {
+          this.openModal('Error al cargar las citas pendientes. Por favor, intenta de nuevo.', 'error');
+        },
+        complete: () => {
+          this.isLoading = false;
         }
-        fetchedAppointments.push(appointment);
-      }
-
-      this.pendingAppointments = fetchedAppointments;
-
+      });
     } catch (error) {
       this.openModal('Error al cargar las citas pendientes. Por favor, intenta de nuevo.', 'error');
-    } finally {
       this.isLoading = false;
     }
   }
@@ -151,46 +131,40 @@ export class AppointmentManagementComponent implements OnInit {
    * Confirma una cita, cambia el valor de confirmada a true
    * @param appointment cita a confirmar
    */
-  async confirmAppointment(appointment: Appointment): Promise<void> {
+  async confirmAppointment(appointment: Cita): Promise<void> {
     this.isLoading = true;
-    try {
-      const appointmentDocRef = doc(this.firestore, `usuarios/${appointment.doctorId}/citas/${appointment.id}`);
-      await updateDoc(appointmentDocRef, {
-        confirmada: true
-      });
-      this.openModal('Cita confirmada con éxito.', 'success');
-      // Reload appointments to reflect the change
-      if (this.selectedDoctorId) {
-        await this.loadPendingAppointments(this.selectedDoctorId);
+    this.apiService.confirmarAppointment(appointment).subscribe({
+      next: () => {
+        this.openModal('Cita confirmada correctamente.', 'success');
+        this.loadPendingAppointments(this.selectedDoctorId!); // Recargar citas pendientes
+      },
+      error: (error) => {
+        this.openModal('Error al confirmar la cita. Por favor, intenta de nuevo.', 'error');
+      },
+      complete: () => {
+        this.isLoading = false;
       }
-    } catch (error) {
-      console.error('Error al confirmar la cita:', error);
-      this.openModal('Error al confirmar la cita. Por favor, intenta de nuevo.', 'error');
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   /**
    * Cancela uns cita cambiando el valor de cancelada a true
    * @param appointment Cita a cancelar
    */
-  async cancelAppointment(appointment: Appointment): Promise<void> {
+  async cancelAppointment(appointment: Cita): Promise<void> {
     this.isLoading = true;
-    try {
-      const appointmentDocRef = doc(this.firestore, `usuarios/${appointment.doctorId}/citas/${appointment.id}`);
-      await updateDoc(appointmentDocRef, {
-        cancelada: true 
-      });
-      this.openModal('Cita cancelada con éxito.', 'success');
-      if (this.selectedDoctorId) {
-        await this.loadPendingAppointments(this.selectedDoctorId);
+    this.apiService.cancelAppointment(appointment).subscribe({
+      next: () => {
+        this.openModal('Cita cancelada correctamente.', 'success');
+        this.loadPendingAppointments(this.selectedDoctorId!); // Recargar citas pendientes
+      },
+      error: (error) => {
+        this.openModal('Error al cancelar la cita. Por favor, intenta de nuevo.', 'error');
+      },
+      complete: () => {
+        this.isLoading = false;
       }
-    } catch (error) {
-      this.openModal('Error al cancelar la cita. Por favor, intenta de nuevo.', 'error');
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   /**

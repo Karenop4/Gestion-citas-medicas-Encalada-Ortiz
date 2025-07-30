@@ -29,9 +29,17 @@ public class MedicoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Medico>> listar() {
-        List<Medico> Medico = service.listar();
-        return ResponseEntity.ok(Medico);
+    public ResponseEntity<List<MedicoDTO>> listar() {
+        List<Medico> medicos = service.listar();
+        List<MedicoDTO> dtos = medicos.stream()
+                .map(m -> new MedicoDTO(
+                        m.getPersonalID(),
+                        m.getNombre(),
+                        m.getCedula(),
+                        m.getEspecialidad().getNombre()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @PostMapping

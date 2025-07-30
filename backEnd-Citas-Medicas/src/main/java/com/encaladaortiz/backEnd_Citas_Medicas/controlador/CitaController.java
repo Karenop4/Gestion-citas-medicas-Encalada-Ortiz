@@ -1,5 +1,7 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.CitaDTO;
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EstadoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Cita;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.CitaService;
 import org.springframework.http.ResponseEntity;
@@ -36,21 +38,22 @@ public class CitaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCita(@PathVariable Long id) {
-        if (citaService.buscarPorId(id).isPresent()) {
-            citaService.eliminar(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @GetMapping("/porMedico/{MedicoID}")
+    public ResponseEntity<List<CitaDTO> > obtenerCitasPorMedico(@PathVariable Long MedicoID) {
+        List<CitaDTO> citas = citaService.listarporMedico(MedicoID);
+        return ResponseEntity.ok(citas);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cita> actualizarCita(@PathVariable Long id, @RequestBody Cita nueva) {
-        Cita actualizada = citaService.actualizar(id, nueva);
-        if (actualizada != null) {
-            return ResponseEntity.ok(actualizada);
+    public ResponseEntity<CitaDTO> actualizarEstadoCita(@PathVariable Long id, @RequestBody EstadoDTO estadoDto) {
+        Optional<Cita> existenteO = citaService.buscarPorId(id);
+        if (!existenteO.isPresent()) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        Cita existente = existenteO.get();
+        existente.setEstado(estadoDto.getEstado());
+        Cita actualizada = citaService.actualizar(id, existente);
+        CitaDTO dto = citaService.convertirADTO(actualizada);
+        return ResponseEntity.ok(dto);
     }
 }

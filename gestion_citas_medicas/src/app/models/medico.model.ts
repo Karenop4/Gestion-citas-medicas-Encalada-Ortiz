@@ -1,1 +1,1 @@
-export interface Medico { id: number; nombre: string; especialidad: string; }
+export interface Medico { id: number; nombre: string | null; especialidad: string; }

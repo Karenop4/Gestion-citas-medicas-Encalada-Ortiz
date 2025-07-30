@@ -27,4 +27,13 @@ getDoctorAvailableDays(doctorId: number): Observable<string> {
   registerAppointment(cita: Cita): Observable<Cita> {
     return this.http.post<Cita>(`${this.baseUrl}/citas`, cita);
   }
+  getAppointmentsPorMedico(medicoID: number): Observable<Cita[]> {
+    return this.http.get<Cita[]>(`/api/citas/porMedico/${medicoID}`);
+  }
+  cancelAppointment(cita: Cita): Observable<Cita> {
+  return this.http.put<Cita>(`${this.baseUrl}/citas/${cita.id}`, {estado: 'x'});
+  }
+  confirmarAppointment(cita: Cita): Observable<Cita> {
+  return this.http.put<Cita>(`${this.baseUrl}/citas/${cita.id}`, {estado: 'c'});
+  }
 }

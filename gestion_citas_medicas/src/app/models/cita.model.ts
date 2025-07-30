@@ -6,7 +6,7 @@ export interface Cita {
   hora: string;  
   estado: string; 
   nombre: string; 
-  medico: Medico;
-  paciente: Paciente;
-  notificacion?: any;
+  medico: string;
+  paciente: string;
+  //notificacion?: any;
 }

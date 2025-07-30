@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.util.Date;
@@ -15,6 +16,7 @@ public class Cita {
     private LocalTime hora;
     private char estado;
     private String nombre;
+
 
     @ManyToOne
     @JoinColumn(name = "medico_id", referencedColumnName = "personalID",nullable = false)
