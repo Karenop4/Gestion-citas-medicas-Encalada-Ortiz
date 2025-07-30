@@ -15,20 +15,13 @@
     <div class="appointments-grid">
       <div *ngFor="let appointment of patientAppointments" class="appointment-card">
         <div class="card-header">
-          <h3>Cita con Dr. {{ appointment.doctorName }}</h3>
-          <span [ngClass]="{
-            'appointment-status': true,
-            'status-confirmed': appointment.displayStatus === 'Confirmada',
-            'status-pending': appointment.displayStatus === 'Pendiente',
-            'status-cancelled': appointment.displayStatus === 'Cancelada'
-          }">
-            {{ appointment.displayStatus }}
-          </span>
+          <h3>Cita con Dr. {{ appointment.medico }}</h3>
+          <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
         </div>
         <div class="card-body">
-          <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
-          <p><strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}</p>
-          <p><strong>Hora:</strong> {{ appointment.hour }}</p>
+          <p><strong>Motivo:</strong> {{ appointment.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
+          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
         </div>
       </div>
     </div>
@@ -43,13 +36,14 @@
     <div class="appointments-grid">
       <div *ngFor="let appointment of doctorAppointments" class="appointment-card">
         <div class="card-header">
-          <h3>Cita con Paciente: {{ appointment.userName || 'ID: ' + appointment.userId }}</h3>
-          </div>
+          <h3>Cita con Paciente: {{ appointment.paciente}}</h3>
+          <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
+        </div>
         <div class="card-body">
-          <p><strong>Especialidad:</strong> {{ appointment.specialty }}</p>
-          <p><strong>Fecha:</strong> {{ appointment.date | date:'fullDate' }}</p>
-          <p><strong>Hora:</strong> {{ appointment.hour }}</p>
-          <p *ngIf="!appointment.userName"><strong>ID Paciente:</strong> {{ appointment.userId }}</p>
+          <p><strong>Especialidad:</strong> {{ appointment.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
+          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
+          <p *ngIf="!appointment.nombre"><strong>ID Paciente:</strong> {{ appointment.id }}</p>
         </div>
       </div>
     </div>

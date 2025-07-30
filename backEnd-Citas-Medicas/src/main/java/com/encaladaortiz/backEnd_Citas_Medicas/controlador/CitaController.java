@@ -43,6 +43,11 @@ public class CitaController {
         List<CitaDTO> citas = citaService.listarporMedico(MedicoID);
         return ResponseEntity.ok(citas);
     }
+    @GetMapping("/porPaciente/{PacienteID}")
+    public ResponseEntity<List<CitaDTO> > obtenerCitasPorPaciente(@PathVariable Long PacienteID) {
+        List<CitaDTO> citas = citaService.listarporPaciente(PacienteID);
+        return ResponseEntity.ok(citas);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<CitaDTO> actualizarEstadoCita(@PathVariable Long id, @RequestBody EstadoDTO estadoDto) {

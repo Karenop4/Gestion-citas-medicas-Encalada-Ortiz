@@ -36,6 +36,20 @@ public class CitaService {
         }
         return citasDTO;
     }
+
+    public List<CitaDTO> listarporPaciente(Long pacienteID) {
+        List<Cita> citas = repository.findByEstado('p');
+        List<CitaDTO> citasDTO = new ArrayList<>();
+        for (Cita cita : citas) {
+            Long pacienteID2 = cita.getPaciente().getPersonalID();
+            if (pacienteID2.equals(pacienteID)) {
+                CitaDTO citaDTO=this.convertirADTO(cita);
+                citasDTO.add(citaDTO);
+            }
+        }
+        return citasDTO;
+    }
+
     public CitaDTO convertirADTO(Cita cita) {
         Long id = cita.getId();
         Date fecha = cita.getFecha();
