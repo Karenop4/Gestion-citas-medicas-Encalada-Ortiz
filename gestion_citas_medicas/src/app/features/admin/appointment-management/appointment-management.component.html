@@ -23,13 +23,17 @@
       </select>
     </div>
 
-    <div *ngIf="selectedDoctorId" class="occupancy-bar-container">
-      <div class="occupancy-bar" [ngClass]="occupancyBarColor">
-        <p>{{ occupancyMessage }}</p>
-      </div>
+    <div *ngIf="selectedDoctorId" class="occupancy-display">
+        <div class="occupancy-bar-container">
+            <div class="occupancy-bar" [ngClass]="occupancyBarColor">
+        <p class="occupancy-message-text">{{ occupancyMessage }}</p></div>
+        </div>
     </div>
-
     <div *ngIf="selectedDoctorId" class="data-section">
+
+      <button *ngIf="selectedDoctorId" class="download-button" (click)="downloadPdfReport()">
+        Descargar Reporte PDF de Citas (Médico)
+      </button>
       <h4>Citas Pendientes de Dr. {{ selectedDoctorName }}</h4>
       <div *ngIf="pendingAppointments.length === 0 && !isLoading" class="no-data-message">
         No hay citas pendientes para este médico.
@@ -64,10 +68,6 @@
           </tbody>
         </table>
       </div>
-
-      <button *ngIf="selectedDoctorId" class="download-button" (click)="downloadPdfReport()">
-        Descargar Reporte PDF de Citas (Médico)
-      </button>
     </div>
   </div>
 
@@ -83,6 +83,10 @@
     </div>
 
     <div *ngIf="selectedSpecialtyId" class="data-section">
+
+      <button *ngIf="selectedSpecialtyId" class="download-button" (click)="downloadPdfReportBySpecialty()">
+        Descargar Reporte PDF de Citas (Especialidad)
+      </button>
       <h4>Citas Confirmadas de {{ selectedSpecialtyName }}</h4>
       <div *ngIf="confirmedAppointmentsBySpecialty.length === 0 && !isLoading" class="no-data-message">
         No hay citas confirmadas para esta especialidad.
@@ -112,10 +116,6 @@
           </tbody>
         </table>
       </div>
-
-      <button *ngIf="selectedSpecialtyId" class="download-button" (click)="downloadPdfReportBySpecialty()">
-        Descargar Reporte PDF de Citas (Especialidad)
-      </button>
     </div>
   </div>
 </div>

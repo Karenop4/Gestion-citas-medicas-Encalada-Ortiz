@@ -10,13 +10,20 @@ import java.util.List;
 
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Long> {
+
     List<Cita> findByEstado(char estado);
-    List<Cita> findByMedicoPersonalIDAndEstado(Long medicoPersonalID, String estado);
-    List<Cita> findByEspecialidadIdAndEstado(Long especialidadId, String estado);
-    List<Cita> findByMedicoPersonalIDAndEstadoAndFechaBetween(
-            Long medicoPersonalID,
-            Character estado,
-            LocalDateTime fechaInicio, // <-- ¡Cambia a LocalDateTime!
-            LocalDateTime fechaFin     // <-- ¡Cambia a LocalDateTime!
+
+    List<Cita> findByEstadoAndFechaBetween(char estado, LocalDate startDate, LocalDate endDate);
+
+    // ¡¡LA CORRECCIÓN FINAL ESTÁ AQUÍ!! Cambia '_Id' a '_PersonalID'
+    List<Cita> findByMedico_PersonalIDAndEstadoAndFechaBetween( // <-- CAMBIO CLAVE: 'Medico_PersonalID'
+                                                                Long medicoPersonalID, // Este parámetro es el personalID del Medico
+                                                                char estado,
+                                                                LocalDate startDate,
+                                                                LocalDate endDate
     );
+
+    // Si también tienes este método, ajústalo de la misma manera:
+    List<Cita> findByMedico_PersonalIDAndEstado(Long medicoPersonalID, char estado); // <-- CAMBIO CLAVE: 'Medico_PersonalID'
+
 }

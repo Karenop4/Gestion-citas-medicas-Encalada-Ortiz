@@ -5,6 +5,7 @@ import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EstadoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Cita;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.CitaService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -38,7 +39,33 @@ public class CitaController {
         return cita.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    @GetMapping("/confirmadas/rango")
+    public ResponseEntity<List<CitaDTO>> getConfirmedAppointmentsInDateRange(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+        try {
+            LocalDate startDate = LocalDate.parse(startDateStr);
+            LocalDate endDate = LocalDate.parse(endDateStr);
+            List<CitaDTO> citas = citaService.getConfirmedAppointmentsInDateRange(startDate, endDate);
+            return new ResponseEntity<>(citas, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/medico/{medicoId}/confirmadas/rango")
+    public ResponseEntity<List<CitaDTO>> getConfirmedAppointmentsByMedicoInDateRange(
+            @PathVariable Long medicoId,
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+        try {
+            LocalDate startDate = LocalDate.parse(startDateStr);
+            LocalDate endDate = LocalDate.parse(endDateStr);
+            List<CitaDTO> citas = citaService.getConfirmedAppointmentsByMedicoInDateRange(medicoId, startDate, endDate);
+            return new ResponseEntity<>(citas, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
     @GetMapping("/porMedico/{MedicoID}")
     public ResponseEntity<List<CitaDTO> > obtenerCitasPorMedico(@PathVariable Long MedicoID) {
         List<CitaDTO> citas = citaService.listarporMedico(MedicoID);

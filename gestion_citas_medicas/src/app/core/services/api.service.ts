@@ -72,11 +72,16 @@ export class ApiService {
   confirmarAppointment(cita: Cita): Observable<Cita> {
     return this.http.put<Cita>(`${this.baseUrl}/citas/${cita.id}`, { estado: 'c' });
   }
-  getCitasConfirmadasMedicoEnRango(medicoId: number, fechaInicio: string, fechaFin: string): Observable<Cita[]> {
-    // Nota: Los parámetros de fecha deben estar en formato YYYY-MM-DD
-    return this.http.get<Cita[]>(`${this.baseUrl}/citas/porMedico/confirmadas-rango/${medicoId}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+  getCitasConfirmadasMedicoEnRango(medicoId: number, startDate: string, endDate: string): Observable<Cita[]> {
+    return this.http.get<Cita[]>(`${this.baseUrl}/citas/medico/${medicoId}/confirmadas/rango`, {
+      params: { startDate, endDate }
+    });
   }
-
+  getAllConfirmedAppointmentsInDateRange(startDate: string, endDate: string): Observable<Cita[]> {
+    return this.http.get<Cita[]>(`${this.baseUrl}/citas/confirmadas/rango`, {
+      params: { startDate, endDate }
+    });
+  }
 
 
   /**

@@ -1,17 +1,16 @@
-// src/app/features/admin/appointment-management/appointment-management.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http'; // Asegúrate de que HttpClientModule esté en tu AppModule
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../../core/services/api.service';
-import { Cita } from '../../../models/cita.model'; // Usar Cita. Si tu backend devuelve CitaDTO, considera renombrar esta interfaz a CitaDTO para claridad.
-import { Medico } from '../../../models/medico.model'; // Asegúrate que esta interfaz ya tiene 'horario: Horario'
-import { Especialidad } from '../../../models/especialidad.model'; // Asegúrate que esta interfaz exista
-import { Horario } from '../../../models/horario.model'; // Asegúrate de importar la interfaz Horario
+import { Cita } from '../../../models/cita.model'; 
+import { Medico } from '../../../models/medico.model'; 
+import { Especialidad } from '../../../models/especialidad.model'; 
+import { Horario } from '../../../models/horario.model'; 
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import moment from 'moment'; // Importación por defecto para Moment.js
-import 'moment/locale/es'; // Para localización en español
+import moment from 'moment';
+import 'moment/locale/es'; 
 
 @Component({
   selector: 'app-appointment-management',
@@ -22,7 +21,7 @@ import 'moment/locale/es'; // Para localización en español
 })
 export class AppointmentManagementComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
-  isModalOpen: boolean = false; // Para mensajes generales (éxito/error)
+  isModalOpen: boolean = false; 
   modalMessage: string = '';
   modalType: 'success' | 'error' | '' = '';
 
@@ -40,10 +39,9 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
 
   filterMode: 'medico' | 'especialidad' = 'medico';
 
-  // **Nuevas variables para la barra de ocupación**
-  occupancyBarColor: string = 'gray'; // 'green', 'yellow', 'red'
+  occupancyBarColor: string = 'gray'; 
   occupancyMessage: string = 'Selecciona un médico para ver su ocupación.';
-  private selectedMedicoHorario: Horario | null = null; // Tipo explícito Horario
+  private selectedMedicoHorario: Horario | null = null; 
 
   // Variables para el modal de confirmación/cancelación de cita
   isConfirmCancelModalOpen: boolean = false;
@@ -53,17 +51,16 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
   // Para desuscribirse de Observables
   private destroy$ = new Subject<void>();
 
-  // HttpClient no es necesario si todas las llamadas pasan por ApiService
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
-    moment.locale('es'); // Asegura que Moment.js use la localización en español
-    this.loadInitialData(); // Cargar doctores y especialidades al inicio
+    moment.locale('es'); 
+    this.loadInitialData(); 
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next(); // Emitir para desuscribir todos los observables
-    this.destroy$.complete(); // Completar el Subject
+    this.destroy$.next(); 
+    this.destroy$.complete(); 
   }
 
   /**
@@ -72,9 +69,7 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
   async loadInitialData(): Promise<void> {
     this.isLoading = true;
     try {
-      // Asumimos que getMedicos() de ApiService ya devuelve el horario del médico.
       this.availableDoctors = await firstValueFrom(this.apiService.getMedicos().pipe(takeUntil(this.destroy$))) || [];
-      // Asumimos que loadSpecialtiesReporte() de ApiService devuelve Especialidad[]
       this.availableSpecialties = await firstValueFrom(this.apiService.loadSpecialtiesReporte().pipe(takeUntil(this.destroy$))) || [];
 
       if (this.availableDoctors.length === 0) {
@@ -111,14 +106,14 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
       this.selectedDoctorId = null;
       this.selectedDoctorName = null;
       this.pendingAppointments = [];
-      this.resetOccupancyBar();
+      this.resetOccupancyBar(); // También resetear al cambiar a especialidad
     }
   }
 
   /**
    * Carga las citas pendientes y calcula la ocupación cuando se selecciona un doctor.
    */
- async onDoctorSelected(): Promise<void> {
+  async onDoctorSelected(): Promise<void> {
     this.pendingAppointments = [];
     this.closeModal(); 
     this.closeConfirmCancelModal(); 
@@ -129,27 +124,20 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
       this.selectedDoctorName = selectedDoctor ? selectedDoctor.nombre : null;
 
       this.isLoading = true;
-      this.occupancyMessage = "Cargando horario y citas del médico..."; 
+      this.occupancyMessage = "Calculando ocupación del médico..."; 
 
       try {
         const horario = await firstValueFrom(this.apiService.getDoctorHorarioById(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
         this.selectedMedicoHorario = horario;
         console.log('Horario del médico cargado (llamada separada):', this.selectedMedicoHorario); 
+
         const citas = await firstValueFrom(this.apiService.getAppointmentsPorMedico(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
         this.pendingAppointments = citas.filter(cita => cita.estado === 'p');
         console.log('Citas pendientes cargadas:', this.pendingAppointments);
 
-        if (this.pendingAppointments.length === 0) {
-          this.openModal('No hay citas pendientes para este médico.', 'success');
-        }
-
-        if (this.selectedMedicoHorario) {
-          await this.calculateAndDisplayOccupancy(this.selectedDoctorId);
-        } else {
-          this.occupancyBarColor = 'gray';
-          this.occupancyMessage = 'Horario del médico no disponible para cálculo de ocupación.';
-          console.warn('Horario del médico es NULL o UNDEFINED. No se puede calcular la ocupación.');
-        }
+        // Si tenemos un médico seleccionado, calculamos y mostramos la ocupación.
+        // No es estrictamente necesario que haya horario, pero lo usas para el mensaje descriptivo.
+        await this.calculateAndDisplayOccupancy(this.selectedDoctorId);
 
       } catch (error) {
         console.error('Error al cargar horario o citas del médico:', error);
@@ -172,7 +160,7 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
     this.confirmedAppointmentsBySpecialty = [];
     this.closeModal(); 
     this.closeConfirmCancelModal(); 
-    this.resetOccupancyBar(); 
+    this.resetOccupancyBar(); // Reiniciar también al cambiar de especialidad
 
     if (this.selectedSpecialtyId) {
       const selectedSpecialty = this.availableSpecialties.find(s => s.id === this.selectedSpecialtyId);
@@ -254,101 +242,72 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lógica para calcular y mostrar la barra de ocupación.
-   * Se basa en las horas laborables del médico en los próximos 30 días
-   * y el número de citas confirmadas para ese período.
+   * Lógica para calcular y mostrar la barra de ocupación según la nueva definición.
+   * Total de citas confirmadas en 30 días = 100%.
+   * Porcentaje del médico = (Citas confirmadas del médico en 30 días / Total de citas confirmadas en 30 días) * 100.
    */
   private async calculateAndDisplayOccupancy(medicoId: number): Promise<void> {
-    // Esta verificación es crucial para evitar errores si el horario no está disponible.
-    if (!this.selectedMedicoHorario || !this.selectedMedicoHorario.horaInicio || !this.selectedMedicoHorario.horaFin || !this.selectedMedicoHorario.dias) {
-      this.resetOccupancyBar();
-      console.warn('Datos de horario incompletos o no disponibles para cálculo de ocupación.');
-      return;
-    }
+    this.occupancyMessage = "Calculando ocupación...";
+    this.occupancyBarColor = 'gray'; // Reset temporalmente
 
-    const totalDays = 30; // Horizonte de 30 días para el cálculo
+    const totalDays = 30;
     const today = moment();
-    const endDate = moment().add(totalDays - 1, 'days'); // Restar 1 para incluir el día actual en los 30 días
+    const endDate = moment().add(totalDays - 1, 'days'); // Rango de 30 días incluyendo hoy
 
-    // 1. Calcular Horas Laborales Totales
-    let totalAvailableHours = 0;
-    // Asegúrate de que 'dias' es una cadena como "1,2,3"
-    const diasHabiles = this.selectedMedicoHorario.dias.split(',').map(Number).filter(day => !isNaN(day)); // Filtrar NaN
-
-    for (let i = 0; i < totalDays; i++) {
-      const currentDay = moment(today).add(i, 'days');
-      const dayOfWeek = currentDay.isoWeekday(); // 1 para Lunes, 7 para Domingo
-
-      if (diasHabiles.includes(dayOfWeek)) {
-        const startMoment = moment(this.selectedMedicoHorario.horaInicio, 'HH:mm:ss'); // Usar HH:mm:ss para precisión si el backend lo envía así
-        const endMoment = moment(this.selectedMedicoHorario.horaFin, 'HH:mm:ss');
-        let dailyWorkingMinutes = endMoment.diff(startMoment, 'minutes');
-
-        // Restar horas de descanso si aplica
-        if (this.selectedMedicoHorario.descanso && this.selectedMedicoHorario.horaDescanso) {
-          const descansoStartMoment = moment(this.selectedMedicoHorario.horaDescanso, 'HH:mm:ss');
-          // Asumiendo que el descanso es de 1 hora (60 minutos) a partir de horaDescanso
-          // O si horaDescanso es un rango como "HH:MM-HH:MM", necesitarías parsearlo.
-          // Si es solo el inicio del descanso y dura 1 hora:
-          const descansoEndMoment = moment(this.selectedMedicoHorario.horaDescanso, 'HH:mm:ss').add(1, 'hour');
-
-          // Solo restar si el descanso cae dentro del horario laboral
-          if (descansoStartMoment.isBetween(startMoment, endMoment, null, '[]') && descansoEndMoment.isBetween(startMoment, endMoment, null, '[]')) {
-            dailyWorkingMinutes -= 60; // Restar 60 minutos por el descanso
-          }
-        }
-        totalAvailableHours += (dailyWorkingMinutes / 60); // Convertir minutos a horas
-      }
-    }
-
-    // Asegurarse de que totalAvailableHours no sea negativo o cero si no hay horas reales
-    totalAvailableHours = Math.max(0, totalAvailableHours);
-
-    // 2. Obtener Horas Ocupadas por Citas Confirmadas
     const fechaInicioStr = today.format('YYYY-MM-DD');
     const fechaFinStr = endDate.format('YYYY-MM-DD');
 
-    let citasConfirmadasEnRango: Cita[] = [];
+    let totalConfirmedAppointmentsSystem: Cita[] = [];
+    let doctorConfirmedAppointments: Cita[] = [];
+
     try {
-      // Usar el nuevo endpoint que filtra por rango de fechas
-      citasConfirmadasEnRango = await firstValueFrom(this.apiService.getCitasConfirmadasMedicoEnRango(medicoId, fechaInicioStr, fechaFinStr)
-                                       .pipe(takeUntil(this.destroy$)));
+      // 1. Obtener todas las citas confirmadas del sistema en los próximos 30 días (el 100%)
+      totalConfirmedAppointmentsSystem = await firstValueFrom(
+        this.apiService.getAllConfirmedAppointmentsInDateRange(fechaInicioStr, fechaFinStr)
+          .pipe(takeUntil(this.destroy$))
+      );
+
+      // 2. Obtener las citas confirmadas del médico seleccionado en los próximos 30 días
+      doctorConfirmedAppointments = await firstValueFrom(
+        this.apiService.getCitasConfirmadasMedicoEnRango(medicoId, fechaInicioStr, fechaFinStr)
+          .pipe(takeUntil(this.destroy$))
+      );
+
     } catch (error) {
-      console.error('Error al obtener citas confirmadas para el rango:', error);
+      this.openModal('Error al obtener citas para el cálculo de ocupación. Por favor, intenta de nuevo.', 'error');
       this.resetOccupancyBar();
       return;
     }
 
-    const occupiedHours = citasConfirmadasEnRango.length; // Cada cita ocupa 1 hora
+    const totalSystemAppointmentsCount = totalConfirmedAppointmentsSystem.length;
+    const doctorAppointmentsCount = doctorConfirmedAppointments.length;
 
-    // 3. Determinar el Porcentaje de Ocupación y el Color
-    if (totalAvailableHours <= 0) { // Si no hay horas disponibles, la barra es gris
-      this.occupancyBarColor = 'gray';
-      this.occupancyMessage = 'No hay horas laborales definidas para este médico en los próximos 30 días.';
-      return;
+    let occupancyPercentage = 0;
+
+    if (totalSystemAppointmentsCount > 0) {
+      occupancyPercentage = (doctorAppointmentsCount / totalSystemAppointmentsCount) * 100;
     }
 
-    const occupancyPercentage = (occupiedHours / totalAvailableHours) * 100;
+    // Formatear el porcentaje a un número entero
+    const displayPercentage = Math.round(occupancyPercentage);
 
-    if (occupancyPercentage < 20) {
+    // Determinar el color y el mensaje
+    if (displayPercentage < 20) {
       this.occupancyBarColor = 'green';
-      this.occupancyMessage = `Agenda totalmente libre: ${occupiedHours} de ${totalAvailableHours.toFixed(1)} horas ocupadas.`;
-    } else if (occupancyPercentage >= 20 && occupancyPercentage < 75) {
+      this.occupancyMessage = `Ocupación: ${displayPercentage}% (Citas: ${doctorAppointmentsCount})`; // Mensaje ajustado
+    } else if (displayPercentage >= 20 && displayPercentage <= 50) { 
       this.occupancyBarColor = 'yellow';
-      this.occupancyMessage = `Agenda disponible: ${occupiedHours} de ${totalAvailableHours.toFixed(1)} horas ocupadas.`;
-    } else {
+      this.occupancyMessage = `Ocupación: ${displayPercentage}% (Citas: ${doctorAppointmentsCount})`; // Mensaje ajustado
+    } else { // Porcentaje > 50%
       this.occupancyBarColor = 'red';
-      this.occupancyMessage = `Agenda llena: ${occupiedHours} de ${totalAvailableHours.toFixed(1)} horas ocupadas.`;
+      this.occupancyMessage = `Ocupación: ${displayPercentage}% (Citas: ${doctorAppointmentsCount})`; // Mensaje ajustado
     }
   }
 
-  /**
-   * Método para resetear la barra de ocupación.
-   */
   private resetOccupancyBar(): void {
     this.occupancyBarColor = 'gray';
     this.occupancyMessage = 'Selecciona un médico para ver su ocupación.';
-    this.selectedMedicoHorario = null;
+    this.selectedMedicoHorario = null; // Reinicia el horario también
   }
 
   /**

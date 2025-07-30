@@ -1,7 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.servicio;
 
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.CitaDTO;
-import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EspecialidadDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Cita;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Especialidad;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
@@ -21,21 +20,14 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.borders.Border;
-import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.layout.properties.TextAlignment;
-import java.time.LocalTime;
+
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.io.font.constants.StandardFonts; // Para fuentes estándar como Helvetica
+
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CitaService {
@@ -148,7 +140,20 @@ public class CitaService {
             return repository.save(c);
         }).orElse(null);
     }
-
+    @Transactional(readOnly = true)
+    public List<CitaDTO> getConfirmedAppointmentsInDateRange(LocalDate startDate, LocalDate endDate) {
+        return repository.findByEstadoAndFechaBetween('c', startDate, endDate)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+    @Transactional(readOnly = true)
+    public List<CitaDTO> getConfirmedAppointmentsByMedicoInDateRange(Long medicoId, LocalDate startDate, LocalDate endDate) {
+        return repository.findByMedico_PersonalIDAndEstadoAndFechaBetween(medicoId, 'c', startDate, endDate)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
 
     public byte[] generarReporteCitasConfirmadasPorMedicoPdf(Long medicoId) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -203,7 +208,7 @@ public class CitaService {
             for (CitaDTO cita : citasConfirmadas) {
                 table.addCell(createCell(String.valueOf(cita.getId())));
                 table.addCell(createCell(cita.getPaciente()));
-                table.addCell(createCell(cita.getFecha().toLocalDate().format(dateFormatter)));
+                table.addCell(createCell(cita.getFecha().format(dateFormatter)));
                 table.addCell(createCell(cita.getHora().format(timeFormatter)));
                 table.addCell(createCell(cita.getEspecialidad())); // Asumiendo que cita.getEspecialidad() ya trae el nombre
             }
@@ -224,10 +229,10 @@ public class CitaService {
         char estadoChar = 'p';
 
         // Convertir LocalDate a LocalDateTime para el rango
-        LocalDateTime startDateTime = fechaInicio.atStartOfDay(); // Inicio del día (00:00:00)
-        LocalDateTime endDateTime = fechaFin.atTime(23, 59, 59); // Final del día (23:59:59)
+        LocalDate startDateTime = fechaInicio; // Inicio del día (00:00:00)
+        LocalDate endDateTime = fechaFin; // Final del día (23:59:59)
 
-        List<Cita> citas = repository.findByMedicoPersonalIDAndEstadoAndFechaBetween(
+        List<Cita> citas = repository.findByMedico_PersonalIDAndEstadoAndFechaBetween(
                 medicoPersonalId,
                 estadoChar,
                 startDateTime,
@@ -310,7 +315,7 @@ public class CitaService {
                 table.addCell(createCell(String.valueOf(cita.getId())));
                 table.addCell(createCell(cita.getPaciente()));
                 table.addCell(createCell(cita.getMedico())); // Asumiendo que cita.getMedico() ya trae el nombre
-                table.addCell(createCell(cita.getFecha().toLocalDate().format(dateFormatter)));
+                table.addCell(createCell(cita.getFecha().format(dateFormatter)));
                 table.addCell(createCell(cita.getHora().format(timeFormatter)));
             }
             document.add(table);

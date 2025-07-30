@@ -3,6 +3,7 @@ package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
@@ -15,7 +16,7 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "fecha") // Hibernate suele mapear LocalDateTime a DATETIME/TIMESTAMP por defecto
-    private LocalDateTime fecha;
+    private LocalDate fecha;
     private LocalTime hora;
     private char estado;
 
@@ -45,11 +46,11 @@ public class Cita {
         this.id = id;
     }
 
-    public LocalDateTime getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDateTime fecha) {
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 

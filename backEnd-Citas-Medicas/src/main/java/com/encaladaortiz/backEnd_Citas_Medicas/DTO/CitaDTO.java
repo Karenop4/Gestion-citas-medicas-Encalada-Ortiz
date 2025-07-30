@@ -1,19 +1,20 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.DTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 
 public class CitaDTO {
     private Long id;
-    private LocalDateTime fecha;
+    private LocalDate fecha;
     private LocalTime hora;
     private char estado;
     private String medico;
     private String paciente;
     private String especialidad;
 
-    public CitaDTO(Long id, LocalDateTime  fecha, LocalTime hora, char estado, String especialidad, String medico, String paciente) {
+    public CitaDTO(Long id, LocalDate  fecha, LocalTime hora, char estado, String especialidad, String medico, String paciente) {
         this.id = id;
         this.fecha = fecha;
         this.hora = hora;
@@ -29,10 +30,10 @@ public class CitaDTO {
     public void setId(Long id) {
         this.id = id;
     }
-    public LocalDateTime  getFecha() {
+    public LocalDate  getFecha() {
         return fecha;
     }
-    public void setFecha(LocalDateTime  fecha) {
+    public void setFecha(LocalDate  fecha) {
         this.fecha = fecha;
     }
     public char getEstado() {
