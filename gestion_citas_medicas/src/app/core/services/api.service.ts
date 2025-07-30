@@ -39,6 +39,9 @@ export class ApiService {
   getDoctorHorarioById(medicoId: number): Observable<Horario> {
     return this.http.get<Horario>(`${this.baseUrl}/medicos/${medicoId}/horarioGeneral`);
   }
+  saveHorario(horario: Horario, medicoId: number): Observable<Horario> {
+    return this.http.post<Horario>(`${this.baseUrl}/horarios/medico/${medicoId}`, horario);
+  }
 
   registerAppointment(cita: Cita): Observable<Cita> {
     return this.http.post<Cita>(`${this.baseUrl}/citas`, cita);

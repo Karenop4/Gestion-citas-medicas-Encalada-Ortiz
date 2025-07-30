@@ -1,7 +1,9 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.HorarioDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Horario;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.HorarioService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +36,19 @@ public class HorarioController {
         Optional<Horario> horario = horarioService.buscarPorId(id);
         return horario.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    // Endpoint para crear o actualizar un horario para un médico específico
+    // Usamos POST si el ID del horario es null (creación) o PUT si tiene ID (actualización)
+    @PostMapping("/medico/{medicoId}")
+    public ResponseEntity<Horario> saveOrUpdateHorarioForMedico(
+            @PathVariable Long medicoId,
+            @RequestBody HorarioDTO horarioDTO) {
+        try {
+            Horario savedHorario = horarioService.saveOrUpdateHorario(horarioDTO, medicoId);
+            return new ResponseEntity<>(savedHorario, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST); 
+        }
     }
 
     @PutMapping("/{id}")

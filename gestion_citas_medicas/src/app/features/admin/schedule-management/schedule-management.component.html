@@ -14,7 +14,7 @@
       >
         <option [ngValue]="null" disabled selected>Selecciona un médico</option>
         <option *ngFor="let doctor of availableDoctors" [value]="doctor.id">
-          Dr. {{ doctor.nombre }} ({{ doctor.especialidad }})
+          Dr. {{ doctor.nombre }}
         </option>
       </select>
     </div>
@@ -23,10 +23,13 @@
   <div *ngIf="selectedDoctorId" class="schedule-section">
     <h3>Horario de Dr. {{ selectedDoctorName }}</h3>
 
-    <div *ngIf="doctorSchedule" class="current-schedule-info">
+    <div *ngIf="doctorSchedule" class="current-schedule-info">  
       <p><strong>Horario Actual:</strong></p>
       <p>Días: {{ formatDaysForDisplay(doctorSchedule.dias) }}</p>
-      <p>Jornada: {{ formatHoursForDisplay(doctorSchedule.horas) }}</p>
+      <p>Jornada: {{ formatHoursForDisplay(doctorSchedule.horaInicio + '-' + doctorSchedule.horaFin) }}</p>
+      <p *ngIf="doctorSchedule.descanso && doctorSchedule.horaDescanso">
+      Descanso: {{ formatSingleHourForDisplay(doctorSchedule.horaDescanso) }}
+      </p>
     </div>
     <div *ngIf="!doctorSchedule && !isLoading" class="no-schedule-info">
       <p>Este médico no tiene un horario registrado. Puedes crear uno a continuación.</p>
@@ -69,6 +72,30 @@
         <select
           id="endHour"
           [(ngModel)]="selectedEndHour"
+          class="select-input"
+        >
+          <option [ngValue]="null" disabled>Selecciona hora</option>
+          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+            {{ hour < 10 ? '0' + hour : hour }}:00
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="tieneDescanso">¿Tiene Descanso?</label>
+        <select
+          id="tieneDescanso"
+          [(ngModel)]="tieneDescanso"
+          class="select-input"
+        >
+          <option [ngValue]="true">Sí</option>
+          <option [ngValue]="false">No</option>
+        </select>
+      </div>
+      <div *ngIf="tieneDescanso" class="form-group hours-group">
+        <label for="descansoHour">Hora de Descanso:</label>
+        <select
+          id="descansoHour"
+          [(ngModel)]="selectedDescansoHour"
           class="select-input"
         >
           <option [ngValue]="null" disabled>Selecciona hora</option>

@@ -98,20 +98,20 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
   setFilterMode(mode: 'medico' | 'especialidad'): void {
     this.filterMode = mode;
     this.isLoading = false;
-    this.closeModal(); // Cerrar el modal de mensajes al cambiar de modo
-    this.closeConfirmCancelModal(); // Cerrar el modal de confirmación/cancelación
+    this.closeModal(); 
+    this.closeConfirmCancelModal(); 
 
     // Limpiar selecciones y datos del modo opuesto
     if (this.filterMode === 'medico') {
       this.selectedSpecialtyId = null;
       this.selectedSpecialtyName = null;
       this.confirmedAppointmentsBySpecialty = [];
-      this.resetOccupancyBar(); // Restablecer la barra al cambiar a modo médico (sin selección inicial)
-    } else { // filterMode === 'especialidad'
+      this.resetOccupancyBar();
+    } else {
       this.selectedDoctorId = null;
       this.selectedDoctorName = null;
       this.pendingAppointments = [];
-      this.resetOccupancyBar(); // Asegurarse de que la barra no se muestre en modo especialidad
+      this.resetOccupancyBar();
     }
   }
 
@@ -120,24 +120,21 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
    */
  async onDoctorSelected(): Promise<void> {
     this.pendingAppointments = [];
-    this.closeModal(); // Limpiar mensajes de modal
-    this.closeConfirmCancelModal(); // Limpiar modal de confirmación
-    this.resetOccupancyBar(); // Asegurarse de que la barra se resetee al cambiar de médico
+    this.closeModal(); 
+    this.closeConfirmCancelModal(); 
+    this.resetOccupancyBar(); 
 
     if (this.selectedDoctorId) {
       const selectedDoctor = this.availableDoctors.find(d => d.id === this.selectedDoctorId);
       this.selectedDoctorName = selectedDoctor ? selectedDoctor.nombre : null;
 
       this.isLoading = true;
-      this.occupancyMessage = "Cargando horario y citas del médico..."; // Mensaje de carga
+      this.occupancyMessage = "Cargando horario y citas del médico..."; 
 
       try {
-        // *** 1. ¡PRIMERO OBTENEMOS EL HORARIO ESPECÍFICO DEL MÉDICO CON EL NUEVO MÉTODO! ***
         const horario = await firstValueFrom(this.apiService.getDoctorHorarioById(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
         this.selectedMedicoHorario = horario;
-        console.log('Horario del médico cargado (llamada separada):', this.selectedMedicoHorario); // ¡Verifica esto en consola!
-
-        // 2. Una vez que tenemos el horario, cargamos las citas pendientes
+        console.log('Horario del médico cargado (llamada separada):', this.selectedMedicoHorario); 
         const citas = await firstValueFrom(this.apiService.getAppointmentsPorMedico(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
         this.pendingAppointments = citas.filter(cita => cita.estado === 'p');
         console.log('Citas pendientes cargadas:', this.pendingAppointments);
@@ -146,11 +143,9 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
           this.openModal('No hay citas pendientes para este médico.', 'success');
         }
 
-        // 3. ¡Ahora que tenemos AMBOS datos, podemos calcular la ocupación!
         if (this.selectedMedicoHorario) {
           await this.calculateAndDisplayOccupancy(this.selectedDoctorId);
         } else {
-          // Esto debería ocurrir raramente si el backend está bien, pero es un fallback
           this.occupancyBarColor = 'gray';
           this.occupancyMessage = 'Horario del médico no disponible para cálculo de ocupación.';
           console.warn('Horario del médico es NULL o UNDEFINED. No se puede calcular la ocupación.');
@@ -159,7 +154,7 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.error('Error al cargar horario o citas del médico:', error);
         this.openModal('Error al cargar el horario o las citas del médico. Por favor, intenta de nuevo.', 'error');
-        this.resetOccupancyBar(); // Resetear en caso de error
+        this.resetOccupancyBar(); 
       } finally {
         this.isLoading = false;
       }
@@ -175,9 +170,9 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
    */
   async onSpecialtySelected(): Promise<void> {
     this.confirmedAppointmentsBySpecialty = [];
-    this.closeModal(); // Limpiar mensajes de modal
-    this.closeConfirmCancelModal(); // Limpiar modal de confirmación
-    this.resetOccupancyBar(); // Asegurarse de que la barra no se muestre en modo especialidad
+    this.closeModal(); 
+    this.closeConfirmCancelModal(); 
+    this.resetOccupancyBar(); 
 
     if (this.selectedSpecialtyId) {
       const selectedSpecialty = this.availableSpecialties.find(s => s.id === this.selectedSpecialtyId);

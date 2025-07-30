@@ -22,6 +22,7 @@ export class LoginComponent {
 
   mostrarTipoUsuario = true;
   tipoUsuario: 'p' | 'a' | null = null;
+  uidFirestore: string | null = null;
 
   options: AnimationOptions = {
     path: 'assets/doctores.json', // animación por defecto
@@ -49,9 +50,6 @@ export class LoginComponent {
     }
   }
 
-  // Método para manejar el inicio de sesión
-  // Este método se ejecuta cuando el usuario hace clic en el botón de inicio de sesión
-  // Si el tipo de usuario no está seleccionado, no hace nada
   login() {
     if (!this.tipoUsuario) return;
 
@@ -64,6 +62,7 @@ export class LoginComponent {
           // Obtiene el UID del usuario actual y verifica sus datos en Firestore
           const uid = user.uid;
           const datos = await this.authService.getUsuarioActual(uid);
+          this.uidFirestore = uid;
           if(datos){// Si se obtienen los datos del usuario, verifica su rol
             if (datos?.rol === this.tipoUsuario) {
             this.router.navigate(['/main']);
