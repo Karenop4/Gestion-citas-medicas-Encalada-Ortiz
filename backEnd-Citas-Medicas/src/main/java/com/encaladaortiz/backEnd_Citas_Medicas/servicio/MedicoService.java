@@ -4,6 +4,7 @@ import com.encaladaortiz.backEnd_Citas_Medicas.DTO.HorarioDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.MedicoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Horario;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
+import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.HorarioRepository;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.MedicoRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,43 +18,29 @@ import java.util.stream.Collectors;
 public class MedicoService {
 
     private final MedicoRepository repository;
+    private final HorarioRepository horarioRepository;
 
-    public MedicoService(MedicoRepository repository) {
-        this.repository = repository;
+    public MedicoService(MedicoRepository medicoRepository, HorarioRepository horarioRepository) {
+        this.repository = medicoRepository;
+        this.horarioRepository = horarioRepository;
+    }
+
+    public Medico guardar(Medico medico) {
+        if (medico.getHorario() != null && medico.getHorario().getId() != null) {
+            Horario horarioExistente = horarioRepository.findById(medico.getHorario().getId())
+                    .orElseThrow(() -> new RuntimeException("Horario no encontrado"));
+            medico.setHorario(horarioExistente);
+        }
+        return repository.save(medico);
     }
 
     public List<Medico> listar() {
         return repository.findAll();
     }
 
-    public Medico guardar(Medico medico) {
-        return repository.save(medico);
-    }
-    public List<MedicoDTO> getAllMedicos() {
-        return repository.findAll().stream()
-                .map(this::convertToMedicoDTO) // Mapear cada Medico a MedicoDTO
-                .collect(Collectors.toList());
-    }
 
-    private MedicoDTO convertToMedicoDTO(Medico medico) {
-        MedicoDTO dto = new MedicoDTO();
-        dto.setId(medico.getPersonalID()); // Usa getPersonalID() de Usuario
-        dto.setNombre(medico.getNombre());
-        dto.setEspecialidadNombre(medico.getEspecialidad() != null ? medico.getEspecialidad().getNombre() : null);
 
-        // Mapear Horario a HorarioDTO
-        if (medico.getHorario() != null) {
-            HorarioDTO horarioDTO = new HorarioDTO();
-            horarioDTO.setId(medico.getHorario().getId());
-            horarioDTO.setDescanso(medico.getHorario().isDescanso());
-            horarioDTO.setDias(medico.getHorario().getDias());
-            horarioDTO.setHoraDescanso(medico.getHorario().getHoraDescanso());
-            horarioDTO.setHoraFin(medico.getHorario().getHoraFin());
-            horarioDTO.setHoraInicio(medico.getHorario().getHoraInicio());
-            dto.setHorario(horarioDTO);
-        }
-        return dto;
-    }
+
     public Optional<Medico> buscarPorId(Long id) {
         return repository.findById(id);
     }
@@ -64,13 +51,27 @@ public class MedicoService {
 
     public Medico actualizar(Long id, Medico nuevo) {
         return repository.findById(id).map(m -> {
+            // Campos heredados de Usuario
             m.setNombre(nuevo.getNombre());
             m.setCedula(nuevo.getCedula());
+            m.setCorreo(nuevo.getCorreo());
+            m.setTelefono(nuevo.getTelefono());
+            m.setContactoC(nuevo.getContactoC());
+            m.setDireccion(nuevo.getDireccion());
+            m.setFechaNac(nuevo.getFechaNac());
+            m.setEstadoC(nuevo.getEstadoC());
+            m.setNacionalidad(nuevo.getNacionalidad());
+            m.setUid(nuevo.getUid());
+            m.setRol(nuevo.getRol());
+
+            // Campos específicos de Médico
             m.setEspecialidad(nuevo.getEspecialidad());
             m.setHorario(nuevo.getHorario());
+
             return repository.save(m);
         }).orElse(null);
     }
+
     public List<Medico> listarPorEspecialidad(String nombreEspecialidad) {
         return repository.findByEspecialidad_Nombre(nombreEspecialidad);
     }
@@ -150,4 +151,9 @@ public class MedicoService {
                 .map(medico -> medico.getHorario()) // Obtenemos el objeto Horario asociado al médico
                 .orElse(null); // Si el médico o su horario no se encuentra, devolvemos null
     }
+
+    public Optional<Medico> buscarPorUid(String uid) {
+        return repository.findByUid(uid);
+    }
+
 }

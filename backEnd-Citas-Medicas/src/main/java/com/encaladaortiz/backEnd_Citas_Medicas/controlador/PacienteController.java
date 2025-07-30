@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 
+import com.encaladaortiz.backEnd_Citas_Medicas.DTO.PacienteDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Paciente;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,32 @@ public class PacienteController {
         return ResponseEntity.ok(lista);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Paciente> obtenerPorId(@PathVariable Long id) {
-        return pacienteService.buscarPorId(id)
-                .map(ResponseEntity::ok)
+    @GetMapping("/uid/{uid}")
+    public ResponseEntity<PacienteDTO> obtenerPorUid(@PathVariable String uid) {
+        return pacienteService.obtenerPorUid(uid)
+                .map(paciente -> {
+                    PacienteDTO dto = new PacienteDTO(
+                            paciente.getPersonalID(),
+                            paciente.getNombre(),
+                            paciente.getCedula(),
+                            paciente.getContactoC(),
+                            paciente.getTelefono(),
+                            paciente.getCorreo(),
+                            paciente.isDatos(),
+                            paciente.getDireccion(),
+                            paciente.getEstadoC(),
+                            paciente.getGenero(),
+                            paciente.getNacionalidad(),
+                            paciente.getFechaNac(),
+                            paciente.getRol(),
+                            paciente.getUid(),
+                            paciente.getTipoSangre()
+                    );
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @PostMapping
     public ResponseEntity<Paciente> crear(@RequestBody Paciente paciente) {
@@ -39,7 +60,7 @@ public class PacienteController {
         return ResponseEntity.ok(nuevo);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/put/{id}")
     public ResponseEntity<Paciente> actualizar(@PathVariable Long id, @RequestBody Paciente paciente) {
         Paciente actualizado = pacienteService.actualizar(id, paciente);
         if (actualizado != null) {

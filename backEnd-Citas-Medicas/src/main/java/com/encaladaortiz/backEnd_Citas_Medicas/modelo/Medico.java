@@ -12,7 +12,7 @@ public class Medico extends Usuario {
     private Especialidad especialidad;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER) // <--- ¡Confirma que sigue así!
-    @JoinColumn(name = "horario_id", unique = true, referencedColumnName = "id") // <--- Y esto es CRUCIAL. "id" es la PK de la tabla 'horarios'.
+    @JoinColumn(name = "horario_id", unique = true, referencedColumnName = "id", nullable = true) // <--- Y esto es CRUCIAL. "id" es la PK de la tabla 'horarios'.
     private Horario horario;
 
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)

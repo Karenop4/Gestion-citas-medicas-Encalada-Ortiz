@@ -96,15 +96,15 @@ export class AppComponent implements OnInit {
   private getDefaultUsuario(): Usuario {
     return {
       nombre: '',
-      fechaNacimiento: '',
+      fechaNac: '',
       genero: '',
       telefono: '',
       correo: '',
       direccion: '',
       nacionalidad: '',
-      estadoCivil: '',
+      estadoC: '',
       cedula: '',
-      contactoEmergencia: '',
+      contactoC: '',
       rol: 'p',
       esMedico: false,
       especialidad: { nombre: '', id: 0, activa: true}, // Inicializamos especialidad como un objeto vacío

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 import { AuthService } from '../../../core/services/auth.service';
@@ -8,52 +8,58 @@ import { Usuario } from '../../../models/user.model';
 import { UserService } from '../../../core/services/user.service';
 import { EspecialidadesService, Especialidad } from '../../../core/services/especialidades.service';
 
-@Component({// Componente para el perfil del paciente
+@Component({
   selector: 'app-profile',
-  standalone: true, // Indica que este componente es independiente y puede ser utilizado sin necesidad de un módulo específico
+  standalone: true,
   imports: [CommonModule, FormsModule], 
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-
-// Este componente permite al paciente ver y editar su perfil
 export class ProfileComponent implements OnInit {
-  usuario: Usuario = this.getDefaultUsuario();// Inicializa el usuario con valores por defecto
-  especialidades: Especialidad[] = []; // Lista de especialidades disponibles
+  usuario: Usuario = this.getDefaultUsuario();
+  especialidades: Especialidad[] = [];
 
-  constructor(// Inyecta los servicios necesarios para el componente
+  constructor(
     private router: Router,
     private auth: Auth,
     private authService: AuthService,
     private userService: UserService,
     private especialidadesService: EspecialidadesService
   ) {
-    const state = this.router.getCurrentNavigation()?.extras.state as any; // Obtiene el estado de la navegación actual
-    // Si hay un usuario en el estado, lo fusiona con los valores por defecto
+    const state = this.router.getCurrentNavigation()?.extras.state as any;
     if (state?.user) {
       this.usuario = { ...this.getDefaultUsuario(), ...state.user };
     }
   }
 
-  // Método que se ejecuta al inicializar el componente
-  // Se suscribe al observable del usuario actual y obtiene las especialidades disponibles
   async ngOnInit() {
-    this.authService.user$.subscribe(async user => {
-      if (!user) return;
-
-      const uid = user.uid;
-      const datos = await this.authService.getUsuarioActual(uid);
-
-      if (datos) {
-        this.usuario = datos;
-        this.userService.setUsuario(this.usuario);
-        localStorage.setItem('usuario', JSON.stringify(this.usuario));
-      }
-    });
-
+    // Cargar especialidades primero
     this.especialidadesService.getEspecialidades().subscribe(
       esps => {
         this.especialidades = esps;
+
+        // Luego cargar usuario y sincronizar especialidad
+        this.authService.user$.subscribe(async user => {
+          if (!user) return;
+
+          const uid = user.uid;
+          this.authService.getUsuarioActual(uid).subscribe(datos => {
+            if (datos) {
+              this.usuario = datos;
+              
+              // Sincronizar la especialidad con la lista para que sea el mismo objeto
+              if (this.usuario.especialidad?.id) {
+                const espSeleccionada = this.especialidades.find(e => e.id === this.usuario.especialidad.id);
+                if (espSeleccionada) {
+                  this.usuario.especialidad = espSeleccionada;
+                }
+              }
+
+              this.userService.setUsuario(this.usuario);
+              localStorage.setItem('usuario', JSON.stringify(this.usuario));
+            }
+          });
+        });
       },
       error => {
         console.error('Error al obtener especialidades:', error);
@@ -61,39 +67,40 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  // Método para guardar los datos del usuario
   guardar() {
-    if (!this.auth.currentUser) return; // Verifica si el usuario está autenticado
+    if (!this.auth.currentUser) return;
 
-    // Asigna el uid y correo del usuario autenticado al objeto usuario
     this.usuario.uid = this.auth.currentUser.uid;
     this.usuario.correo = this.auth.currentUser.email ? this.auth.currentUser.email : '';
+    console.log("Usuario a guardar:", this.usuario);
 
-    // Verifica si el usuario ya tiene datos completos
-    this.authService.updateUser(this.usuario.uid, this.usuario).then(() => {
-      localStorage.setItem('usuario', JSON.stringify(this.usuario)); // Guarda el usuario en el localStorage
-      this.userService.setUsuario(this.usuario); 
+    this.authService.updateUser(this.usuario).subscribe(() => {
+      localStorage.setItem('usuario', JSON.stringify(this.usuario));
+      this.userService.setUsuario(this.usuario);
       alert('Datos guardados correctamente');
-      this.router.navigate(['/main']); 
+      this.router.navigate(['/main']);
     });
   }
 
-  
-  private getDefaultUsuario(): Usuario {// Método privado para obtener un usuario con valores por defecto
+  compareEspecialidad(o1: Especialidad, o2: Especialidad): boolean {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  }
+
+  private getDefaultUsuario(): Usuario {
     return {
       nombre: '',
-      fechaNacimiento: '',
+      fechaNac: '',
       genero: '',
       telefono: '',
       correo: '',
       direccion: '',
       nacionalidad: '',
-      estadoCivil: '',
+      estadoC: '',
       cedula: '',
-      contactoEmergencia: '',
+      contactoC: '',
       rol: 'p',
       esMedico: false,
-      especialidad: '',
+      especialidad: { id: 1, nombre: '' , activa: true }, // Inicializamos especialidad como un objeto vacío
       datosCompletos: false
     };
   }

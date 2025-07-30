@@ -38,11 +38,21 @@ public abstract class Usuario {
     private char rol;
     @Column(unique = true)
     private String uid;
+
+    private boolean esMedico;
     public Usuario() {
     }
 
     public Long getPersonalID() {
         return personalID;
+    }
+
+    public boolean isEsMedico() {
+        return esMedico;
+    }
+
+    public void setEsMedico(boolean esMedico) {
+        this.esMedico = esMedico;
     }
 
     public void setPersonalID(Long personalID) {

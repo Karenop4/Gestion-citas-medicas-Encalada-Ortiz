@@ -1,33 +1,39 @@
+// src/app/services/especialidades.service.ts
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-
-export interface Especialidad { // Define la interfaz para Especialidad
-  id?: string;
+export interface Especialidad {
+  id: number;
   nombre: string;
+  activa: boolean;
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-
-// Servicio para manejar las especialidades
-// Este servicio se encarga de obtener las especialidades desde Firestore
 export class EspecialidadesService {
-  constructor(private firestore: Firestore) {}
+  private apiUrl = 'http://localhost:8080/api/especialidades';
+
+  constructor(private http: HttpClient) {}
 
   getEspecialidades(): Observable<Especialidad[]> {
-    const especialidadesRef = collection(this.firestore, 'especialidades');
-    return collectionData(especialidadesRef, { idField: 'id' }).pipe(
-      map((docs: any[]) =>
-        docs.map(doc => ({
-          id: doc.id,
-          nombre: doc.name 
-        }))
-      )
-    );
+    return this.http.get<Especialidad[]>(this.apiUrl);
   }
 
+  getEspecialidad(id: number): Observable<Especialidad> {
+    return this.http.get<Especialidad>(`${this.apiUrl}/${id}`);
+  }
+
+  crearEspecialidad(especialidad: Especialidad): Observable<Especialidad> {
+    return this.http.post<Especialidad>(this.apiUrl, especialidad);
+  }
+
+  actualizarEspecialidad(especialidad: Especialidad): Observable<Especialidad> {
+    return this.http.put<Especialidad>(`${this.apiUrl}/${especialidad.id}`, especialidad);
+  }
+
+  eliminarEspecialidad(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

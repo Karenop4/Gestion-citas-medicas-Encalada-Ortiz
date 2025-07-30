@@ -61,19 +61,20 @@ export class LoginComponent {
           if (!user) return;
           // Obtiene el UID del usuario actual y verifica sus datos en Firestore
           const uid = user.uid;
-          const datos = await this.authService.getUsuarioActual(uid);
-          this.uidFirestore = uid;
-          if(datos){// Si se obtienen los datos del usuario, verifica su rol
-            if (datos?.rol === this.tipoUsuario) {
-            this.router.navigate(['/main']);
-          }
-          else {
-              this.options={
+          const datos$ = this.authService.getUsuarioActual(uid);
+          datos$.subscribe(datos => {
+            if (datos) { // Si se obtienen los datos del usuario, verifica su rol
+              if (datos?.rol === this.tipoUsuario) {
+                this.router.navigate(['/main']);
+              } else {
+                this.options = {
+
                   path: 'assets/doctores.json',
-              };
-              this.mostrarTipoUsuario=true;
-          }
-          }
+                };
+                this.mostrarTipoUsuario = true;
+              }
+            }
+          });
         });
       }
     });

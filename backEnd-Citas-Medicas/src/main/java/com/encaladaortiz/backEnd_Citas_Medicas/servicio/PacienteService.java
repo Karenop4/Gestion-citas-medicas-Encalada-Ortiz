@@ -36,8 +36,22 @@ public class PacienteService {
         return repository.findById(id).map(p -> {
             p.setNombre(nuevo.getNombre());
             p.setCedula(nuevo.getCedula());
+            p.setContactoC(nuevo.getContactoC());
+            p.setTelefono(nuevo.getTelefono());
+            p.setCorreo(nuevo.getCorreo());
+            p.setFechaNac(nuevo.getFechaNac());
+            p.setDireccion(nuevo.getDireccion());
+            p.setEstadoC(nuevo.getEstadoC());
+            p.setNacionalidad(nuevo.getNacionalidad());
+            p.setUid(nuevo.getUid());
             p.setTipoSangre(nuevo.getTipoSangre());
+            p.setRol(nuevo.getRol()); // <- si estás usando un char como 'p' o 'a'
             return repository.save(p);
         }).orElse(null);
+    }
+
+
+    public Optional<Paciente> obtenerPorUid(String uid) {
+        return repository.findByUid(uid);
     }
 }

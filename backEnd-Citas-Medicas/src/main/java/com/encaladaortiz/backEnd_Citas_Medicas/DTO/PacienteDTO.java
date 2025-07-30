@@ -2,11 +2,11 @@ package com.encaladaortiz.backEnd_Citas_Medicas.DTO;
 
 import java.util.Date;
 
-public class MedicoDTO {
+public class PacienteDTO {
+
     private Long id;
     private String nombre;
     private String cedula;
-    private String especialidadNombre;
     private String contactoC;
     private String telefono;
     private String correo;
@@ -18,19 +18,14 @@ public class MedicoDTO {
     private Date fechaNac;
     private char rol;
     private String uid;
-    private boolean esMedico;
-    private HorarioDTO horario;
+    private String tipoSangre;
 
-    public MedicoDTO() {}
-
-    public MedicoDTO(Long id, String nombre, String cedula, String especialidadNombre,
-                     String contactoC, String telefono, String correo, boolean datos,
-                     String direccion, String estadoC, String genero, String nacionalidad,
-                     Date fechaNac, char rol, String uid, boolean esMedico) {
+    public PacienteDTO(Long id, String nombre, String cedula, String contactoC, String telefono, String correo,
+                       boolean datos, String direccion, String estadoC, String genero, String nacionalidad,
+                       Date fechaNac, char rol, String uid, String tipoSangre) {
         this.id = id;
         this.nombre = nombre;
         this.cedula = cedula;
-        this.especialidadNombre = especialidadNombre;
         this.contactoC = contactoC;
         this.telefono = telefono;
         this.correo = correo;
@@ -42,10 +37,10 @@ public class MedicoDTO {
         this.fechaNac = fechaNac;
         this.rol = rol;
         this.uid = uid;
-        this.esMedico = esMedico;
+        this.tipoSangre = tipoSangre;
     }
 
-    // Getters y setters
+    // Getters y Setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -55,9 +50,6 @@ public class MedicoDTO {
 
     public String getCedula() { return cedula; }
     public void setCedula(String cedula) { this.cedula = cedula; }
-
-    public String getEspecialidadNombre() { return especialidadNombre; }
-    public void setEspecialidadNombre(String especialidadNombre) { this.especialidadNombre = especialidadNombre; }
 
     public String getContactoC() { return contactoC; }
     public void setContactoC(String contactoC) { this.contactoC = contactoC; }
@@ -92,9 +84,6 @@ public class MedicoDTO {
     public String getUid() { return uid; }
     public void setUid(String uid) { this.uid = uid; }
 
-    public boolean isEsMedico() { return esMedico; }
-    public void setEsMedico(boolean esMedico) { this.esMedico = esMedico; }
-
-    public HorarioDTO getHorario() { return horario; }
-    public void setHorario(HorarioDTO horario) { this.horario = horario; }
+    public String getTipoSangre() { return tipoSangre; }
+    public void setTipoSangre(String tipoSangre) { this.tipoSangre = tipoSangre; }
 }

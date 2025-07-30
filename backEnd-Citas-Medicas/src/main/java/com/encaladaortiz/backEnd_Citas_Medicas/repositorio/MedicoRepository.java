@@ -15,4 +15,6 @@ public interface MedicoRepository extends JpaRepository<Medico,Long> {
     Optional<Medico> findByPersonalID(Long personalid);
     @Query("SELECT m FROM Medico m JOIN FETCH m.horario WHERE m.personalID = :medicoId")
     Optional<Medico> findByPersonalIDWithHorario(@Param("medicoId") Long medicoId);
+
+    Optional<Medico> findByUid(String uid);
 }

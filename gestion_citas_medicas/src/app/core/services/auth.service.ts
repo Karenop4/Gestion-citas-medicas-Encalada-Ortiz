@@ -1,95 +1,90 @@
 import { Injectable } from '@angular/core';
 import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user } from '@angular/fire/auth';
-import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Usuario } from '../../models/user.model';
 import { UserService } from './user.service';
 import { HttpClient } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  
-  user$: Observable<any>; // Observable para el usuario autenticado
+  user$: Observable<any>;
+  tipo: 'p' | 'a' | null = null;
 
-  constructor(private userService: UserService ,private auth: Auth, private firestore: Firestore, private http: HttpClient) { // Inyectamos Auth y Firestore
-    // Inicializamos el observable del usuario autenticado
+  constructor(
+    private userService: UserService,
+    private auth: Auth,
+    private http: HttpClient
+  ) {
     this.user$ = user(this.auth);
   }
 
-  // Método para iniciar sesión con Google y cargar el usuario
-  async loginWithGoogleAndLoadUser(tipo: 'p' | 'a') { // 'p' para paciente, 'a' para administrador
-    const credential = await signInWithPopup(this.auth, new GoogleAuthProvider());// Iniciamos sesión con Google
-    const { uid, displayName, email } = credential.user; // Obtenemos los datos del usuario autenticado
+  async loginWithGoogleAndLoadUser(tipo: 'p' | 'a'): Promise<Usuario> {
+    this.tipo = tipo; // Guarda si es paciente o administrativo (médico)
 
-    const userRef = doc(this.firestore, 'usuarios', uid);// Referencia al documento del usuario en Firestore
-    const userSnap = await getDoc(userRef); // Obtenemos el documento del usuario
+    const credential = await signInWithPopup(this.auth, new GoogleAuthProvider());
+    const { uid, displayName, email } = credential.user;
 
-    // Si el usuario no existe, lo creamos con los datos básicos
-    if (!userSnap.exists()) {
-      const nuevo: Usuario = {
-        uid,
-        nombre: displayName ?? '',
-        correo: email ?? '',
-        rol: tipo,
-        datosCompletos: false,
-        fechaNacimiento: '',
-        genero: '',
-        telefono: '',
-        direccion: '',
-        especialidad : { nombre: '', id: 1, activa: true }, // Inicializamos especialidad como un objeto vacío
-        cedula: '',
-        nacionalidad: '',
-        estadoCivil: '',
-        contactoEmergencia: ''
-      };
-      await setDoc(userRef, nuevo);
 
-      if(tipo === 'p') {
-        this.http.post('http://localhost:8080/api/pacientes', nuevo).subscribe({
-          next: res => console.log('Usuario guardado en el backend:', res),
-          error: err => console.error('Error al guardar en el backend:', err)
-        });
-      }else if(tipo === 'a') {
-        this.http.post('http://localhost:8080/api/medicos', nuevo).subscribe({
-          next: res => console.log('Administrador guardado en el backend:', res),       
-          error: err => console.error('Error al guardar en el backend:', err)
-        });
-      }
+    const nuevo: Usuario = {
+      uid,
+      nombre: displayName ?? '',
+      correo: email ?? '',
+      rol: tipo,
+      datosCompletos: false,
+      fechaNac: '',
+      genero: '',
+      telefono: '',
+      direccion: '',
+      especialidad: { nombre: '', id: 1, activa: true },
+      cedula: '',
+      nacionalidad: '',
+      estadoC: '',
+      contactoC: '',
+      esMedico: tipo === 'a' // Solo true si es administrativo
+    };
 
-      this.userService.setUsuario(nuevo);
+    const endpoint = tipo === 'p' ? 'pacientes' : 'medicos';
+    const getUrl = `http://localhost:8080/api/${endpoint}/uid/${uid}`;
+    const postUrl = `http://localhost:8080/api/${endpoint}`;
 
-      return nuevo;
-    } else { // Si el usuario ya existe, lo cargamos
-      const userData = userSnap.data() as Usuario;
-      this.userService.setUsuario(userData); 
-      if (!userData.datosCompletos) {
-        return userData;
-      } else {
-        return null;
-      }
-    }
+    return new Promise<Usuario>((resolve, reject) => {
+      this.http.get<Usuario>(getUrl).pipe(
+        catchError(() => of(null)) // Si no existe, devolver null
+      ).subscribe((existente) => {
+        if (existente) {
+          console.log('Usuario ya registrado:', existente);
+          this.userService.setUsuario(existente);
+          resolve(existente);
+        } else {
+          this.http.post<Usuario>(postUrl, nuevo).subscribe({
+            next: creado => {
+              console.log('Usuario creado en backend:', creado);
+              this.userService.setUsuario(creado);
+              resolve(creado);
+            },
+            error: err => {
+              console.error('Error al registrar usuario:', err);
+              reject(err);
+            }
+          });
+        }
+      });
+    });
   }
 
-  // Método para actualizar los datos del usuario
-  updateUser(uid: string, datos: any) {
-    const ref = doc(this.firestore, 'usuarios', uid);
-    datos.datosCompletos = true;
-    return setDoc(ref, datos);
-  }
-
-  // Método para cerrar sesión y limpiar el usuario del localStorage
   logout() {
     localStorage.removeItem('usuario');
     return signOut(this.auth);
   }
 
-  // Método para obtener el usuario actual desde Firestore
-  async getUsuarioActual(uid: string): Promise<Usuario | null> {
-    const userRef = doc(this.firestore, 'usuarios', uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      return userSnap.data() as Usuario;
-    }
-    return null;
+  getUsuarioActual(uid: string): Observable<Usuario> {
+    const endpoint = this.tipo === 'p' ? 'pacientes' : 'medicos';
+    return this.http.get<Usuario>(`http://localhost:8080/api/${endpoint}/uid/${uid}`);
+  }
+
+  updateUser(usuario: Usuario): Observable<Usuario> {
+    const endpoint = this.tipo === 'p' ? 'pacientes' : 'medicos';
+    return this.http.put<Usuario>(`http://localhost:8080/api/${endpoint}/put/${usuario.id}`, usuario);
   }
 }

@@ -5,7 +5,7 @@
   <input [(ngModel)]="usuario.nombre" name="nombre" required />
 
   <label>Fecha de nacimiento:</label>
-  <input type="date" [(ngModel)]="usuario.fechaNacimiento" name="fechaNacimiento" required />
+  <input type="date" [(ngModel)]="usuario.fechaNac" name="fechaNacimiento" required />
 
   <label>Género:</label>
   <select [(ngModel)]="usuario.genero" name="genero">
@@ -27,13 +27,13 @@
   <input [(ngModel)]="usuario.nacionalidad" name="nacionalidad" required />
 
   <label>Estado civil:</label>
-  <input [(ngModel)]="usuario.estadoCivil" name="estadoCivil" required />
+  <input [(ngModel)]="usuario.estadoC" name="estadoCivil" required />
 
   <label>Cédula:</label>
   <input [(ngModel)]="usuario.cedula" name="cedula" required />
 
   <label>Contacto de emergencia:</label>
-  <input [(ngModel)]="usuario.contactoEmergencia" name="contactoEmergencia" required />
+  <input [(ngModel)]="usuario.contactoC" name="contactoEmergencia" required />
 
   <div *ngIf="usuario.rol === 'a'">
     <label>¿Es médico?</label>

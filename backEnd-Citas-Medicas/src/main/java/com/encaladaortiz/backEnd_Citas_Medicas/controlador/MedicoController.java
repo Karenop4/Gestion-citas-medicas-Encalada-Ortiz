@@ -3,9 +3,8 @@ package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.MedicoDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Horario;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
-import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
+import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Paciente;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.CitaService;
-import com.encaladaortiz.backEnd_Citas_Medicas.servicio.MedicoService;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.MedicoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -42,28 +41,11 @@ public class MedicoController {
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<MedicoDTO>> listar() {
-        List<Medico> medicos = service.listar();
-        List<MedicoDTO> dtos = medicos.stream()
-                .map(m -> new MedicoDTO(
-                        m.getPersonalID(),
-                        m.getNombre(),
-                        m.getCedula(),
-                        m.getEspecialidad().getNombre()
-                ))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
 
     @PostMapping
     public ResponseEntity<Medico> crear(@RequestBody Medico Medico) {
         Medico nuevoMedico = service.guardar(Medico);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(nuevoMedico.getPersonalID())
-                .toUri();
-        return ResponseEntity.created(location).body(nuevoMedico);
+        return ResponseEntity.ok(nuevoMedico);
     }
 
     @GetMapping("/{id}")
@@ -72,32 +54,16 @@ public class MedicoController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    @GetMapping("/porEspecialidad")
-    public ResponseEntity<List<MedicoDTO>> obtenerporEspecialidad(@RequestParam String nombreEspecialidad) {
-        List<Medico> medicos = service.listarPorEspecialidad(nombreEspecialidad);
-        List<MedicoDTO> dtos = medicos.stream()
-                .map(m -> new MedicoDTO(
-                        m.getPersonalID(),
-                        m.getNombre(),
-                        m.getCedula(),
-                        m.getEspecialidad().getNombre()
-                ))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Medico> actualizar(
-            @PathVariable Long id,
-            @RequestBody Medico Medico) {
 
-        if (!id.equals(Medico.getPersonalID())) {
-            return ResponseEntity.badRequest().build();
+    @PutMapping("/put/{id}")
+    public ResponseEntity<Medico> actualizar(@PathVariable Long id, @RequestBody Medico medico) {
+        Medico actualizado = service.actualizar(id, medico);
+        if (actualizado != null) {
+            return ResponseEntity.ok(actualizado);
+        } else {
+            return ResponseEntity.notFound().build();
         }
-
-        return service.buscarPorId(id)
-                .map(existente -> ResponseEntity.ok(service.guardar(Medico)))
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/disponibilidad")
@@ -126,7 +92,7 @@ public class MedicoController {
         Horario horario = service.obtenerHorarioDeMedico(id);
 
         if (horario == null) {
-            return ResponseEntity.notFound().build(); // Devuelve 404 si no se encuentra
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(horario); // Devuelve el objeto Horario completo
     }
@@ -178,5 +144,32 @@ public class MedicoController {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/uid/{uid}")
+    public ResponseEntity<MedicoDTO> obtenerPorUid(@PathVariable String uid) {
+        return service.buscarPorUid(uid)
+                .map(medico -> {
+                    MedicoDTO dto = new MedicoDTO(
+                            medico.getPersonalID(),
+                            medico.getNombre(),
+                            medico.getCedula(),
+                            medico.getEspecialidad() != null ? medico.getEspecialidad().getNombre() : null,
+                            medico.getContactoC(),
+                            medico.getTelefono(),
+                            medico.getCorreo(),
+                            medico.isDatos(),
+                            medico.getDireccion(),
+                            medico.getEstadoC(),
+                            medico.getGenero(),
+                            medico.getNacionalidad(),
+                            medico.getFechaNac(),
+                            medico.getRol(),
+                            medico.getUid(),
+                            medico.isEsMedico()
+                    );
+                    return ResponseEntity.ok(dto);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
