@@ -63,11 +63,11 @@ public class MedicoService {
             m.setNacionalidad(nuevo.getNacionalidad());
             m.setUid(nuevo.getUid());
             m.setRol(nuevo.getRol());
-
+            m.setGenero(nuevo.getGenero());
             // Campos específicos de Médico
             m.setEspecialidad(nuevo.getEspecialidad());
             m.setHorario(nuevo.getHorario());
-
+            m.setEsMedico(nuevo.isEsMedico());
             return repository.save(m);
         }).orElse(null);
     }
