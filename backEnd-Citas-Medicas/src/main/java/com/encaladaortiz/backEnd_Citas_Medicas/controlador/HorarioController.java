@@ -47,7 +47,7 @@ public class HorarioController {
             Horario savedHorario = horarioService.saveOrUpdateHorario(horarioDTO, medicoId);
             return new ResponseEntity<>(savedHorario, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST); 
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 

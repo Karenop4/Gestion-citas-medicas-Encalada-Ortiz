@@ -13,9 +13,20 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  loadSpecialties(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/especialidades`);
+  loadSpecialties(): Observable<Especialidad[]> {
+    return this.http.get<Especialidad[]>(`${this.baseUrl}/especialidades`);
   }
+   createEspecialidad(especialidad: { nombre: string }): Observable<Especialidad> {
+    return this.http.post<Especialidad>(`${this.baseUrl}/especialidades`, especialidad);
+  }
+
+  updateEspecialidad(id: number, especialidad: { nombre: string }): Observable<Especialidad> {
+    return this.http.put<Especialidad>(`${this.baseUrl}/especialidades/${id}`, especialidad);
+  }
+
+  deactivateEspecialidad(id: number): Observable<Especialidad> { // Devuelve la especialidad actualizada
+  return this.http.patch<Especialidad>(`${this.baseUrl}/especialidades/${id}/deactivate`, {}); // Se envía un cuerpo vacío o un objeto { activa: false } si tu backend lo espera
+}
 
   loadSpecialtiesReporte(): Observable<Especialidad[]> {
     return this.http.get<Especialidad[]>(`${this.baseUrl}/especialidades`);

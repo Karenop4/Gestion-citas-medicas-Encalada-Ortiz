@@ -2,13 +2,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
-
-interface Specialty {
-  id: string; 
-  name: string; 
-}
-
+import { ApiService } from '../../../core/services/api.service';
+import { Especialidad } from '../../../models/especialidad.model';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-especialidad',
   standalone: true,
@@ -22,43 +19,44 @@ export class EspecialidadComponent implements OnInit {
   modalMessage: string = '';
   modalType: 'success' | 'error' | '' = '';
 
-  specialties: Specialty[] = [];
+  specialties: Especialidad[] = [];
   newSpecialtyName: string = '';
-  
-  editingSpecialty: Specialty | null = null;
+
+  editingSpecialty: Especialidad | null = null;
   editingSpecialtyName: string = '';
 
-  constructor(private firestore: Firestore) {}
+  private destroy$ = new Subject<void>();
+  constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
     this.loadSpecialties();
   }
 
-  /**
-   * Carga todas las especialidades desde la colección 'especialidades' en Firestore
+ /**
+   * Carga todas las especialidades desde el backend REST.
    */
   async loadSpecialties(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const q = collection(this.firestore, 'especialidades');
-      const querySnapshot = await getDocs(q);
-      this.specialties = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data()['name']
-      } as Specialty));
+  this.isLoading = true;
+  try {
+    this.specialties = await firstValueFrom(this.apiService.loadSpecialties().pipe(takeUntil(this.destroy$))); // Si el findAll ya trae solo activas
 
-      if (this.specialties.length === 0) {
-        this.openModal('No se encontraron especialidades en el sistema.', 'success');
-      }
-    } catch (error) {
-      this.openModal('No se pudieron cargar las especialidades. Por favor, intenta de nuevo.', 'error');
-    } finally {
-      this.isLoading = false;
+    // Si el findAll trae todas y se necesita filtrar en el frontend:
+    // Actualmente el backend ya filtra las especialidades activas, por lo que no es necesario este paso.
+    // this.specialties = (await firstValueFrom(this.apiService.getEspecialidades().pipe(takeUntil(this.destroy$))))
+    //                      .filter(s => s.activa);
+
+    if (this.specialties.length === 0) {
+      this.openModal('No se encontraron especialidades activas en el sistema.', 'success');
     }
+  } catch (error) {
+    // ...
+  } finally {
+    this.isLoading = false;
   }
+}
 
   /**
-   * Agrega una nueva especialidad a Firestore.
+   * Agrega una nueva especialidad al backend REST.
    */
   async addSpecialty(): Promise<void> {
     if (!this.newSpecialtyName.trim()) {
@@ -69,7 +67,8 @@ export class EspecialidadComponent implements OnInit {
     this.isLoading = true;
     try {
       const existingSpecialty = this.specialties.some(
-        s => s.name.toLowerCase() === this.newSpecialtyName.trim().toLowerCase()
+        // Cambiado s.name a s.nombre
+        s => s.nombre.toLowerCase() === this.newSpecialtyName.trim().toLowerCase()
       );
 
       if (existingSpecialty) {
@@ -78,13 +77,20 @@ export class EspecialidadComponent implements OnInit {
         return;
       }
 
-      const docRef = await addDoc(collection(this.firestore, 'especialidades'), {
-        name: this.newSpecialtyName.trim()
-      });
+      // Construir el objeto para enviar al backend (solo nombre y activa)
+      const newSpecialtyData: { nombre: string, activa: boolean } = {
+        nombre: this.newSpecialtyName.trim(),
+        activa: true 
+      };
+
+      await firstValueFrom(this.apiService.createEspecialidad(newSpecialtyData).pipe(takeUntil(this.destroy$)));
       this.openModal('Especialidad creada con éxito.', 'success');
+      this.newSpecialtyName = '';
       await this.loadSpecialties(); 
-    } catch (error) {
-      this.openModal('Error al crear la especialidad. Por favor, intenta de nuevo.', 'error');
+    } catch (error: any) {
+      console.error('Error al crear la especialidad:', error);
+      const errorMessage = error.error || 'Error al crear la especialidad. Por favor, intenta de nuevo.';
+      this.openModal(errorMessage, 'error');
     } finally {
       this.isLoading = false;
     }
@@ -94,15 +100,15 @@ export class EspecialidadComponent implements OnInit {
    * Prepara el formulario para editar una especialidad existente.
    * @param specialty La especialidad a editar.
    */
-  editSpecialty(specialty: Specialty): void {
-    this.editingSpecialty = { ...specialty }; 
-    this.editingSpecialtyName = specialty.name;
+  editSpecialty(specialty: Especialidad): void { // Cambiado a Especialidad
+    this.editingSpecialty = { ...specialty }; // Copia la especialidad para edición
+    this.editingSpecialtyName = specialty.nombre; // Cambiado specialty.name a specialty.nombre
     this.modalMessage = '';
     this.modalType = '';
   }
 
   /**
-   * Actualiza una especialidad existente en Firestore.
+   * Actualiza una especialidad existente en el backend REST.
    */
   async updateSpecialty(): Promise<void> {
     if (!this.editingSpecialty || !this.editingSpecialtyName.trim()) {
@@ -113,7 +119,8 @@ export class EspecialidadComponent implements OnInit {
     this.isLoading = true;
     try {
       const existingSpecialty = this.specialties.some(
-        s => s.id !== this.editingSpecialty?.id && s.name.toLowerCase() === this.editingSpecialtyName.trim().toLowerCase()
+        // Cambiado s.name a s.nombre
+        s => s.id !== this.editingSpecialty?.id && s.nombre.toLowerCase() === this.editingSpecialtyName.trim().toLowerCase()
       );
 
       if (existingSpecialty) {
@@ -122,15 +129,29 @@ export class EspecialidadComponent implements OnInit {
         return;
       }
 
-      const specialtyDocRef = doc(this.firestore, 'especialidades', this.editingSpecialty.id);
-      await updateDoc(specialtyDocRef, {
-        name: this.editingSpecialtyName.trim()
-      });
+      // Construir el objeto para enviar al backend (solo nombre y activa)
+      const updatedSpecialtyData: { nombre: string, activa: boolean } = {
+        nombre: this.editingSpecialtyName.trim(),
+        // Usar el valor 'activa' existente del objeto original, si existe
+        activa: this.editingSpecialty.activa !== undefined ? this.editingSpecialty.activa : true 
+      };
+
+      if (this.editingSpecialty.id === undefined) {
+          // Esto no debería pasar si editingSpecialty se carga de una especialidad existente
+          // Pero es una buena práctica añadir una verificación.
+          this.openModal('Error: ID de especialidad no definido para actualizar.', 'error');
+          this.isLoading = false;
+          return;
+      }
+
+      await firstValueFrom(this.apiService.updateEspecialidad(this.editingSpecialty.id, updatedSpecialtyData).pipe(takeUntil(this.destroy$)));
       this.openModal('Especialidad actualizada con éxito.', 'success');
-      await this.loadSpecialties();
-    } catch (error) {
+      this.cancelEdit(); // Limpiar el formulario de edición
+      await this.loadSpecialties(); // Recargar la lista
+    } catch (error: any) {
       console.error('Error al actualizar especialidad:', error);
-      this.openModal('Error al actualizar la especialidad. Por favor, intenta de nuevo.', 'error');
+      const errorMessage = error.error || 'Error al actualizar la especialidad. Por favor, intenta de nuevo.';
+      this.openModal(errorMessage, 'error');
     } finally {
       this.isLoading = false;
     }
@@ -145,26 +166,25 @@ export class EspecialidadComponent implements OnInit {
   }
 
   /**
-   * Elimina una especialidad de Firestore.
+   * Elimina una especialidad del backend REST.
    * @param specialtyId El ID de la especialidad a eliminar.
    */
-  async deleteSpecialty(specialtyId: string): Promise<void> {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta especialidad?')) {
+  async deleteSpecialty(specialtyId: number): Promise<void> {
+    if (!confirm('¿Estás seguro de que quieres desactivar esta especialidad?')) { 
       return;
     }
-
     this.isLoading = true;
     try {
-      const specialtyDocRef = doc(this.firestore, 'especialidades', specialtyId);
-      await deleteDoc(specialtyDocRef);
-      this.openModal('Especialidad eliminada con éxito.', 'success');
+      await firstValueFrom(this.apiService.deactivateEspecialidad(specialtyId).pipe(takeUntil(this.destroy$)));
+      this.openModal('Especialidad desactivada con éxito.', 'success'); 
       await this.loadSpecialties();
-    } catch (error) {
-      this.openModal('Error al eliminar la especialidad. Por favor, intenta de nuevo.', 'error');
+    } catch (error: any) {
+      const errorMessage = error.error || 'Error al desactivar la especialidad. Por favor, intenta de nuevo.';
+      this.openModal(errorMessage, 'error');
     } finally {
       this.isLoading = false;
     }
-  }
+}
 
   /**
    * Abre el modal de mensajes.

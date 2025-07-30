@@ -107,7 +107,7 @@ export class AppComponent implements OnInit {
       contactoEmergencia: '',
       rol: 'p',
       esMedico: false,
-      especialidad: { nombre: '', id: 0, active: true}, // Inicializamos especialidad como un objeto vacío
+      especialidad: { nombre: '', id: 0, activa: true}, // Inicializamos especialidad como un objeto vacío
       datosCompletos: false
     };
   }

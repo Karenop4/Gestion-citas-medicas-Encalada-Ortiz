@@ -3,7 +3,9 @@ package com.encaladaortiz.backEnd_Citas_Medicas.controlador;
 import com.encaladaortiz.backEnd_Citas_Medicas.DTO.EspecialidadDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Especialidad;
 import com.encaladaortiz.backEnd_Citas_Medicas.servicio.EspecialidadService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -23,40 +25,43 @@ public class EspecialidadController {
 
     // En tu controlador
     @GetMapping
-    public List<EspecialidadDTO> listarEspecialidades() {
-        return service.listar();
+    public ResponseEntity<List<EspecialidadDTO>> getAllEspecialidades() {
+        List<EspecialidadDTO> especialidades = service.findAll();
+        return new ResponseEntity<>(especialidades, HttpStatus.OK);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<EspecialidadDTO> getEspecialidadById(@PathVariable Long id) {
+        return service.findById(id)
+                .map(especialidad -> new ResponseEntity<>(especialidad, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<Especialidad> crear(@RequestBody Especialidad especialidad) {
-        Especialidad nuevaEspecialidad = service.guardar(especialidad);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(nuevaEspecialidad.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(nuevaEspecialidad);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Especialidad> obtener(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> createEspecialidad(@RequestBody EspecialidadDTO especialidadDTO) {
+        try {
+            EspecialidadDTO createdEspecialidad = service.create(especialidadDTO);
+            return new ResponseEntity<>(createdEspecialidad, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al crear la especialidad: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Especialidad> actualizar(
-            @PathVariable Long id,
-            @RequestBody Especialidad especialidad) {
-
-        if (!id.equals(especialidad.getId())) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> updateEspecialidad(@PathVariable Long id, @RequestBody EspecialidadDTO especialidadDetailsDTO) {
+        try {
+            EspecialidadDTO updatedEspecialidad = service.update(id, especialidadDetailsDTO);
+            return new ResponseEntity<>(updatedEspecialidad, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al actualizar la especialidad: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return service.buscarPorId(id)
-                .map(existente -> ResponseEntity.ok(service.guardar(especialidad)))
-                .orElse(ResponseEntity.notFound().build());
     }
+
 
     @PatchMapping("/{id}/estado")
     public ResponseEntity<Especialidad> cambiarEstado(
@@ -72,11 +77,25 @@ public class EspecialidadController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        if (service.buscarPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> deleteEspecialidad(@PathVariable Long id) {
+        try {
+            service.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al eliminar la especialidad: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        service.eliminar(id);
-        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping("/{id}/deactivate") // Usar PATCH para una actualización parcial (solo 'activa')
+    public ResponseEntity<?> deactivateEspecialidad(@PathVariable Long id) {
+        try {
+            service.deactivateById(id);
+            return new ResponseEntity<>(HttpStatus.OK); // O NO_CONTENT
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al desactivar la especialidad: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

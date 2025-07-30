@@ -5,7 +5,7 @@
 
   <div class="form-section">
     <h3 *ngIf="!editingSpecialty">Crear Nueva Especialidad</h3>
-    <h3 *ngIf="editingSpecialty">Editar Especialidad: {{ editingSpecialty.name }}</h3>
+    <h3 *ngIf="editingSpecialty">Editar Especialidad: {{ editingSpecialty.nombre }}</h3> 
 
     <div class="form-group">
       <label for="specialtyName">Nombre de la Especialidad:</label>
@@ -56,10 +56,10 @@
 
     <ul class="specialties-list">
       <li *ngFor="let specialty of specialties" class="specialty-item">
-        <span>{{ specialty.name }}</span>
+        <span>{{ specialty.nombre }}</span> 
         <div class="item-actions">
           <button (click)="editSpecialty(specialty)" class="edit-button">Editar</button>
-          <button (click)="deleteSpecialty(specialty.id)" class="delete-button">Eliminar</button>
+          <button (click)="deleteSpecialty(specialty.id!)" class="delete-button">Desactivar</button> 
         </div>
       </li>
     </ul>
