@@ -1,5 +1,6 @@
 package com.encaladaortiz.backEnd_Citas_Medicas.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Especialidad {
     private String nombre;
 
     private boolean activa;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "especialidad")
     private List<Medico> medicos;
 

@@ -46,7 +46,7 @@
   <div *ngIf="usuario.esMedico">
     <label>Especialidad:</label>
     <select [(ngModel)]="usuario.especialidad" name="especialidad" required>
-      <option *ngFor="let esp of especialidades" [ngValue]="esp.id">
+      <option *ngFor="let esp of especialidades" [ngValue]="esp">
         {{ esp.nombre }}
       </option>
     </select>
