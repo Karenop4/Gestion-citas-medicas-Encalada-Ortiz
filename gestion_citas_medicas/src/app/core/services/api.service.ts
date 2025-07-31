@@ -79,6 +79,12 @@ export class ApiService {
     return this.http.get<Cita[]>(`${this.baseUrl}/citas/medico/${medicoId}/fecha`, { params });
   }
 
+  getDisponibilidadPorFecha(medicoId: number, fecha: string): Observable<string[]> {
+    const params = new HttpParams().set('fecha', fecha);
+    return this.http.get<string[]>(`${this.baseUrl}/medicos/${medicoId}/disponibilidad`, { params });
+  }
+
+
   getCitasConfirmadasMedicoEnRango(medicoId: number, startDate: string, endDate: string): Observable<Cita[]> {
     return this.http.get<Cita[]>(`${this.baseUrl}/citas/medico/${medicoId}/confirmadas/rango`, {
       params: { startDate, endDate }

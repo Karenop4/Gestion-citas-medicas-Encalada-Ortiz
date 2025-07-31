@@ -13,7 +13,7 @@
         class="select-input"
       >
         <option [ngValue]="null" disabled selected>Selecciona un médico</option>
-        <option *ngFor="let doctor of availableDoctors" [value]="doctor.id">
+        <option *ngFor="let doctor of availableDoctors" [value]="doctor.personalID">
           Dr. {{ doctor.nombre }}
         </option>
       </select>

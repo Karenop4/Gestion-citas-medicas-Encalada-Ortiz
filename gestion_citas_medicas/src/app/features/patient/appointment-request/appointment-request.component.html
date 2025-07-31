@@ -36,8 +36,8 @@
             </div>
             <div class="options-grid">
                 <label *ngFor="let doctor of availableDoctors" class="option-card">
-                    <input type="radio" name="doctor" [value]="doctor.id" [(ngModel)]="selectedDoctorId"
-                        [checked]="selectedDoctorId === doctor.id" (change)="errorMessage = null" />
+                    <input type="radio" name="doctor" [value]="doctor.personalID" [(ngModel)]="selectedDoctorId"
+                        [checked]="selectedDoctorId === doctor.personalID" (change)="errorMessage = null" />
                     <span> {{ doctor.nombre }}</span>
                 </label>
             </div>

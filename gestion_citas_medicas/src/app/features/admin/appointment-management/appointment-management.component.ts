@@ -120,7 +120,7 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
     this.resetOccupancyBar(); 
 
     if (this.selectedDoctorId) {
-      const selectedDoctor = this.availableDoctors.find(d => d.id === this.selectedDoctorId);
+      const selectedDoctor = this.availableDoctors.find(d => d.personalID === this.selectedDoctorId);
       this.selectedDoctorName = selectedDoctor ? selectedDoctor.nombre : null;
 
       this.isLoading = true;

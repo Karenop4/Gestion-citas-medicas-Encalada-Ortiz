@@ -83,7 +83,7 @@ export class ScheduleManagementComponent implements OnInit {
 
     if (this.selectedDoctorId) {
        const doctorIdNum = Number(this.selectedDoctorId);
-      const selectedDoctor = this.availableDoctors.find(d => d.id === doctorIdNum);
+      const selectedDoctor = this.availableDoctors.find(d => d.personalID === doctorIdNum);
       this.selectedDoctorName = selectedDoctor ? selectedDoctor.nombre : null;
       await this.loadDoctorSchedule(doctorIdNum);
     } else {

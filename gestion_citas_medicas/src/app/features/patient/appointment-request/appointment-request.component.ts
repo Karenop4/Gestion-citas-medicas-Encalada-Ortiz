@@ -11,6 +11,7 @@ import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import moment from 'moment';
 import 'moment/locale/es';
+import { Paciente } from '../../../models/paciente.model';
 
 @Component({
   selector: 'app-appointment-request',
@@ -28,7 +29,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   selectedSpecialty: Especialidad | null = null;
   availableSpecialties: Especialidad[] = [];
 
-  selectedDoctorId: number | null = null; // ¡Ahora sí, number!
+  selectedDoctorId: number = 0; // ¡Ahora sí, number!
   availableDoctors: Medico[] = [];
   selectedDoctorObject: Medico | null = null; // Guardará el objeto completo del médico
 
@@ -51,7 +52,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   constructor(private apiService: ApiService) {
     // Las fechas min/max se inicializarán en ngOnInit con moment
   }
-
+  loggedInPatient: Paciente | null = null; // Aquí deberías obtener el paciente logueado, por ejemplo desde AuthService
   ngOnInit(): void {
     moment.locale('es');
     this.setMinMaxDates();
@@ -59,6 +60,16 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
     // Aquí es donde deberías obtener el ID del usuario logueado
     // Por ejemplo, si usas un servicio de autenticación con JWT:
     // this.authService.getLoggedInUserId().subscribe(id => this.currentUserId = id);
+    const storedPatient = localStorage.getItem('paciente'); // o la clave que uses
+    if (storedPatient) {
+      try {
+        const pacienteObj = JSON.parse(storedPatient);
+        // Por ejemplo, si el paciente tiene un campo 'nombre'
+        this.loggedInPatient = pacienteObj;
+      } catch (error) {
+        console.error('Error al parsear paciente del localStorage:', error);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -121,31 +132,52 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
           return;
         }
         // Buscar el objeto completo del médico seleccionado
-        this.selectedDoctorObject = this.availableDoctors.find(d => d.id === this.selectedDoctorId) || null;
+        this.selectedDoctorObject = this.availableDoctors.find(d => d.personalID === this.selectedDoctorId) || null;
         if (!this.selectedDoctorObject) {
           this.errorMessage = 'Médico seleccionado no encontrado. Por favor, selecciona de nuevo.';
           return;
         }
+        console.log('Médico seleccionado:', this.selectedDoctorObject);
+         // Aseguramos que el ID esté actualizado
         // No verifiques el horario aquí, lo obtendrás en el paso 3
         this.currentStep++;
         break;
 
       case 3: // Fecha seleccionada
-        if (!this.selectedDate) {
-          this.errorMessage = 'Por favor, selecciona una fecha.';
-          return;
-        }
-        // Obtener el horario actualizado del médico antes de generar los slots
-        const doctorHorario = await firstValueFrom(this.apiService.getDoctorGeneralHorario(this.selectedDoctorId!));
+    console.log('Obteniendo horario del médico:', this.selectedDoctorObject);
+    if (!this.selectedDoctorObject) {
+        this.errorMessage = 'Por favor, selecciona un médico antes de elegir una fecha.';
+        return;
+    }
+    if (!this.selectedDate) {
+        this.errorMessage = 'Por favor, selecciona una fecha.';
+        return;
+    }
+
+    console.log('ID del médico seleccionado:', this.selectedDoctorObject.personalID);
+
+    // Obtener el horario actualizado del médico antes de generar los slots
+    try {
+        const doctorHorario = await firstValueFrom(this.apiService.getDoctorGeneralHorario(this.selectedDoctorObject.personalID));
+        
+        // Actualizar el horario solo si el objeto todavía existe
         if (this.selectedDoctorObject) {
-          this.selectedDoctorObject.horario = doctorHorario;
+            this.selectedDoctorObject.horario = doctorHorario;
+        } else {
+            this.errorMessage = 'El médico seleccionado ya no está disponible.';
+            return;
         }
+
         await this.generateAvailableTimeSlots();
-        if (this.errorMessage) { // Si generateAvailableTimeSlots setea un error (ej. no hay horas)
-          return; // No avanzar
+        if (this.errorMessage) {
+            return;
         }
         this.currentStep++;
-        break;
+    } catch (error) {
+        this.errorMessage = 'Error al obtener el horario del médico.';
+        console.error('Error fetching doctor schedule:', error);
+    }
+    break;
       case 4: // Hora seleccionada
         if (!this.selectedTime) {
           this.errorMessage = 'Por favor, selecciona una hora.';
@@ -166,7 +198,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
     this.successMessage = null;
     this.currentStep--;
     if (this.currentStep === 1) {
-      this.selectedDoctorId = null;
+      this.selectedDoctorId = 0;
       this.selectedDoctorObject = null;
       this.availableDoctors = [];
       this.selectedDate = null;
@@ -190,7 +222,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = null;
     this.availableDoctors = []; // ¡Limpiar SIEMPRE antes de cargar nuevos!
-    this.selectedDoctorId = null; // Limpiar la selección de médico
+    this.selectedDoctorId = 0; // Limpiar la selección de médico
     this.selectedDoctorObject = null; // Limpiar el objeto médico
     try {
       const doctors = await firstValueFrom(this.apiService.getMedicosByEspecialidad(specialtyName).pipe(takeUntil(this.destroy$)));
@@ -247,10 +279,10 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
 
       // Obtener las citas ya agendadas/confirmadas para este médico en esta fecha
       const citasAgendadas = await firstValueFrom(
-        this.apiService.getAppointmentsPorMedicoYFecha(this.selectedDoctorId, this.selectedDate)
+        this.apiService.getDisponibilidadPorFecha(this.selectedDoctorObject.personalID, this.selectedDate)
           .pipe(takeUntil(this.destroy$))
       );
-      const occupiedTimes = new Set(citasAgendadas.map(cita => cita.hora));
+      const occupiedTimes = new Set(citasAgendadas.map(cita => cita));
 
       // Generar todos los slots posibles basados en el horario del médico
       const startHour = moment(doctorHorario.horaInicio, 'HH:mm:ss');
@@ -294,45 +326,45 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
    * Registra la cita en el backend REST.
    */
   async registerAppointment(): Promise<void> {
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.successMessage = null;
+  this.isLoading = true;
+  this.errorMessage = null;
+  this.successMessage = null;
 
-    if (!this.selectedSpecialty || !this.selectedDoctorObject || !this.selectedDate || !this.selectedTime) {
-      this.errorMessage = 'Por favor, completa todos los pasos antes de confirmar la cita.';
-      this.isLoading = false;
-      return;
-    }
-
-    // Aquí necesitas obtener el nombre del paciente logueado.
-    // Esto es crucial, ya que tu interfaz Cita espera el nombre del paciente.
-    // Asumo que tienes una forma de obtener el nombre del usuario logueado.
-    // Por ahora, un placeholder.
-    const patientName = "Nombre del Paciente Logueado"; // <<-- ¡¡REEMPLAZA ESTO CON EL NOMBRE REAL DEL PACIENTE!!
-
-    try {
-      // Construir el DTO para enviar al backend, usando los NOMBRES como indica tu interfaz Cita
-      const appointmentDTOToSend: Cita = {
-        fecha: this.selectedDate,
-        hora: this.selectedTime + ':00', // Asegúrate de que tenga ":00" si el backend espera HH:MM:SS
-        estado: 'p', // 'p' de Pendiente
-        especialidad: this.selectedSpecialty.nombre, // Usar el nombre de la especialidad
-        medico: this.selectedDoctorObject.nombre || '', // Usar el nombre del médico (manejar null)
-        paciente: patientName // Usar el nombre del paciente
-      };
-
-      await firstValueFrom(this.apiService.confirmarAppointment(appointmentDTOToSend).pipe(takeUntil(this.destroy$)));
-
-      this.successMessage = 'Cita solicitada con éxito. Espera la confirmación.';
-      this.resetForm();
-    } catch (error: any) {
-      console.error('Error al registrar la cita:', error);
-      const backendErrorMessage = error.error?.message || error.error || 'Error desconocido al registrar la cita.';
-      this.errorMessage = `Error al registrar la cita: ${backendErrorMessage}`;
-    } finally {
-      this.isLoading = false;
-    }
+  if (!this.selectedSpecialty || !this.selectedDoctorObject || !this.selectedDate || !this.selectedTime) {
+    this.errorMessage = 'Por favor, completa todos los pasos antes de confirmar la cita.';
+    this.isLoading = false;
+    return;
   }
+
+  if (!this.loggedInPatient || typeof this.loggedInPatient.id !== 'number') {
+    this.errorMessage = 'Paciente no válido o no logueado correctamente.';
+    this.isLoading = false;
+    return;
+  }
+
+  try {
+    const appointmentDTOToSend: Cita = {
+      fecha: this.selectedDate,
+      hora: this.selectedTime + ':00',
+      estado: 'p',
+      especialidad: this.selectedSpecialty,
+      medico: this.selectedDoctorObject,
+      paciente: { id: this.loggedInPatient.id, nombre: this.loggedInPatient.nombre }
+    };
+
+    await firstValueFrom(this.apiService.registerAppointment(appointmentDTOToSend).pipe(takeUntil(this.destroy$)));
+
+    this.successMessage = 'Cita solicitada con éxito. Espera la confirmación.';
+    this.resetForm();
+  } catch (error: any) {
+    console.error('Error al registrar la cita:', error);
+    const backendErrorMessage = error.error?.message || error.error || 'Error desconocido al registrar la cita.';
+    this.errorMessage = `Error al registrar la cita: ${backendErrorMessage}`;
+  } finally {
+    this.isLoading = false;
+  }
+}
+
 
   /**
    * Reinicia el formulario a su estado inicial.
@@ -340,7 +372,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   resetForm(): void {
     this.currentStep = 1;
     this.selectedSpecialty = null;
-    this.selectedDoctorId = null;
+    this.selectedDoctorId = 0;
     this.selectedDoctorObject = null;
     this.selectedDate = null;
     this.selectedTime = null;

@@ -2,7 +2,7 @@
 import { Horario } from './horario.model'; // Asegúrate de la ruta correcta
 
 export interface Medico {
-  id: number;
+  personalID: number;
   nombre: string | null;
   especialidad: string;
   horario: Horario | null; 

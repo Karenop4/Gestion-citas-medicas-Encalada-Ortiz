@@ -17,7 +17,7 @@
     <div class="select-container">
       <select [(ngModel)]="selectedDoctorId" (change)="onDoctorSelected()">
         <option [ngValue]="null" disabled>Selecciona un médico</option>
-        <option *ngFor="let doctor of availableDoctors" [ngValue]="doctor.id">
+        <option *ngFor="let doctor of availableDoctors" [ngValue]="doctor.personalID">
           {{ doctor.nombre }}
         </option>
       </select>
