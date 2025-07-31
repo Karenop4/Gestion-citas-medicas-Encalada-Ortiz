@@ -1,3 +1,4 @@
+const BASE_URL = 'http://localhost:8080';
 import { Injectable } from '@angular/core';
 import { Auth, signInWithPopup, GoogleAuthProvider, signOut, user } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
@@ -45,7 +46,7 @@ export class AuthService {
             estadoC: '', genero: '', nacionalidad: '', fechaNac: '',
           };
           // Asume que tienes un endpoint para registrar (POST) nuevos usuarios
-          const registeredUser = await this.http.post<Usuario>(`http://localhost:8080/api/usuarios/register`, newUser).toPromise();
+          const registeredUser = await this.http.post<Usuario>(`${BASE_URL}/api/usuarios/register`, newUser).toPromise();
           if (registeredUser) {
             this.userService.setUsuario(registeredUser); // Guarda en UserService/localStorage
             return registeredUser; // Retorna el usuario recién registrado
@@ -73,8 +74,7 @@ export class AuthService {
 
   getUsuarioActual(uid: string): Observable<Usuario | null> {
     // Asegúrate de que esta URL sea EXACTAMENTE la del controlador de Usuario que devuelve UsuarioDTO
-    const url = `http://localhost:8080/api/usuarios/porFirebaseUid?uid=${uid}`;
-    console.log("AuthService: Intentando obtener usuario de:", url); // Log para verificar la URL
+    const url = `${BASE_URL}/api/usuarios/porFirebaseUid?uid=${uid}`;
     return this.http.get<Usuario>(url);
   }
 
@@ -88,7 +88,7 @@ updateUser(usuario: Usuario): Observable<Usuario> {
 
     // El objeto 'usuario' de Angular se envía directamente, ya que tiene 'personalID'
     // y tus DTOs del backend ahora esperan 'personalID'. ¡Simple y limpio!
-    return this.http.put<Usuario>(`http://localhost:8080/api/${endpoint}/put/${usuario.personalID}`, usuario);
+    return this.http.put<Usuario>(`${BASE_URL}/api/${endpoint}/put/${usuario.personalID}`, usuario);
   }
 
 }
