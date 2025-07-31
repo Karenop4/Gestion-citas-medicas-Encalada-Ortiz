@@ -85,6 +85,6 @@ export class AuthService {
 
   updateUser(usuario: Usuario): Observable<Usuario> {
     const endpoint = this.tipo === 'p' ? 'pacientes' : 'medicos';
-    return this.http.put<Usuario>(`http://localhost:8080/api/${endpoint}/put/${usuario.id}`, usuario);
+    return this.http.put<Usuario>(`http://localhost:8080/api/${endpoint}/put/${usuario.personalID}`, usuario);
   }
 }

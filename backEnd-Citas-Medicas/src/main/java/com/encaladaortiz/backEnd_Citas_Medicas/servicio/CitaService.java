@@ -333,4 +333,31 @@ public class CitaService {
                 .setBorder(Border.NO_BORDER); // Puedes añadir bordes si los prefieres
     }
 
+    @Transactional(readOnly = true)
+    public List<CitaDTO> getFilteredCitas(
+            LocalDate fechaInicio,
+            LocalDate fechaFin,
+            Long especialidadId,
+            Character estadoChar,
+            Long pacienteId,
+            Long medicoId) {
+
+        // Validaciones básicas: Las fechas de inicio y fin son obligatorias
+        if (fechaInicio == null || fechaFin == null) {
+            throw new IllegalArgumentException("Fecha de inicio y fecha de fin son obligatorias para el filtrado.");
+        }
+
+        List<Cita> citas = repository.findFilteredAppointments(
+                fechaInicio,
+                fechaFin,
+                especialidadId,
+                estadoChar,
+                pacienteId,
+                medicoId);
+
+        return citas.stream()
+                .map(this::convertirADTO) // Reutiliza tu método existente para convertir a DTO
+                .collect(Collectors.toList());
+    }
+
 }

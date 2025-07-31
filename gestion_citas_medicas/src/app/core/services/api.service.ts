@@ -44,32 +44,17 @@ export class ApiService {
     return this.http.get<Medico[]>(`${this.baseUrl}/medicos/porEspecialidad`, { params: params });
   }
 
-  // **ELIMINADO / NO NECESARIO PARA appointment-request CON TU NUEVO MODELO Medico**
-  // getDoctorAvailableDays(doctorId: number): Observable<string> {
-  //   return this.http.get(`/api/medicos/${doctorId}/diasDisponibles`, { responseType: 'text' });
-  // }
-  // **ELIMINADO / NO NECESARIO PARA appointment-request CON TU NUEVO MODELO Medico**
-  // loadDoctorAvailability(doctorId: number, fecha: string): Observable<string[]> {
-  //   return this.http.get<string[]>(`${this.baseUrl}/medicos/${doctorId}/disponibilidad?fecha=${fecha}`);
-  // }
 
   getMedicos(): Observable<Medico[]> {
     return this.http.get<Medico[]>(`${this.baseUrl}/medicos`);
   }
-  // NOTA: Tienes dos métodos para el horario general.
-  // Mantendré uno y usaré 'getDoctorGeneralHorario' como el principal si es el que usas para el horario del Medico
-  // que ya viene con el objeto Medico. Si no es así y necesitas pedirlo por separado, este es el que usarías.
   getDoctorGeneralHorario(medicoId: number): Observable<Horario> {
     return this.http.get<Horario>(`${this.baseUrl}/medicos/${medicoId}/horarioGeneral`);
   }
-  // getDoctorHorarioById(medicoId: number): Observable<Horario> { // DUPLICADO, considera eliminar uno
-  //   return this.http.get<Horario>(`${this.baseUrl}/medicos/${medicoId}/horarioGeneral`);
-  // }
   saveHorario(horario: Horario, medicoId: number): Observable<Horario> {
     return this.http.post<Horario>(`${this.baseUrl}/horarios/medico/${medicoId}`, horario);
   }
 
-  // **YA EXISTE, ¡PERFECTO!**
   registerAppointment(cita: Cita): Observable<Cita> {
     return this.http.post<Cita>(`${this.baseUrl}/citas`, cita);
   }
@@ -89,17 +74,8 @@ export class ApiService {
   confirmarAppointment(cita: Cita): Observable<Cita> {
     return this.http.put<Cita>(`${this.baseUrl}/citas/${cita.id}`, { estado: 'c' });
   }
-
-  // **NUEVO MÉTODO REQUERIDO: Citas de un médico por fecha**
-  /**
-   * Obtiene las citas de un médico en una fecha específica.
-   * @param medicoId ID del médico.
-   * @param fecha Fecha en formato YYYY-MM-DD.
-   * @returns Un Observable de array de Citas.
-   */
   getAppointmentsPorMedicoYFecha(medicoId: number, fecha: string): Observable<Cita[]> {
     const params = new HttpParams().set('fecha', fecha);
-    // Asumo un endpoint como /api/citas/medico/{medicoId}/fecha?fecha=YYYY-MM-DD
     return this.http.get<Cita[]>(`${this.baseUrl}/citas/medico/${medicoId}/fecha`, { params });
   }
 
@@ -136,5 +112,32 @@ export class ApiService {
   downloadConfirmedPdfReportByEspecialidad(especialidadId: number): Observable<Blob> {
     const url = `${this.baseUrl}/medicos/especialidad/${especialidadId}/citas-confirmadas/pdf`;
     return this.http.get(url, { responseType: 'blob' });
+  }
+  getFilteredAppointments(
+    fechaInicio: string, // YYYY-MM-DD
+    fechaFin: string,    // YYYY-MM-DD
+    especialidadId?: number | null,
+    estado?: string | null,
+    pacienteId?: number | null,
+    medicoId?: number | null
+  ): Observable<Cita[]> {
+    let params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin);
+
+    if (especialidadId) {
+      params = params.set('especialidadId', especialidadId.toString());
+    }
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+    if (pacienteId) {
+      params = params.set('pacienteId', pacienteId.toString());
+    }
+    if (medicoId) {
+      params = params.set('medicoId', medicoId.toString());
+    }
+
+    return this.http.get<Cita[]>(`${this.baseUrl}/citas/filtrar`, { params });
   }
 }

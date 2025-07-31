@@ -1,52 +1,78 @@
 <div class="fondo">
-<div class="my-appointments-container">
-  <h2>Mis Citas Agendadas</h2>
+  <div class="my-appointments-container">
+    <h2>Mis Citas Agendadas</h2>
 
-  <div *ngIf="isLoading" class="loading-indicator">Cargando tus citas...</div>
-  <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+    <div class="filters-section">
+      <h3>Filtrar Citas</h3>
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="fechaDesde">Fecha Desde:</label>
+          <input type="date" id="fechaDesde" [(ngModel)]="filterFechaDesde" (change)="loadMyAppointments()">
+        </div>
+        <div class="filter-group">
+          <label for="fechaHasta">Fecha Hasta:</label>
+          <input type="date" id="fechaHasta" [(ngModel)]="filterFechaHasta" (change)="loadMyAppointments()">
+        </div>
+        <div class="filter-group">
+          <label for="especialidad">Especialidad:</label>
+          <select id="especialidad" [(ngModel)]="filterEspecialidadId" (change)="loadMyAppointments()">
+            <option [ngValue]="null">Todas las Especialidades</option>
+            <option *ngFor="let esp of availableEspecialidades" [ngValue]="esp.id">{{ esp.nombre }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="estado">Estado:</label>
+          <select id="estado" [(ngModel)]="filterEstado" (change)="loadMyAppointments()">
+            <option [ngValue]="null">Todos los Estados</option>
+            <option *ngFor="let status of appointmentStates" [ngValue]="status.value">{{ status.label }}</option>
+          </select>
+        </div>
+        </div>
+    </div>
+    <div *ngIf="isLoading" class="loading-indicator">Cargando tus citas...</div>
+    <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
 
-  <div class="appointments-patient-section">
-    <h3>Citas Agendadas</h3>
-    <div *ngIf="patientAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
-      <p>No tienes citas agendadas como paciente en este momento.</p>
-      <p>¡Agenda una nueva cita para empezar!</p>
+    <div *ngIf="currentUserRole === 'p'" class="appointments-patient-section">
+      <h3>Citas Agendadas (Paciente)</h3>
+      <div *ngIf="patientAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
+        <p>No tienes citas agendadas como paciente con los filtros actuales.</p>
+        <p>¡Intenta ajustar los filtros o agenda una nueva cita!</p>
+      </div>
+
+      <div class="appointments-grid">
+        <div *ngFor="let appointment of patientAppointments" class="appointment-card">
+          <div class="card-header">
+            <h3>Cita con Dr. {{ appointment.medico }}</h3>
+            <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
+          </div>
+          <div class="card-body">
+            <p><strong>Motivo:</strong> {{ appointment.especialidad }}</p>
+            <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
+            <p><strong>Hora:</strong> {{ appointment.hora }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="appointments-grid">
-      <div *ngFor="let appointment of patientAppointments" class="appointment-card">
-        <div class="card-header">
-          <h3>Cita con Dr. {{ appointment.medico }}</h3>
-          <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
-        </div>
-        <div class="card-body">
-          <p><strong>Motivo:</strong> {{ appointment.especialidad }}</p>
-          <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
-          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
+    <div *ngIf="currentUserRole === 'a'" class="appointments-doctor-section">
+      <h3>Citas Agendadas (Médico)</h3>
+      <div *ngIf="doctorAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
+        <p>No tienes citas agendadas como médico con los filtros actuales.</p>
+      </div>
+
+      <div class="appointments-grid">
+        <div *ngFor="let appointment of doctorAppointments" class="appointment-card">
+          <div class="card-header">
+            <h3>Cita con Paciente: {{ appointment.paciente }}</h3>
+            <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
+          </div>
+          <div class="card-body">
+            <p><strong>Especialidad:</strong> {{ appointment.especialidad }}</p>
+            <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
+            <p><strong>Hora:</strong> {{ appointment.hora }}</p>
+            </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div *ngIf="currentUserRole === 'a'" class="appointments-doctor-section">
-    <h3>Citas Confirmadas con mis Pacientes</h3>
-    <div *ngIf="doctorAppointments.length === 0 && !isLoading && !errorMessage" class="no-appointments">
-      <p>No tienes citas confirmadas con pacientes en este momento.</p>
-    </div>
-
-    <div class="appointments-grid">
-      <div *ngFor="let appointment of doctorAppointments" class="appointment-card">
-        <div class="card-header">
-          <h3>Cita con Paciente: {{ appointment.paciente}}</h3>
-          <span class="appointment-status" [ngClass]="appointment.statusClass">{{ appointment.displayStatus }}</span>
-        </div>
-        <div class="card-body">
-          <p><strong>Especialidad:</strong> {{ appointment.especialidad }}</p>
-          <p><strong>Fecha:</strong> {{ appointment.fecha | date:'fullDate' }}</p>
-          <p><strong>Hora:</strong> {{ appointment.hora }}</p>
-          <p *ngIf="!appointment.especialidad"><strong>ID Paciente:</strong> {{ appointment.id }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 </div>

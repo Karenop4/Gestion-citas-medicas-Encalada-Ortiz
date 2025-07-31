@@ -112,4 +112,32 @@ public class CitaController {
         CitaDTO dto = citaService.convertirADTO(actualizada);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<CitaDTO>> getFilteredCitas(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            @RequestParam(required = false) Long especialidadId,
+            @RequestParam(required = false) Character estado,
+            @RequestParam(required = false) Long pacienteId,
+            @RequestParam(required = false) Long medicoId) {
+
+        // Opcional: Validación para asegurar que solo se pasa pacienteId o medicoId, no ambos
+        if (pacienteId != null && medicoId != null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        List<CitaDTO> citas = citaService.getFilteredCitas(
+                fechaInicio,
+                fechaFin,
+                especialidadId,
+                estado,
+                pacienteId,
+                medicoId);
+
+        if (citas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(citas);
+    }
 }
