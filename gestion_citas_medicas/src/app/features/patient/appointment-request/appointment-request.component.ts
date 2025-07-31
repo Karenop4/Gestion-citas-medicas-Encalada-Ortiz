@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, getDocs, query, where, doc, getDoc, setDoc } from '@angular/fire/firestore';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Auth, user, User } from '@angular/fire/auth'; 
+import { FormsModule } from '@angular/forms';
+
 import { ApiService } from '../../../core/services/api.service';
+import { Especialidad } from '../../../models/especialidad.model';
+import { Medico } from '../../../models/medico.model';
 import { Horario } from '../../../models/horario.model';
-interface Doctor {
-  id: string; 
-  nombre: string;
-  especialidad: string;
-  esMedico: boolean;
-}
+import { Cita } from '../../../models/cita.model';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import moment from 'moment';
+import 'moment/locale/es';
 
 @Component({
   selector: 'app-appointment-request',
@@ -19,106 +19,141 @@ interface Doctor {
   standalone: true,
   imports: [CommonModule, FormsModule, DatePipe]
 })
-export class AppointmentRequestComponent implements OnInit {
+export class AppointmentRequestComponent implements OnInit, OnDestroy {
   currentStep: number = 1;
   isLoading: boolean = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  selectedSpecialty: any = null;
-  availableSpecialties: any[] = [];
+  selectedSpecialty: Especialidad | null = null;
+  availableSpecialties: Especialidad[] = [];
 
-  selectedDoctorId: string | null = null;
-  availableDoctors: Doctor[] = [];
+  selectedDoctorId: number | null = null; // ¡Ahora sí, number!
+  availableDoctors: Medico[] = [];
+  selectedDoctorObject: Medico | null = null; // Guardará el objeto completo del médico
 
   selectedDate: string | null = null;
-  minDate: string = new Date().toISOString().split('T')[0];
-  maxDate: string;
+  minDate: string = '';
+  maxDate: string = '';
 
   availableTimeSlots: string[] = [];
   selectedTime: string | null = null;
 
-  private doctorSchedule: Horario | null = null;
-  private doctorAppointments: string[] = [];
-  private parsedDoctorDays: number[] = []; 
+  // Ya no necesitamos 'private doctorSchedule: Horario | null;' separado,
+  // porque el horario viene dentro del objeto 'Medico'
+  // private doctorAppointments: string[] = []; // Ya no se usa directamente aquí, se procesa en generateAvailableTimeSlots
+  // private parsedDoctorDays: number[] = []; // Se procesa directamente en generateAvailableTimeSlots
 
-  currentUserId: string | null = null;
+  // currentUserId: string | null = null; // ¡Recordatorio: Esto vendrá de tu Auth REST!
 
-  constructor(private firestore: Firestore, private auth: Auth, private apiService: ApiService) {
-    const futureDate = new Date();
-    futureDate.setMonth(futureDate.getMonth() + 2);
-    this.maxDate = futureDate.toISOString().split('T')[0];
+  private destroy$ = new Subject<void>();
+
+  constructor(private apiService: ApiService) {
+    // Las fechas min/max se inicializarán en ngOnInit con moment
   }
 
   ngOnInit(): void {
+    moment.locale('es');
+    this.setMinMaxDates();
     this.loadSpecialties();
+    // Aquí es donde deberías obtener el ID del usuario logueado
+    // Por ejemplo, si usas un servicio de autenticación con JWT:
+    // this.authService.getLoggedInUserId().subscribe(id => this.currentUserId = id);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Establece las fechas mínima y máxima para el input de fecha.
+   */
+  setMinMaxDates(): void {
+    const today = moment();
+    this.minDate = today.format('YYYY-MM-DD');
+    this.maxDate = today.add(2, 'months').format('YYYY-MM-DD'); // Citas hasta 2 meses en el futuro
   }
 
   /**
    * Carga las especialidades desde el servidor REST usando ApiService.
    */
-  loadSpecialties(): void {
+  async loadSpecialties(): Promise<void> {
     this.isLoading = true;
     this.errorMessage = null;
-    this.apiService.loadSpecialties().subscribe({
-      next: (specialties: any[]) => {
-        this.availableSpecialties = specialties;
-        this.isLoading = false;
-        console.log('Especialidades cargadas:', this.availableSpecialties);
-      },
-      error: (error) => {
-        this.errorMessage = 'No se pudieron cargar las especialidades. Inténtalo de nuevo.';
-        this.isLoading = false;
-        console.error('Error al cargar especialidades:', error);
+    this.successMessage = null;
+    try {
+      this.availableSpecialties = await firstValueFrom(this.apiService.getEspecialidades().pipe(takeUntil(this.destroy$))) || [];
+      if (this.availableSpecialties.length === 0) {
+        this.errorMessage = 'No se encontraron especialidades disponibles.';
       }
-    });
+      console.log('Especialidades cargadas:', this.availableSpecialties);
+    } catch (error) {
+      console.error('Error al cargar especialidades:', error);
+      this.errorMessage = 'Error al cargar especialidades. Por favor, intenta de nuevo.';
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   /**
-   * Avanza al siguiente paso.
+   * Avanza al siguiente paso del formulario.
    */
   async nextStep(): Promise<void> {
     this.errorMessage = null;
     this.successMessage = null;
 
     switch (this.currentStep) {
-      case 1: 
+      case 1: // Especialidad seleccionada
         if (!this.selectedSpecialty) {
           this.errorMessage = 'Por favor, selecciona una especialidad.';
           return;
         }
-        this.loadDoctorsBySpecialty(this.selectedSpecialty);
+        await this.loadDoctorsBySpecialty(this.selectedSpecialty.nombre);
+        if (this.errorMessage) { // Si loadDoctorsBySpecialty setea un error (ej. no hay médicos)
+          return; // No avanzar
+        }
         this.currentStep++;
         break;
-      case 2:
-        if (!this.selectedDoctorId) {
+      case 2: // Médico seleccionado
+        if (this.selectedDoctorId === null) {
           this.errorMessage = 'Por favor, selecciona un médico.';
           return;
         }
-        console.log('ID del médico seleccionado:', this.selectedDoctorId);
-        await this.loadDoctorAvailability(this.selectedDoctorId);
-        if (!this.errorMessage) {
-          this.currentStep++;
+        // Buscar el objeto completo del médico seleccionado
+        this.selectedDoctorObject = this.availableDoctors.find(d => d.id === this.selectedDoctorId) || null;
+        if (!this.selectedDoctorObject) {
+          this.errorMessage = 'Médico seleccionado no encontrado. Por favor, selecciona de nuevo.';
+          return;
         }
+        // No verifiques el horario aquí, lo obtendrás en el paso 3
+        this.currentStep++;
         break;
-      case 3: 
-        if (!this.selectedDateAsDate) {
+
+      case 3: // Fecha seleccionada
+        if (!this.selectedDate) {
           this.errorMessage = 'Por favor, selecciona una fecha.';
           return;
         }
-        this.generateAvailableTimeSlots();
+        // Obtener el horario actualizado del médico antes de generar los slots
+        const doctorHorario = await firstValueFrom(this.apiService.getDoctorGeneralHorario(this.selectedDoctorId!));
+        if (this.selectedDoctorObject) {
+          this.selectedDoctorObject.horario = doctorHorario;
+        }
+        await this.generateAvailableTimeSlots();
+        if (this.errorMessage) { // Si generateAvailableTimeSlots setea un error (ej. no hay horas)
+          return; // No avanzar
+        }
         this.currentStep++;
         break;
-      case 4:
+      case 4: // Hora seleccionada
         if (!this.selectedTime) {
           this.errorMessage = 'Por favor, selecciona una hora.';
           return;
         }
         this.currentStep++;
         break;
-      case 5: 
-        break;
-      default:
+      case 5: // Confirmar cita (no hay 'siguiente' aquí)
         break;
     }
   }
@@ -129,92 +164,46 @@ export class AppointmentRequestComponent implements OnInit {
   prevStep(): void {
     this.errorMessage = null;
     this.successMessage = null;
-    if (this.currentStep > 1) {
-      this.currentStep--;
+    this.currentStep--;
+    if (this.currentStep === 1) {
+      this.selectedDoctorId = null;
+      this.selectedDoctorObject = null;
+      this.availableDoctors = [];
+      this.selectedDate = null;
+      this.availableTimeSlots = [];
+      this.selectedTime = null;
+    } else if (this.currentStep === 2) {
+      this.selectedDate = null;
+      this.availableTimeSlots = [];
+      this.selectedTime = null;
+    } else if (this.currentStep === 3) {
+      this.availableTimeSlots = [];
+      this.selectedTime = null;
     }
   }
 
   /**
-   * Carga los médicos de una especialidad específica.
-   * @param specialty La especialidad seleccionada.
+   * Carga los médicos disponibles para la especialidad seleccionada.
+   * @param specialtyName El nombre de la especialidad.
    */
-  loadDoctorsBySpecialty(specialty: string): void {
+  async loadDoctorsBySpecialty(specialtyName: string): Promise<void> {
     this.isLoading = true;
     this.errorMessage = null;
-    this.apiService.loadDoctorsBySpecialty(this.selectedSpecialty.nombre).subscribe({
-      next: (doctors: any[]) => {
-        this.availableDoctors = doctors;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'No se pudieron cargar los médicos. Inténtalo de nuevo.';
-        this.isLoading = false;
-        console.error('Error al cargar médicos:', error);
+    this.availableDoctors = []; // ¡Limpiar SIEMPRE antes de cargar nuevos!
+    this.selectedDoctorId = null; // Limpiar la selección de médico
+    this.selectedDoctorObject = null; // Limpiar el objeto médico
+    try {
+      const doctors = await firstValueFrom(this.apiService.getMedicosByEspecialidad(specialtyName).pipe(takeUntil(this.destroy$)));
+      this.availableDoctors = doctors || [];
+      if (this.availableDoctors.length === 0) {
+        this.errorMessage = 'No hay médicos disponibles para esta especialidad.';
       }
-    });
-  }
-
-  /**
-   * Carga el horario y las citas existentes del médico seleccionado.
-   * @param doctorId El ID del médico.
-   */
-  loadDoctorAvailability(doctorId: string): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.parsedDoctorDays = [];
-
-    this.apiService.getDoctorAvailableDays(Number(doctorId)).subscribe({
-      next: (diasString: string) => {
-        this.parsedDoctorDays = this.parseDaysFromFirestore(diasString);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'No se pudo cargar los días disponibles del médico. Inténtalo de nuevo.';
-        this.isLoading = false;
-        console.error('Error al cargar días disponibles:', error);
-      }
-    });
-  }
-
-  /**
-   * Genera los bloques de tiempo disponibles para la fecha seleccionada
-   * basándose en el horario del médico y las citas confirmadas
-   */
-  generateAvailableTimeSlots(): void {
-    this.availableTimeSlots = [];
-    if (!this.selectedDate || !this.selectedDoctorId) {
-      this.errorMessage = 'Fecha o médico no seleccionado.';
-      return;
+    } catch (error) {
+      console.error('Error al cargar médicos por especialidad:', error);
+      this.errorMessage = 'Error al cargar médicos para esta especialidad. Por favor, intenta de nuevo.';
+    } finally {
+      this.isLoading = false;
     }
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.apiService.loadDoctorAvailability(Number(this.selectedDoctorId), this.selectedDate).subscribe({
-      next: (slots: string[]) => {
-        this.availableTimeSlots = slots;
-        if (this.availableTimeSlots.length === 0) {
-          this.errorMessage = 'No hay horas disponibles para la fecha seleccionada.';
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'No se pudieron cargar las horas disponibles. Inténtalo de nuevo.';
-        this.isLoading = false;
-        console.error('Error al cargar horas disponibles:', error);
-      }
-    });
-  }
-
-  /**
-   * Formatea una fecha a la cadena 'YYYY-MM-DD-HH' para Firestore.
-   * @param date La fecha a formatear.
-   * @returns La cadena formateada.
-   */
-  private formatDateToFirestoreString(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hour = date.getHours().toString().padStart(2, '0');
-    return `${year}-${month}-${day}-${hour}`;
   }
 
   /**
@@ -230,79 +219,119 @@ export class AppointmentRequestComponent implements OnInit {
   }
 
   /**
-   * Obtiene el objeto Doctor completo basado en el selectedDoctorId.
-   * Útil para mostrar el nombre del médico en la confirmación.
+   * Genera los bloques de tiempo disponibles para la fecha seleccionada
+   * basándose en el horario del médico y las citas confirmadas.
    */
-  get selectedDoctorObject(): Doctor | null {
-    if (this.selectedDoctorId && this.availableDoctors && this.availableDoctors.length > 0) {
-      return this.availableDoctors.find(doctor => doctor.id === this.selectedDoctorId) || null;
-    }
-    return null;
-  }
-
-  /**
-   * Getter para obtener selectedDate como un objeto Date.
-   */
-  get selectedDateAsDate(): Date | null {
-    return this.selectedDate ? new Date(this.selectedDate + 'T00:00:00') : null;
-  }
-
-  /**
-   * Registra la cita en Firestore.
-   */
-  async registerAppointment(): Promise<void> {
-    if (!this.selectedDoctorId || !this.selectedDateAsDate || !this.selectedTime || !this.currentUserId) {
-      this.errorMessage = 'Faltan datos para registrar la cita o no hay usuario autenticado.';
+  async generateAvailableTimeSlots(): Promise<void> {
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.availableTimeSlots = [];
+    if (!this.selectedDoctorId || !this.selectedDate || !this.selectedDoctorObject?.horario) {
+      this.errorMessage = 'Información incompleta para generar slots de tiempo (médico, fecha o horario).';
+      this.isLoading = false;
       return;
     }
 
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.successMessage = null;
-
     try {
-      const [hourStr] = this.selectedTime.split(':');
-      const appointmentDate = new Date(this.selectedDateAsDate);
-      appointmentDate.setHours(parseInt(hourStr, 10), 0, 0, 0);
+      const selectedMomentDate = moment(this.selectedDate);
+      const dayOfWeek = selectedMomentDate.isoWeekday(); // 1 (Lunes) - 7 (Domingo)
+      const doctorHorario = this.selectedDoctorObject.horario; // Acceder directamente al horario del médico
 
-      const appointmentId = this.formatDateToFirestoreString(appointmentDate);
+      // Verificar si el médico trabaja este día
+      const diasHabiles = doctorHorario.dias.split(',').map(Number);
+      if (!diasHabiles.includes(dayOfWeek)) {
+        this.errorMessage = 'El médico seleccionado no trabaja en esta fecha.';
+        this.isLoading = false;
+        return;
+      }
 
-      const doctorAppointmentDocRef = doc(this.firestore, `usuarios/${this.selectedDoctorId}/citas/${appointmentId}`);
-      await setDoc(doctorAppointmentDocRef, {
-        date: this.selectedDate,
-        hour: this.selectedTime,
-        doctorId: this.selectedDoctorId,
-        doctorName: this.selectedDoctorObject?.nombre,
-        specialty: this.selectedSpecialty,
-        userId: this.currentUserId,
-        confirmada: false,
-        cancelada: false
-      });
+      // Obtener las citas ya agendadas/confirmadas para este médico en esta fecha
+      const citasAgendadas = await firstValueFrom(
+        this.apiService.getAppointmentsPorMedicoYFecha(this.selectedDoctorId, this.selectedDate)
+          .pipe(takeUntil(this.destroy$))
+      );
+      const occupiedTimes = new Set(citasAgendadas.map(cita => cita.hora));
 
-      this.successMessage = '¡Cita registrada con éxito!';
-      await this.loadDoctorAvailability(this.selectedDoctorId);
-      this.resetForm();
+      // Generar todos los slots posibles basados en el horario del médico
+      const startHour = moment(doctorHorario.horaInicio, 'HH:mm:ss');
+      const endHour = moment(doctorHorario.horaFin, 'HH:mm:ss');
+
+      let currentHour = moment(startHour);
+      while (currentHour.isBefore(endHour)) {
+        const slot = currentHour.format('HH:mm:ss'); // Formato para comparación con backend
+        const displaySlot = currentHour.format('HH:mm'); // Formato para mostrar en UI
+
+        // Verificar descanso si aplica
+        let isDuringBreak = false;
+        if (doctorHorario.descanso && doctorHorario.horaDescanso) {
+          const descansoStart = moment(doctorHorario.horaDescanso, 'HH:mm:ss');
+          const descansoEnd = moment(descansoStart).add(1, 'hour'); // Asumiendo 1 hora de descanso
+
+          if (currentHour.isBetween(descansoStart, descansoEnd, null, '[)')) {
+            isDuringBreak = true;
+          }
+        }
+
+        if (!occupiedTimes.has(slot) && !isDuringBreak) {
+          this.availableTimeSlots.push(displaySlot);
+        }
+        currentHour.add(1, 'hour'); // Asumiendo citas de 1 hora
+      }
+
+      if (this.availableTimeSlots.length === 0) {
+        this.errorMessage = 'No hay horas disponibles para este día o el médico está completamente ocupado.';
+      }
+
     } catch (error) {
-      this.errorMessage = 'Hubo un error al registrar la cita. Inténtalo de nuevo.';
+      console.error('Error al generar slots de tiempo:', error);
+      this.errorMessage = 'Error al generar los horarios disponibles. Por favor, intenta de nuevo.';
     } finally {
       this.isLoading = false;
     }
   }
 
   /**
-   * Convierte una cadena de días de Firestore ("1,2,3" o "1-5") a un array de números.
-   * @param diasString La cadena de días de Firestore.
-   * @returns Un array de IDs de días.
+   * Registra la cita en el backend REST.
    */
-  private parseDaysFromFirestore(diasString: string): number[] {
-    if (!diasString) return [];
-    if (diasString.includes('-')) {
-      const [start, end] = diasString.split('-').map(Number);
-      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-    } else if (diasString.includes(',')) {
-      return diasString.split(',').map(Number);
+  async registerAppointment(): Promise<void> {
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.successMessage = null;
+
+    if (!this.selectedSpecialty || !this.selectedDoctorObject || !this.selectedDate || !this.selectedTime) {
+      this.errorMessage = 'Por favor, completa todos los pasos antes de confirmar la cita.';
+      this.isLoading = false;
+      return;
     }
-    return [Number(diasString)].filter(n => !isNaN(n));
+
+    // Aquí necesitas obtener el nombre del paciente logueado.
+    // Esto es crucial, ya que tu interfaz Cita espera el nombre del paciente.
+    // Asumo que tienes una forma de obtener el nombre del usuario logueado.
+    // Por ahora, un placeholder.
+    const patientName = "Nombre del Paciente Logueado"; // <<-- ¡¡REEMPLAZA ESTO CON EL NOMBRE REAL DEL PACIENTE!!
+
+    try {
+      // Construir el DTO para enviar al backend, usando los NOMBRES como indica tu interfaz Cita
+      const appointmentDTOToSend: Cita = {
+        fecha: this.selectedDate,
+        hora: this.selectedTime + ':00', // Asegúrate de que tenga ":00" si el backend espera HH:MM:SS
+        estado: 'p', // 'p' de Pendiente
+        especialidad: this.selectedSpecialty.nombre, // Usar el nombre de la especialidad
+        medico: this.selectedDoctorObject.nombre || '', // Usar el nombre del médico (manejar null)
+        paciente: patientName // Usar el nombre del paciente
+      };
+
+      await firstValueFrom(this.apiService.confirmarAppointment(appointmentDTOToSend).pipe(takeUntil(this.destroy$)));
+
+      this.successMessage = 'Cita solicitada con éxito. Espera la confirmación.';
+      this.resetForm();
+    } catch (error: any) {
+      console.error('Error al registrar la cita:', error);
+      const backendErrorMessage = error.error?.message || error.error || 'Error desconocido al registrar la cita.';
+      this.errorMessage = `Error al registrar la cita: ${backendErrorMessage}`;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   /**
@@ -312,13 +341,14 @@ export class AppointmentRequestComponent implements OnInit {
     this.currentStep = 1;
     this.selectedSpecialty = null;
     this.selectedDoctorId = null;
+    this.selectedDoctorObject = null;
     this.selectedDate = null;
     this.selectedTime = null;
     this.availableDoctors = [];
     this.availableTimeSlots = [];
-    this.doctorSchedule = null;
-    this.doctorAppointments = [];
-    this.parsedDoctorDays = []; 
-    this.loadSpecialties();
+    this.errorMessage = null;
+    this.successMessage = null;
+    this.isLoading = false;
+    this.loadSpecialties(); // Recargar especialidades para empezar de nuevo
   }
 }

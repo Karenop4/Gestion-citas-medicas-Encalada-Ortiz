@@ -38,7 +38,7 @@ export class EspecialidadComponent implements OnInit {
   async loadSpecialties(): Promise<void> {
   this.isLoading = true;
   try {
-    this.specialties = await firstValueFrom(this.apiService.loadSpecialties().pipe(takeUntil(this.destroy$))); // Si el findAll ya trae solo activas
+    this.specialties = await firstValueFrom(this.apiService.getEspecialidades().pipe(takeUntil(this.destroy$))); // Si el findAll ya trae solo activas
 
     // Si el findAll trae todas y se necesita filtrar en el frontend:
     // Actualmente el backend ya filtra las especialidades activas, por lo que no es necesario este paso.

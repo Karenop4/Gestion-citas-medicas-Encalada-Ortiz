@@ -13,8 +13,5 @@ import java.util.Optional;
 public interface MedicoRepository extends JpaRepository<Medico,Long> {
     List<Medico> findByEspecialidad_Nombre(String nombre);
     Optional<Medico> findByPersonalID(Long personalid);
-    @Query("SELECT m FROM Medico m JOIN FETCH m.horario WHERE m.personalID = :medicoId")
-    Optional<Medico> findByPersonalIDWithHorario(@Param("medicoId") Long medicoId);
-
     Optional<Medico> findByUid(String uid);
 }

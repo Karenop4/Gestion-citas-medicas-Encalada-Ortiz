@@ -50,7 +50,6 @@ public class MedicoController {
 
 
 
-
     @PutMapping("/put/{id}")
     public ResponseEntity<Medico> actualizar(@PathVariable Long id, @RequestBody Medico medico) {
         Medico actualizado = service.actualizar(id, medico);
@@ -169,8 +168,8 @@ public class MedicoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Medico>> listarTodosLosMedicos() {
-        List<Medico> medicos = service.listar();
+    public ResponseEntity<List<MedicoDTO>> listarTodosLosMedicos() {
+        List<MedicoDTO> medicos = service.listar();
         return ResponseEntity.ok(medicos);
     }
 

@@ -107,7 +107,7 @@ export class ScheduleManagementComponent implements OnInit {
 
     try {
       // Lógica REST: obtener horario del médico desde el backend
-      const horario = await firstValueFrom(this.apiService.getDoctorHorarioById(doctorId).pipe(takeUntil(this.destroy$)));
+      const horario = await firstValueFrom(this.apiService.getDoctorGeneralHorario(doctorId).pipe(takeUntil(this.destroy$)));
       this.doctorSchedule = horario; // Asigna el horario completo
 
       // Rellenar el formulario con los datos del horario cargado
@@ -136,8 +136,7 @@ export class ScheduleManagementComponent implements OnInit {
       }
 
     } catch (error: any) { // Captura el error para verificar si es 404
-      if (error.status === 404) {
-        this.openModal('Este médico no tiene un horario registrado. Puedes crear uno.', 'success'); // Es un "éxito" que no haya horario para crear uno nuevo
+      if (error.status === 404) { 
         this.doctorSchedule = null; // Asegurarse de que no haya horario cargado
       } else {
         console.error('Error al cargar el horario:', error);

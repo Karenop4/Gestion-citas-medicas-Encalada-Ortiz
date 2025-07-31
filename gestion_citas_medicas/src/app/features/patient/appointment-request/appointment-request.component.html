@@ -43,7 +43,7 @@
             </div>
             <div class="navigation-buttons">
                 <button (click)="prevStep()">Anterior</button>
-                <button (click)="nextStep()" [disabled]="!selectedDoctorId || isLoading">Siguiente</button>
+                <button (click)="nextStep()" [disabled]="selectedDoctorId === null || isLoading">Siguiente</button>
             </div>
         </div>
 

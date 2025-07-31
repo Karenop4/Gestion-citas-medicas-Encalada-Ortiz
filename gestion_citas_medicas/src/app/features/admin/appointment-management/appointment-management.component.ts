@@ -127,7 +127,7 @@ export class AppointmentManagementComponent implements OnInit, OnDestroy {
       this.occupancyMessage = "Calculando ocupación del médico..."; 
 
       try {
-        const horario = await firstValueFrom(this.apiService.getDoctorHorarioById(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
+        const horario = await firstValueFrom(this.apiService.getDoctorGeneralHorario(this.selectedDoctorId).pipe(takeUntil(this.destroy$)));
         this.selectedMedicoHorario = horario;
         console.log('Horario del médico cargado (llamada separada):', this.selectedMedicoHorario); 
 

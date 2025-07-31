@@ -34,11 +34,41 @@ public class MedicoService {
         return repository.save(medico);
     }
 
-    public List<Medico> listar() {
-        return repository.findAll();
+    public List<MedicoDTO> listar() {
+        List<Medico> medicos = repository.findAll();
+        return medicos.stream()
+                .map(this::convertToDTO) // Usa el método auxiliar para convertir
+                .collect(Collectors.toList());
     }
+    private MedicoDTO convertToDTO(Medico medico) {
+        MedicoDTO medicoDTO = new MedicoDTO();
+        medicoDTO.setId(medico.getPersonalID());
+        medicoDTO.setNombre(medico.getNombre());
+        // Asumiendo que Medico tiene una relación a Especialidad y que Especialidad tiene un 'nombre'
+        if (medico.getEspecialidad() != null) {
+            medicoDTO.setEspecialidadNombre(medico.getEspecialidad().getNombre());
+        } else {
+            medicoDTO.setEspecialidadNombre(null); // O un valor por defecto si no tiene especialidad
+        }
 
+        // Convertir Horario a HorarioDTO
+        if (medico.getHorario() != null) {
+            Horario horario = medico.getHorario();
+            HorarioDTO horarioDTO = new HorarioDTO(
+                    horario.getId(),
+                    horario.isDescanso(),
+                    horario.getDias(),
+                    horario.getHoraDescanso() != null ? horario.getHoraDescanso(): null, // Convertir LocalTime a String
+                    horario.getHoraFin() != null ? horario.getHoraFin() : null, // Convertir LocalTime a String
+                    horario.getHoraInicio() != null ? horario.getHoraInicio() : null // Convertir LocalTime a String
+            );
+            medicoDTO.setHorario(horarioDTO);
+        } else {
+            medicoDTO.setHorario(null);
+        }
 
+        return medicoDTO;
+    }
 
 
     public Optional<Medico> buscarPorId(Long id) {

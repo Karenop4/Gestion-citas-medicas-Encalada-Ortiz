@@ -23,12 +23,12 @@ public class EspecialidadController {
         this.service = service;
     }
 
-    // En tu controlador
     @GetMapping
     public ResponseEntity<List<EspecialidadDTO>> getAllEspecialidades() {
         List<EspecialidadDTO> especialidades = service.findAll();
         return new ResponseEntity<>(especialidades, HttpStatus.OK);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<EspecialidadDTO> getEspecialidadById(@PathVariable Long id) {
         return service.findById(id)

@@ -61,7 +61,7 @@
           class="select-input"
         >
           <option [ngValue]="null" disabled>Selecciona hora</option>
-          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+          <option *ngFor="let hour of availableHoursOptions" [ngValue]="hour">
             {{ hour < 10 ? '0' + hour : hour }}:00
           </option>
         </select>
@@ -75,7 +75,7 @@
           class="select-input"
         >
           <option [ngValue]="null" disabled>Selecciona hora</option>
-          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+          <option *ngFor="let hour of availableHoursOptions" [ngValue]="hour">
             {{ hour < 10 ? '0' + hour : hour }}:00
           </option>
         </select>
@@ -99,7 +99,7 @@
           class="select-input"
         >
           <option [ngValue]="null" disabled>Selecciona hora</option>
-          <option *ngFor="let hour of availableHoursOptions" [value]="hour">
+          <option *ngFor="let hour of availableHoursOptions" [ngValue]="hour">
             {{ hour < 10 ? '0' + hour : hour }}:00
           </option>
         </select>
