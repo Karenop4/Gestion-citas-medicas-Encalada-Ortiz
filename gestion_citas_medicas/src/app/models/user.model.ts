@@ -1,7 +1,7 @@
 import { Especialidad } from './especialidad.model';
 export interface Usuario {// Define la interfaz Usuario
   // Esta interfaz representa un usuario del sistema, ya sea paciente o administrativo
-  personalID?: number; // ID del usuario, opcional
+  id?: number; // ID del usuario, opcional
   uid?: string;
   nombre: string;
   fechaNac: string;
