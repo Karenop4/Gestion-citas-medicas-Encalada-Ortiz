@@ -3,7 +3,7 @@ package com.encaladaortiz.backEnd_Citas_Medicas.DTO;
 import java.util.Date;
 
 public class MedicoDTO {
-    private Long id;
+    private Long personalID;
     private String nombre;
     private String cedula;
     private String especialidadNombre;
@@ -23,11 +23,11 @@ public class MedicoDTO {
 
     public MedicoDTO() {}
 
-    public MedicoDTO(Long id, String nombre, String cedula, String especialidadNombre,
+    public MedicoDTO(Long personalID, String nombre, String cedula, String especialidadNombre,
                      String contactoC, String telefono, String correo, boolean datos,
                      String direccion, String estadoC, String genero, String nacionalidad,
                      Date fechaNac, char rol, String uid, boolean esMedico) {
-        this.id = id;
+        this.personalID = personalID;
         this.nombre = nombre;
         this.cedula = cedula;
         this.especialidadNombre = especialidadNombre;
@@ -47,8 +47,8 @@ public class MedicoDTO {
 
     // Getters y setters
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getPersonalID() { return personalID; }
+    public void setPersonalID(Long id) { this.personalID = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

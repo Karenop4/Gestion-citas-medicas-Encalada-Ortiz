@@ -20,6 +20,11 @@ public class UsuarioDTO {
     private char rol;
     private String uid;
     private boolean esMedico;
+
+    private EspecialidadDTO especialidad; // Propiedad para la especialidad del médico
+    private HorarioDTO horario;
+    private String tipoSangre;
+
     public UsuarioDTO() {}
     public UsuarioDTO(String cedula, Long personalID, String nombre, String contactoC, String telefono, String correo, boolean datos, String direccion, String estadoC, String genero, Date fechaNac, String nacionalidad, char rol, String uid, boolean esMedico) {
         this.cedula = cedula;
@@ -157,5 +162,29 @@ public class UsuarioDTO {
 
     public void setEsMedico(boolean esMedico) {
         this.esMedico = esMedico;
+    }
+
+    public EspecialidadDTO getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(EspecialidadDTO especialidad) {
+        this.especialidad = especialidad;
+    }
+
+    public HorarioDTO getHorario() {
+        return horario;
+    }
+
+    public void setHorario(HorarioDTO horario) {
+        this.horario = horario;
+    }
+
+    public String getTipoSangre() {
+        return tipoSangre;
+    }
+
+    public void setTipoSangre(String tipoSangre) {
+        this.tipoSangre = tipoSangre;
     }
 }

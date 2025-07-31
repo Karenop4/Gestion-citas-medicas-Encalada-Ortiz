@@ -19,58 +19,51 @@ export class AuthService {
     this.user$ = user(this.auth);
   }
 
-  async loginWithGoogleAndLoadUser(tipo: 'p' | 'a'): Promise<Usuario> {
-    this.tipo = tipo; // Guarda si es paciente o administrativo (médico)
+  async loginWithGoogleAndLoadUser(tipoUsuario: 'p' | 'a'): Promise<Usuario | null> {
+    try {
+      const provider = new GoogleAuthProvider();
+      const credential = await signInWithPopup(this.auth, provider);
+      const user = credential.user;
 
-    const credential = await signInWithPopup(this.auth, new GoogleAuthProvider());
-    const { uid, displayName, email } = credential.user;
+      if (user) {
+        const uid = user.uid;
+        // Intenta obtener el perfil del backend
+        const backendUser = await this.getUsuarioActual(uid).toPromise(); // Convierte Observable a Promise
 
-
-    const nuevo: Usuario = {
-      uid,
-      nombre: displayName ?? '',
-      correo: email ?? '',
-      rol: tipo,
-      datos: false,
-      fechaNac: '',
-      genero: '',
-      telefono: '',
-      direccion: '',
-      especialidad: { nombre: '', id: 1, activa: true },
-      cedula: '',
-      nacionalidad: '',
-      estadoC: '',
-      contactoC: '',
-      esMedico: tipo === 'a' // Solo true si es administrativo
-    };
-
-    const endpoint = tipo === 'p' ? 'pacientes' : 'medicos';
-    const getUrl = `http://localhost:8080/api/${endpoint}/uid/${uid}`;
-    const postUrl = `http://localhost:8080/api/${endpoint}`;
-
-    return new Promise<Usuario>((resolve, reject) => {
-      this.http.get<Usuario>(getUrl).pipe(
-        catchError(() => of(null)) // Si no existe, devolver null
-      ).subscribe((existente) => {
-        if (existente) {
-          console.log('Usuario ya registrado:', existente);
-          this.userService.setUsuario(existente);
-          resolve(existente);
+        if (!backendUser) {
+          // Usuario no existe en el backend, hay que registrarlo
+          const newUser: Usuario = {
+            uid: uid,
+            nombre: user.displayName || 'Usuario Nuevo',
+            correo: user.email || '',
+            rol: tipoUsuario,
+            esMedico: tipoUsuario === 'a' ? true : false, // Por defecto, si es 'a' es médico.
+            datos: false, // Perfil incompleto al registrarse
+            personalID: undefined, // Se generará en el backend
+            // Inicializa las demás propiedades vacías o con valores por defecto
+            cedula: '', contactoC: '', telefono: '', direccion: '',
+            estadoC: '', genero: '', nacionalidad: '', fechaNac: '',
+          };
+          // Asume que tienes un endpoint para registrar (POST) nuevos usuarios
+          const registeredUser = await this.http.post<Usuario>(`http://localhost:8080/api/usuarios/register`, newUser).toPromise();
+          if (registeredUser) {
+            this.userService.setUsuario(registeredUser); // Guarda en UserService/localStorage
+            return registeredUser; // Retorna el usuario recién registrado
+          } else {
+            console.error('Error al registrar el nuevo usuario en el backend.');
+            return null;
+          }
         } else {
-          this.http.post<Usuario>(postUrl, nuevo).subscribe({
-            next: creado => {
-              console.log('Usuario creado en backend:', creado);
-              this.userService.setUsuario(creado);
-              resolve(creado);
-            },
-            error: err => {
-              console.error('Error al registrar usuario:', err);
-              reject(err);
-            }
-          });
+          // Usuario ya existe en el backend, solo cargarlo
+          this.userService.setUsuario(backendUser); // Guarda en UserService/localStorage
+          return backendUser; // Retorna el usuario existente
         }
-      });
-    });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error al iniciar sesión con Google o cargar usuario:', error);
+      return null;
+    }
   }
 
   logout() {
@@ -78,13 +71,24 @@ export class AuthService {
     return signOut(this.auth);
   }
 
-  getUsuarioActual(uid: string): Observable<Usuario> {
-    const endpoint = this.tipo === 'p' ? 'pacientes' : 'medicos';
-    return this.http.get<Usuario>(`http://localhost:8080/api/${endpoint}/uid/${uid}`);
+  getUsuarioActual(uid: string): Observable<Usuario | null> {
+    // Asegúrate de que esta URL sea EXACTAMENTE la del controlador de Usuario que devuelve UsuarioDTO
+    const url = `http://localhost:8080/api/usuarios/porFirebaseUid?uid=${uid}`;
+    console.log("AuthService: Intentando obtener usuario de:", url); // Log para verificar la URL
+    return this.http.get<Usuario>(url);
   }
 
-  updateUser(usuario: Usuario): Observable<Usuario> {
-    const endpoint = this.tipo === 'p' ? 'pacientes' : 'medicos';
+updateUser(usuario: Usuario): Observable<Usuario> {
+    const endpoint = usuario.rol === 'p' ? 'pacientes' : 'medicos';
+
+    // ¡Directamente usamos personalID porque ahora es consistente!
+    if (!usuario.personalID) {
+      console.error(`Error: Intentando actualizar ${endpoint} sin personalID.`);
+    }
+
+    // El objeto 'usuario' de Angular se envía directamente, ya que tiene 'personalID'
+    // y tus DTOs del backend ahora esperan 'personalID'. ¡Simple y limpio!
     return this.http.put<Usuario>(`http://localhost:8080/api/${endpoint}/put/${usuario.personalID}`, usuario);
   }
+
 }

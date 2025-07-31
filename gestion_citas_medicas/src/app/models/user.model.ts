@@ -1,4 +1,5 @@
 import { Especialidad } from './especialidad.model';
+import { Horario } from './horario.model';
 export interface Usuario {// Define la interfaz Usuario
   // Esta interfaz representa un usuario del sistema, ya sea paciente o administrativo
   personalID?: number; // ID del usuario, opcional
@@ -15,6 +16,10 @@ export interface Usuario {// Define la interfaz Usuario
   contactoC: string;
   rol: 'p' | 'a'; // paciente o administrativo
   esMedico?: boolean;
-  especialidad: Especialidad; // Puede ser un objeto Especialidad o un string
   datos?: boolean;
+
+  especialidad?: Especialidad; 
+  horario?: Horario;           
+  tipoSangre?: string;         
+  especialidadNombre?: string;
 }

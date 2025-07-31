@@ -29,7 +29,7 @@ export class LoginComponent {
 
   // Método para inicializar la animación
   animationCreated(animationItem: AnimationItem): void {
-    console.log(animationItem);
+    //(animationItem);
   }
 
   // Método para manejar la selección del tipo de usuario (paciente o administrativo)
@@ -52,41 +52,46 @@ export class LoginComponent {
   login() {
     if (!this.tipoUsuario) return;
 
-    this.authService.loginWithGoogleAndLoadUser(this.tipoUsuario).then(data => {
-      if (data) {// Si se obtiene un usuario, redirige al perfil del paciente
-        this.router.navigate(['/patient/perfil'], { state: { user: data } });
-      } else {// Si no se obtiene un usuario, verifica el tipo de usuario
-        this.authService.user$.subscribe(async user => {
-          if (!user) return;
-          const uid = user.uid;
-          const datos$ = this.authService.getUsuarioActual(uid);
-          console.log('Observable datos$:', datos$);
-          datos$.subscribe(datos => {
-            console.log('Recibí datos:', datos);  // <-- Añade este para confirmar entrada
-            if (datos) { // Si se obtienen los datos del usuario, verifica su rol
-              console.log('Dentro del if(datos), datos:', datos);
-              if (datos?.rol === this.tipoUsuario) {
-                console.log('Rol coincide:', datos.rol);
-                console.log('datos.datos:', datos.datos, 'typeof:', typeof datos.datos);
+    this.authService.loginWithGoogleAndLoadUser(this.tipoUsuario).then(userFromBackend => { // Cambié 'data' a 'userFromBackend' para más claridad
+      if (userFromBackend) { // Si se obtiene un usuario, redirige al perfil del paciente
+        //('--- DEBUG REDIRECCIÓN (LoginComponent) ---');
+        //('1. Usuario obtenido de loginWithGoogleAndLoadUser (userFromBackend):', userFromBackend);
+        //('2. Valor original de userFromBackend.datos:', userFromBackend.datos);
+        //('3. Tipo original de userFromBackend.datos:', typeof userFromBackend.datos);
 
-                if (datos.datos === true) {
-                  this.router.navigate(['/main']);
-                } else {
-                  this.router.navigate(['/patient/perfil'], { state: { user: datos } });
-                }
-              } else {
-                this.options = {
-                  path: 'assets/doctores.json',
-                };
-                this.mostrarTipoUsuario = true;
-              }
-            } else {
-              console.log('No hay datos');
-            }
-          });
+        // --- ¡Línea clave de conversión! ---
+        const datosEsBooleanoTrue: boolean = !!userFromBackend.datos; 
+        //('4. Valor convertido a booleano estricto (datosEsBooleanoTrue):', datosEsBooleanoTrue);
+        //('5. Tipo de datosEsBooleanoTrue:', typeof datosEsBooleanoTrue);
+        //('6. Resultado de la comparación (datosEsBooleanoTrue === true):', datosEsBooleanoTrue === true);
+        //('-------------------------------------');
 
-        });
+        if (datosEsBooleanoTrue === true) { // <--- Usamos la variable convertida aquí
+          //('Decisión FINAL: Perfil completo, redirigiendo a /main');
+          this.router.navigate(['/main']);
+        } else {
+          //('Decisión FINAL: Perfil incompleto (o no es true), redirigiendo a /patient/perfil');
+          this.router.navigate(['/patient/perfil'], { state: { user: userFromBackend } });
+        }
+      } else {
+        // Si no se obtiene un usuario desde loginWithGoogleAndLoadUser,
+        // esto implicaría un fallo en el login o registro.
+        // La lógica de `authService.user$.subscribe` que tenías aquí
+        // ahora la encapsula `loginWithGoogleAndLoadUser`.
+        // Este `else` solo se ejecutaría si `loginWithGoogleAndLoadUser` retorna `null`.
+        console.error('LoginComponent: No se pudo obtener el usuario después del intento de login.');
+        this.options = {
+          path: 'assets/doctores.json',
+        };
+        this.mostrarTipoUsuario = true;
       }
+    }).catch(error => {
+      console.error('LoginComponent: Error en el proceso de login:', error);
+      // Restablecer UI en caso de error
+      this.options = {
+        path: 'assets/doctores.json',
+      };
+      this.mostrarTipoUsuario = true;
     });
   }
 }

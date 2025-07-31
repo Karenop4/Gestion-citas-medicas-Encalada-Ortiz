@@ -50,13 +50,22 @@ public class MedicoController {
 
 
 
-    @PutMapping("/put/{id}")
-    public ResponseEntity<Medico> actualizar(@PathVariable Long id, @RequestBody Medico medico) {
-        Medico actualizado = service.actualizar(id, medico);
-        if (actualizado != null) {
-            return ResponseEntity.ok(actualizado);
+    @PutMapping("/put/{personalID}")
+    public ResponseEntity<MedicoDTO> actualizarMedico(@PathVariable Long personalID, @RequestBody MedicoDTO medicoDTO) {
+        // Validación: Asegurarse de que el ID del PathVariable coincida con el ID del Body (si el DTO tiene personalID)
+        // Ojo: Tu MedicoDTO tiene personalID. Si en el PUT tu frontend lo envía en el body:
+        if (!personalID.equals(medicoDTO.getPersonalID())) {
+            // Este caso indica una inconsistencia entre la URL y el cuerpo de la solicitud
+            return ResponseEntity.badRequest().body(null); // O un mensaje de error más específico
+        }
+
+        // ¡Aquí el cambio! Llama al nuevo método 'actualizar' del servicio que espera y devuelve DTOs
+        MedicoDTO actualizadoDTO = service.actualizar(personalID, medicoDTO);
+
+        if (actualizadoDTO != null) {
+            return ResponseEntity.ok(actualizadoDTO);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build(); // Si el médico con ese personalID no se encontró
         }
     }
 

@@ -42,7 +42,7 @@ public class MedicoService {
     }
     private MedicoDTO convertToDTO(Medico medico) {
         MedicoDTO medicoDTO = new MedicoDTO();
-        medicoDTO.setId(medico.getPersonalID());
+        medicoDTO.setPersonalID(medico.getPersonalID());
         medicoDTO.setNombre(medico.getNombre());
         // Asumiendo que Medico tiene una relación a Especialidad y que Especialidad tiene un 'nombre'
         if (medico.getEspecialidad() != null) {
@@ -101,6 +101,76 @@ public class MedicoService {
             m.setDatos(nuevo.isDatos());
             return repository.save(m);
         }).orElse(null);
+    }
+    public Medico convertToEntity(MedicoDTO dto) {
+        Medico medico = new Medico(); // Crea una nueva instancia o busca una existente si estás fusionando
+        medico.setPersonalID(dto.getPersonalID()); // Asegúrate de que el DTO tenga este campo
+        medico.setNombre(dto.getNombre());
+        medico.setCedula(dto.getCedula());
+        medico.setCorreo(dto.getCorreo());
+        medico.setTelefono(dto.getTelefono());
+        medico.setContactoC(dto.getContactoC());
+        medico.setDireccion(dto.getDireccion());
+        medico.setFechaNac(dto.getFechaNac());
+        medico.setEstadoC(dto.getEstadoC());
+        medico.setNacionalidad(dto.getNacionalidad());
+        medico.setUid(dto.getUid());
+        medico.setRol(dto.getRol());
+        medico.setGenero(dto.getGenero());
+        medico.setEsMedico(dto.isEsMedico());
+        medico.setDatos(dto.isDatos());
+
+        return medico;
+    }
+    public MedicoDTO actualizar(Long personalID, MedicoDTO medicoDTO) {
+        return repository.findById(personalID).map(medicoExistente -> {
+            // Aquí mapeamos los datos del DTO a la entidad existente
+            medicoExistente.setNombre(medicoDTO.getNombre());
+            medicoExistente.setCedula(medicoDTO.getCedula());
+            medicoExistente.setCorreo(medicoDTO.getCorreo());
+            medicoExistente.setTelefono(medicoDTO.getTelefono());
+            medicoExistente.setContactoC(medicoDTO.getContactoC());
+            medicoExistente.setDireccion(medicoDTO.getDireccion());
+            medicoExistente.setFechaNac(medicoDTO.getFechaNac());
+            medicoExistente.setEstadoC(medicoDTO.getEstadoC());
+            medicoExistente.setNacionalidad(medicoDTO.getNacionalidad());
+            medicoExistente.setUid(medicoDTO.getUid());
+            medicoExistente.setRol(medicoDTO.getRol());
+            medicoExistente.setGenero(medicoDTO.getGenero());
+            medicoExistente.setEsMedico(medicoDTO.isEsMedico());
+            medicoExistente.setDatos(medicoDTO.isDatos());
+            Medico medicoActualizado = repository.save(medicoExistente);
+            return convertToMedicoDTO(medicoActualizado); // Devuelve el DTO actualizado
+        }).orElse(null);
+    }
+    public MedicoDTO convertToMedicoDTO(Medico medico) {
+        MedicoDTO dto = new MedicoDTO();
+        dto.setPersonalID(medico.getPersonalID());
+        dto.setNombre(medico.getNombre());
+        dto.setCedula(medico.getCedula());
+        dto.setCorreo(medico.getCorreo());
+        dto.setTelefono(medico.getTelefono());
+        dto.setContactoC(medico.getContactoC());
+        dto.setDatos(medico.isDatos());
+        dto.setDireccion(medico.getDireccion());
+        dto.setEstadoC(medico.getEstadoC());
+        dto.setGenero(medico.getGenero());
+        dto.setNacionalidad(medico.getNacionalidad());
+        dto.setFechaNac(medico.getFechaNac());
+        dto.setRol(medico.getRol());
+        dto.setUid(medico.getUid());
+        dto.setEsMedico(medico.isEsMedico());
+
+        if (medico.getEspecialidad() != null) {
+            dto.setEspecialidadNombre(medico.getEspecialidad().getNombre());
+            // Si quieres enviar el objeto EspecialidadDTO completo:
+            // dto.setEspecialidad(convertirEspecialidadA_DTO(medico.getEspecialidad()));
+        }
+        if (medico.getHorario() != null) {
+            // dto.setHorario(convertirHorarioA_DTO(medico.getHorario()));
+        }
+
+        return dto;
     }
 
     public List<Medico> listarPorEspecialidad(String nombreEspecialidad) {
