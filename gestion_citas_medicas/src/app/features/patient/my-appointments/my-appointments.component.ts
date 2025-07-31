@@ -54,8 +54,8 @@ export class MyAppointmentsComponent implements OnInit, OnDestroy {
     this.loadEspecialidades();
 
     this.userSubscription = this.userService.usuario$.subscribe(async (usuario: Usuario | null) => {
-      if (usuario && usuario.id && usuario.rol) {
-        this.currentUserId = usuario.id;
+      if (usuario && usuario.personalID && usuario.rol) {
+        this.currentUserId = usuario.personalID;
         this.currentUserRole = usuario.rol;
         // Establecer fechas por defecto para el filtro (ej. hoy a dentro de 3 meses)
         const today = new Date();

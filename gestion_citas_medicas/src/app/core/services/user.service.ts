@@ -77,7 +77,7 @@ export class UserService {
     return this.apiService.getUserProfileByFirebaseUid(firebaseUid).pipe(
       tap(userProfile => {
         console.log('UserService: Perfil del usuario obtenido del backend:', userProfile);
-        if (userProfile && userProfile.id && userProfile.rol) {
+        if (userProfile && userProfile.personalID && userProfile.rol) {
           this.setUsuario(userProfile);
         } else {
           console.warn('UserService: Perfil del usuario incompleto recibido del backend. Limpiando usuario.', userProfile);
