@@ -39,6 +39,10 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
 
   availableTimeSlots: string[] = [];
   selectedTime: string | null = null;
+  
+  nombrePaciente: string | null = null; 
+  idPaciente: number | null = null; 
+  uidPaciente: string | null = null; // Aquí deberías obtener el paciente logueado, por ejemplo desde AuthService
 
   // Ya no necesitamos 'private doctorSchedule: Horario | null;' separado,
   // porque el horario viene dentro del objeto 'Medico'
@@ -52,7 +56,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   constructor(private apiService: ApiService) {
     // Las fechas min/max se inicializarán en ngOnInit con moment
   }
-  loggedInPatient: Paciente | null = null; // Aquí deberías obtener el paciente logueado, por ejemplo desde AuthService
+  
   ngOnInit(): void {
     moment.locale('es');
     this.setMinMaxDates();
@@ -60,16 +64,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
     // Aquí es donde deberías obtener el ID del usuario logueado
     // Por ejemplo, si usas un servicio de autenticación con JWT:
     // this.authService.getLoggedInUserId().subscribe(id => this.currentUserId = id);
-    const storedPatient = localStorage.getItem('paciente'); // o la clave que uses
-    if (storedPatient) {
-      try {
-        const pacienteObj = JSON.parse(storedPatient);
-        // Por ejemplo, si el paciente tiene un campo 'nombre'
-        this.loggedInPatient = pacienteObj;
-      } catch (error) {
-        console.error('Error al parsear paciente del localStorage:', error);
-      }
-    }
+    
   }
 
   ngOnDestroy(): void {
@@ -190,6 +185,8 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
     }
   }
 
+  
+
   /**
    * Retrocede al paso anterior.
    */
@@ -304,9 +301,21 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
           }
         }
 
+        // Comprobar si la fecha seleccionada es hoy
+        const esHoy = moment().format('YYYY-MM-DD') === this.selectedDate;
+
         if (!occupiedTimes.has(slot) && !isDuringBreak) {
-          this.availableTimeSlots.push(displaySlot);
+          // Si es hoy, solo agregar si la hora es futura
+          if (esHoy) {
+            const ahora = moment();
+            if (currentHour.isAfter(ahora)) {
+              this.availableTimeSlots.push(displaySlot);
+            }
+          } else {
+            this.availableTimeSlots.push(displaySlot);
+          }
         }
+
         currentHour.add(1, 'hour'); // Asumiendo citas de 1 hora
       }
 
@@ -330,14 +339,21 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   this.errorMessage = null;
   this.successMessage = null;
 
-  if (!this.selectedSpecialty || !this.selectedDoctorObject || !this.selectedDate || !this.selectedTime) {
+  const storedPatient = localStorage.getItem('usuario'); // o la clave que uses
+    console.log(storedPatient);
+    if (storedPatient) {
+      try {
+        const pacienteObj = JSON.parse(storedPatient);
+        // Por ejemplo, si el paciente tiene un campo 'nombre'
+        this.idPaciente = pacienteObj.personalID || null;
+        console.log('ID del paciente obtenido:', this.idPaciente);
+      } catch (error) {
+        console.error('Error al parsear paciente del localStorage:', error);
+      }
+    }
+    console.log('Paciente logueado:',  this.idPaciente);
+  if (!this.selectedSpecialty || !this.selectedDoctorObject || !this.selectedDate || !this.selectedTime ) {
     this.errorMessage = 'Por favor, completa todos los pasos antes de confirmar la cita.';
-    this.isLoading = false;
-    return;
-  }
-
-  if (!this.loggedInPatient || typeof this.loggedInPatient.id !== 'number') {
-    this.errorMessage = 'Paciente no válido o no logueado correctamente.';
     this.isLoading = false;
     return;
   }
@@ -349,7 +365,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
       estado: 'p',
       especialidad: this.selectedSpecialty,
       medico: this.selectedDoctorObject,
-      paciente: { id: this.loggedInPatient.id, nombre: this.loggedInPatient.nombre }
+      paciente: { personalID: this.idPaciente!}
     };
 
     await firstValueFrom(this.apiService.registerAppointment(appointmentDTOToSend).pipe(takeUntil(this.destroy$)));
@@ -359,7 +375,7 @@ export class AppointmentRequestComponent implements OnInit, OnDestroy {
   } catch (error: any) {
     console.error('Error al registrar la cita:', error);
     const backendErrorMessage = error.error?.message || error.error || 'Error desconocido al registrar la cita.';
-    this.errorMessage = `Error al registrar la cita: ${backendErrorMessage}`;
+    this.errorMessage = `Error al registrar la cita`;
   } finally {
     this.isLoading = false;
   }

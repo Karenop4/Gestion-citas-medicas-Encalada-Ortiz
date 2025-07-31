@@ -4,9 +4,11 @@ import com.encaladaortiz.backEnd_Citas_Medicas.DTO.CitaDTO;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Cita;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Especialidad;
 import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Medico;
+import com.encaladaortiz.backEnd_Citas_Medicas.modelo.Paciente;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.CitaRepository;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.EspecialidadRepository;
 import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.MedicoRepository;
+import com.encaladaortiz.backEnd_Citas_Medicas.repositorio.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate; // ¡Importante!
@@ -39,6 +41,9 @@ public class CitaService {
 
     @Autowired
     private EspecialidadRepository especialidadRepository; // ¡Nuevo: inyectar EspecialidadRepository!
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
 
     public CitaService(CitaRepository repository) {
         this.repository = repository;
@@ -116,8 +121,24 @@ public class CitaService {
         return dto;
     }
     public Cita guardar(Cita cita) {
+        // Verifica que cita.getPaciente() no sea null y tenga ID
+        System.out.println("Paciente recibido: " + cita.getMedico());
+        if (cita.getPaciente() != null && cita.getPaciente().getPersonalID() != null) {
+            // Carga el paciente persistido de la BD
+            Optional<Paciente> pacientePersistido = pacienteRepository.findById(cita.getPaciente().getPersonalID());
+
+            if (pacientePersistido.isPresent()) {
+                // Asigna el paciente existente a la cita
+                cita.setPaciente(pacientePersistido.get());
+            } else {
+                throw new RuntimeException("Paciente con ID " + cita.getPaciente().getPersonalID() + " no encontrado.");
+            }
+        } else {
+            throw new RuntimeException("Paciente inválido o sin ID para la cita.");
+        }
         return repository.save(cita);
     }
+
 
     public Optional<Cita> buscarPorId(Long id) {
         return repository.findById(id);

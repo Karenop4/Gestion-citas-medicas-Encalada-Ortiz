@@ -1,1 +1,1 @@
-export interface Paciente { id: number; nombre: string; }
+export interface Paciente { personalID?: number; }

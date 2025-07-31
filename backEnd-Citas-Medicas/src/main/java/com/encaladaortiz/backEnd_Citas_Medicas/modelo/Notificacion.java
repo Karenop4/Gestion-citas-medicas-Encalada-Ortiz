@@ -15,8 +15,6 @@ public class Notificacion {
 
     private Date fechaEnvio;
 
-    @OneToOne(mappedBy = "notificacion")
-    private Cita cita;
 
     public Notificacion() {
     }
@@ -45,13 +43,6 @@ public class Notificacion {
         this.fechaEnvio = fechaEnvio;
     }
 
-    public Cita getCita() {
-        return cita;
-    }
-
-    public void setCita(Cita cita) {
-        this.cita = cita;
-    }
 
     @Override
     public String toString() {
@@ -59,7 +50,6 @@ public class Notificacion {
                 "id=" + id +
                 ", detalle='" + detalle + '\'' +
                 ", fechaEnvio=" + fechaEnvio +
-                ", cita=" + cita +
                 '}';
     }
 }

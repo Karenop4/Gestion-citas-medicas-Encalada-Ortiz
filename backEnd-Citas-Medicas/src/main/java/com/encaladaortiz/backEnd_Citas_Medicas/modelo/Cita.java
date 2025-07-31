@@ -31,9 +31,7 @@ public class Cita {
     @JoinColumn(name = "paciente_id", referencedColumnName = "personalID",nullable = false)
     private Paciente paciente;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "notificacion_id", unique = true)
-    private Notificacion notificacion;
+
 
     public Cita() {
     }
@@ -86,13 +84,6 @@ public class Cita {
         this.paciente = paciente;
     }
 
-    public Notificacion getNotificacion() {
-        return notificacion;
-    }
-
-    public void setNotificacion(Notificacion notificacion) {
-        this.notificacion = notificacion;
-    }
 
     public Especialidad getEspecialidad() {
         return especialidad;
@@ -110,8 +101,7 @@ public class Cita {
                 ", hora=" + hora +
                 ", estado=" + estado +
                 ", medico=" + medico +
-                ", paciente=" + paciente +
-                ", notificacion=" + notificacion +
+                ", paciente=" + paciente+
                 '}';
     }
 }
